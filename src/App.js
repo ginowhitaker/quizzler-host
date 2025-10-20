@@ -27,49 +27,56 @@ export default function QuizzlerHostApp() {
   }, []);
 
   useEffect(() => {
-    if (!socket || !gameCode) return;
+  if (!socket || !gameCode) return;
 
-    socket.on('host:joined', ({ game: g }) => {
-      setGame(g);
+  socket.on('host:joined', (data) => {
+    console.log('Host joined:', data);
+  });
+
+  socket.on('host:teamJoined', (data) => {
+    console.log('Team joined:', data);
+    setGame(prev => {
+      const newTeams = {};
+      data.teams.forEach(team => {
+        newTeams[team.name] = {
+          name: team.name,
+          score: team.score,
+          usedConfidences: team.usedConfidences || [],
+          answers: prev?.teams?.[team.name]?.answers || {}
+        };
+      });
+      return { ...prev, teams: newTeams };
     });
+  });
 
-    socket.on('team:joined', ({ teamName }) => {
-      setGame(prev => ({
-        ...prev,
-        teams: {
-          ...prev.teams,
-          [teamName]: {
-            name: teamName,
-            score: 0,
-            usedConfidences: [],
-            answers: {}
-          }
-        }
-      }));
-    });
-
-    socket.on('answer:received', ({ teamName, questionKey, answer }) => {
-      setGame(prev => ({
-        ...prev,
-        teams: {
-          ...prev.teams,
-          [teamName]: {
-            ...prev.teams[teamName],
-            answers: {
-              ...prev.teams[teamName].answers,
-              [questionKey]: answer
+  socket.on('host:answerReceived', ({ teamName, questionKey, answerText, confidence }) => {
+    console.log('Answer received:', teamName, questionKey);
+    setGame(prev => ({
+      ...prev,
+      teams: {
+        ...prev.teams,
+        [teamName]: {
+          ...prev.teams[teamName],
+          answers: {
+            ...prev.teams[teamName]?.answers,
+            [questionKey]: {
+              text: answerText,
+              confidence,
+              marked: false,
+              correct: false
             }
           }
         }
-      }));
-    });
+      }
+    }));
+  });
 
-    return () => {
-      socket.off('host:joined');
-      socket.off('team:joined');
-      socket.off('answer:received');
-    };
-  }, [socket, gameCode]);
+  return () => {
+    socket.off('host:joined');
+    socket.off('host:teamJoined');
+    socket.off('host:answerReceived');
+  };
+}, [socket, gameCode]);
 
   const createGame = async () => {
     if (!hostName || !venueName) {
