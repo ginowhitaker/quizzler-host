@@ -84,10 +84,10 @@ export default function QuizzlerHostApp() {
       });
       
       const data = await response.json();
-      setGameCode(data.code);
+      setGameCode(data.gameCode);
       setGame({ ...data.game, hostName, venueName, venueSpecials });
       
-      socket.emit('host:join', data.code);
+      socket.emit('host:join', data.gameCode);
       setScreen('questions');
     } catch (error) {
       alert('Failed to create game');
