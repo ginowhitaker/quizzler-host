@@ -109,15 +109,26 @@ export default function QuizzlerHostApp() {
   };
 
   const startGame = () => {
-    const validQuestions = questions.filter(q => q.question && q.answer);
-    if (validQuestions.length < 15) {
-      alert('Please fill in all 15 questions and answers');
-      return;
-    }
-    setGame(prev => ({ ...prev, questions: validQuestions }));
-    setScreen('welcome');
-  };
-
+  const validQuestions = questions.filter(q => q.question && q.answer);
+  if (validQuestions.length < 15) {
+    alert('Please fill in all 15 questions and answers');
+    return;
+  }
+  
+  // Send each question to the backend
+  validQuestions.forEach(q => {
+    socket.emit('host:addQuestion', {
+      gameCode,
+      question: {
+        text: q.question,
+        answer: q.answer
+      }
+    });
+  });
+  
+  setGame(prev => ({ ...prev, questions: validQuestions }));
+  setScreen('welcome');
+};
   const continueToFirstQuestion = () => {
     setGame(prev => ({ ...prev, currentQuestionIndex: 0 }));
     setScreen('questionDisplay');
