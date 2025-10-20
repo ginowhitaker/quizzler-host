@@ -78,7 +78,7 @@ export default function QuizzlerHostApp() {
     }
 
     try {
-      const response = await fetch(BACKEND_URL + '/api/games/create', {
+      const response = await fetch(BACKEND_URL + '/api/game/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
