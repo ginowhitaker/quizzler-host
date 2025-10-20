@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+∑import Reactimport React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://quizzler-production.up.railway.app';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 export default function QuizzlerHostApp() {
   const [socket, setSocket] = useState(null);
@@ -15,7 +15,7 @@ export default function QuizzlerHostApp() {
   const [finalQuestion, setFinalQuestion] = useState({ category: '', question: '', answer: '' });
 
   useEffect(() => {
-    const newSocket = io(BACKEND_URL, {
+    const newSocket = io(API_URL, {
       transports: ['websocket', 'polling']
     });
 
@@ -78,7 +78,7 @@ export default function QuizzlerHostApp() {
     }
 
     try {
-      const response = await fetch(BACKEND_URL + '/api/games/create', {
+      const response = await fetch(API_URL + '/api/games/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
