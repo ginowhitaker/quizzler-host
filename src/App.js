@@ -71,11 +71,23 @@ export default function QuizzlerHostApp() {
         }
       }));
     });
+socket.on('host:wagerReceived', (data) => {
+  setGame(prev => ({
+    ...prev,
+    teams: data.teams.reduce((acc, team) => {
+      acc[team.name] = team;
+      return acc;
+    }, {})
+  }));
+  console.log(`Wager received from ${data.teamName}: ${data.wager}`);
+});
 
     return () => {
       socket.off('host:joined');
       socket.off('host:teamJoined');
       socket.off('host:answerReceived');
+      socket.off('host:wagerReceived');
+
     };
   }, [socket, gameCode]);
 
