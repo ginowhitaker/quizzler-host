@@ -254,13 +254,22 @@ General,Final Question Example?,Final Answer Example`;
     }
   };
 
-  const pushFinalQuestion = () => {
-    socket.emit('host:pushFinalQuestion', { 
-      gameCode, 
-      question: { text: finalQuestion.question, answer: finalQuestion.answer } 
-    });
-    setScreen('finalScoring');
-  };
+  const pushFinalCategory = () => {
+  socket.emit('host:pushFinalCategory', { 
+    gameCode, 
+    category: finalQuestion.category 
+  });
+  setScreen('waitingForWagers');
+};
+
+const revealFinalQuestion = () => {
+  socket.emit('host:revealFinalQuestion', { 
+    gameCode,
+    question: finalQuestion.question,
+    answer: finalQuestion.answer
+  });
+  setScreen('finalScoring');
+};
 
   const endGame = () => {
     socket.emit('host:endGame', { gameCode });
@@ -944,8 +953,40 @@ General,Final Question Example?,Final Answer Example`;
                 <br/><br/>
                 {finalQuestion.question}
               </div>
-              <button className="submit-button" onClick={pushFinalQuestion}>
-                PUSH TO TEAMS
+              <button className="submit-button" onClick={pushFinalCategory}>
+  PUSH CATEGORY (PLAYERS WAGER)
+</button>
+
+
+            </div>
+            <div className="right-panel">
+              <div className="teams-header">TEAMS</div>
+              {getSortedTeams().map((team, idx) => (
+                <div key={team.name} className="team-item">
+                  <span>{idx + 1}. {team.name}</span>
+                  <span className="team-score">{team.score}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+
+      )}
+
+{screen === 'waitingForWagers' && (
+        <>
+          <div className="game-layout">
+            <div className="left-panel">
+              <div className="question-display">
+                <div className="question-number">WAITING FOR WAGERS...</div>
+                Teams are submitting their wagers (0-20 points) based on the category: {finalQuestion.category}
+                <br/><br/>
+                Once all teams have submitted, reveal the question below:
+                <br/><br/>
+                {finalQuestion.question}
+              </div>
+              <button className="submit-button" onClick={revealFinalQuestion}>
+                REVEAL FINAL QUESTION TO TEAMS
               </button>
             </div>
             <div className="right-panel">
