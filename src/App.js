@@ -141,7 +141,7 @@ export default function QuizzlerHostApp() {
   };
 
   const markAnswer = (teamName, correct) => {
-    const questionKey = game.status === 'final' ? 'final' : game.currentQuestionIndex + 1;
+    const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
     socket.emit('host:markAnswer', { gameCode, teamName, questionKey, correct });
 
     const team = game.teams[teamName];
@@ -775,7 +775,7 @@ export default function QuizzlerHostApp() {
                 <strong style={{ color: '#286586' }}>Correct answer:</strong> {questions[game.currentQuestionIndex].answer}
               </div>
               {getSortedTeams().map(team => {
-                const questionKey = game.currentQuestionIndex + 1;
+                const questionKey = `q${game.currentQuestionIndex + 1}`;
                 const answer = team.answers?.[questionKey];
                 return (
                   <div key={team.name} className="answer-item">
