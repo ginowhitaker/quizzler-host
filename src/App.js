@@ -92,7 +92,7 @@ export default function QuizzlerHostApp() {
       
       const data = await response.json();
       setGameCode(data.gameCode);
-      setGame({ ...data.game, hostName, venueName, venueSpecials });
+      setGame({ hostName, venueName, venueSpecials, teams: {} });
       
       socket.emit('host:join', data.gameCode);
       setScreen('questions');
