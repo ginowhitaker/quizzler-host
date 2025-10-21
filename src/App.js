@@ -289,8 +289,10 @@ const revealFinalQuestion = () => {
   };
 
   const pushFinalRankings = () => {
-    alert('Final rankings sent to all teams!');
-  };
+  socket.emit('host:pushFinalRankings', { gameCode });
+  alert('Final rankings sent to all teams!');
+};
+
 
   const getSortedTeams = () => {
     if (!game?.teams) return [];
