@@ -766,11 +766,18 @@ const revealFinalQuestion = () => {
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
-                <div key={team.name} className="team-item">
-                  <span>{idx + 1}. {team.name}</span>
-                  <span className="team-score">{team.score}</span>
-                </div>
-              ))}
+  <div key={team.name} className="team-item">
+    <span>{idx + 1}. {team.name}</span>
+    <div>
+      <span className="team-score">{team.score}</span>
+      {team.finalWager !== undefined && (
+        <span style={{marginLeft: '10px', color: '#9C27B0', fontWeight: 'bold'}}>
+          (Wager: {team.finalWager})
+        </span>
+      )}
+    </div>
+  </div>
+))}
               {getSortedTeams().length === 0 && (
                 <p style={{ color: '#999', textAlign: 'center' }}>Waiting for teams...</p>
               )}
