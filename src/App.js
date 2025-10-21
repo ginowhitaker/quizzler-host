@@ -1010,12 +1010,22 @@ const revealFinalQuestion = () => {
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
-              {getSortedTeams().map((team, idx) => (
-                <div key={team.name} className="team-item">
-                  <span>{idx + 1}. {team.name}</span>
-                  <span className="team-score">{team.score}</span>
-                </div>
-              ))}
+              {getSortedTeams().map((team, idx) => {
+  console.log('Team on wager screen:', team); // ADD THIS
+  return (
+    <div key={team.name} className="team-item">
+      <span>{idx + 1}. {team.name}</span>
+      <div>
+        <span className="team-score">{team.score}</span>
+        {team.finalWager !== undefined && (
+          <span style={{marginLeft: '10px', color: '#9C27B0', fontWeight: 'bold'}}>
+            (Wager: {team.finalWager})
+          </span>
+        )}
+      </div>
+    </div>
+  );
+})}
             </div>
           </div>
         </>
