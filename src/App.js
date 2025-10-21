@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import Papa from 'papaparse';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://quizzler-production.up.railway.app';
 
@@ -27,56 +28,56 @@ export default function QuizzlerHostApp() {
   }, []);
 
   useEffect(() => {
-  if (!socket || !gameCode) return;
+    if (!socket || !gameCode) return;
 
-  socket.on('host:joined', (data) => {
-    console.log('Host joined:', data);
-  });
-
-  socket.on('host:teamJoined', (data) => {
-    console.log('Team joined:', data);
-    setGame(prev => {
-      const newTeams = {};
-      data.teams.forEach(team => {
-        newTeams[team.name] = {
-          name: team.name,
-          score: team.score,
-          usedConfidences: team.usedConfidences || [],
-          answers: prev?.teams?.[team.name]?.answers || {}
-        };
-      });
-      return { ...prev, teams: newTeams };
+    socket.on('host:joined', (data) => {
+      console.log('Host joined:', data);
     });
-  });
 
-  socket.on('host:answerReceived', ({ teamName, questionKey, answerText, confidence }) => {
-    console.log('Answer received:', teamName, questionKey);
-    setGame(prev => ({
-      ...prev,
-      teams: {
-        ...prev.teams,
-        [teamName]: {
-          ...prev.teams[teamName],
-          answers: {
-            ...prev.teams[teamName]?.answers,
-            [questionKey]: {
-              text: answerText,
-              confidence,
-              marked: false,
-              correct: false
+    socket.on('host:teamJoined', (data) => {
+      console.log('Team joined:', data);
+      setGame(prev => {
+        const newTeams = {};
+        data.teams.forEach(team => {
+          newTeams[team.name] = {
+            name: team.name,
+            score: team.score,
+            usedConfidences: team.usedConfidences || [],
+            answers: prev?.teams?.[team.name]?.answers || {}
+          };
+        });
+        return { ...prev, teams: newTeams };
+      });
+    });
+
+    socket.on('host:answerReceived', ({ teamName, questionKey, answerText, confidence }) => {
+      console.log('Answer received:', teamName, questionKey);
+      setGame(prev => ({
+        ...prev,
+        teams: {
+          ...prev.teams,
+          [teamName]: {
+            ...prev.teams[teamName],
+            answers: {
+              ...prev.teams[teamName]?.answers,
+              [questionKey]: {
+                text: answerText,
+                confidence,
+                marked: false,
+                correct: false
+              }
             }
           }
         }
-      }
-    }));
-  });
+      }));
+    });
 
-  return () => {
-    socket.off('host:joined');
-    socket.off('host:teamJoined');
-    socket.off('host:answerReceived');
-  };
-}, [socket, gameCode]);
+    return () => {
+      socket.off('host:joined');
+      socket.off('host:teamJoined');
+      socket.off('host:answerReceived');
+    };
+  }, [socket, gameCode]);
 
   const createGame = async () => {
     if (!hostName || !venueName) {
@@ -108,27 +109,99 @@ export default function QuizzlerHostApp() {
     setQuestions(newQuestions);
   };
 
-  const startGame = () => {
-  const validQuestions = questions.filter(q => q.question && q.answer);
-  if (validQuestions.length < 15) {
-    alert('Please fill in all 15 questions and answers');
-    return;
-  }
-  
-  // Send each question to the backend
-  validQuestions.forEach(q => {
-    socket.emit('host:addQuestion', {
-      gameCode,
-      question: {
-        text: q.question,
-        answer: q.answer
+  const downloadTemplate = () => {
+    const template = `Category,Question,Answer
+Science,What is H2O?,Water
+History,Who was the first president?,George Washington
+Sports,How many players on a basketball team?,Five
+Geography,What is the capital of France?,Paris
+Math,What is 2+2?,Four
+Arts,Who painted the Mona Lisa?,Leonardo da Vinci
+Science,What planet is known as the Red Planet?,Mars
+History,In what year did World War II end?,1945
+Sports,How many points is a touchdown in American football?,Six
+Geography,What is the largest ocean?,Pacific Ocean
+Math,What is the square root of 144?,Twelve
+Arts,Who wrote Romeo and Juliet?,William Shakespeare
+Science,What is the speed of light?,299792458 meters per second
+History,Who discovered America?,Christopher Columbus
+Sports,How many innings in a baseball game?,Nine
+General,Final Question Example?,Final Answer Example`;
+    
+    const blob = new Blob([template], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'quizzler_template.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleImportCSV = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const imported = results.data;
+        const newQuestions = [...questions];
+        
+        // Fill regular questions (first 15)
+        for (let i = 0; i < Math.min(15, imported.length); i++) {
+          if (imported[i].Category && imported[i].Question && imported[i].Answer) {
+            newQuestions[i] = {
+              category: imported[i].Category,
+              question: imported[i].Question,
+              answer: imported[i].Answer
+            };
+          }
+        }
+        
+        // Fill final question if there's a 16th row
+        if (imported.length >= 16 && imported[15].Category && imported[15].Question && imported[15].Answer) {
+          setFinalQuestion({
+            category: imported[15].Category,
+            question: imported[15].Question,
+            answer: imported[15].Answer
+          });
+        }
+        
+        setQuestions(newQuestions);
+        alert(`Imported ${Math.min(imported.length, 16)} questions successfully!`);
+      },
+      error: (error) => {
+        alert('Error parsing CSV: ' + error.message);
       }
     });
-  });
-  
-  setGame(prev => ({ ...prev, questions: validQuestions }));
-  setScreen('welcome');
-};
+    
+    // Reset file input
+    event.target.value = '';
+  };
+
+  const startGame = () => {
+    const validQuestions = questions.filter(q => q.question && q.answer);
+    if (validQuestions.length < 15) {
+      alert('Please fill in all 15 questions and answers');
+      return;
+    }
+    
+    // Send each question to the backend
+    validQuestions.forEach(q => {
+      socket.emit('host:addQuestion', {
+        gameCode,
+        question: {
+          text: q.question,
+          answer: q.answer
+        }
+      });
+    });
+    
+    setGame(prev => ({ ...prev, questions: validQuestions }));
+    setScreen('welcome');
+  };
+
   const continueToFirstQuestion = () => {
     setGame(prev => ({ ...prev, currentQuestionIndex: 0 }));
     setScreen('questionDisplay');
@@ -595,6 +668,32 @@ export default function QuizzlerHostApp() {
           <div className="main-content">
             <div className="left-panel">
               <div className="section-title">ENTER QUESTIONS</div>
+              
+              {/* CSV Import/Export Buttons */}
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                <button 
+                  className="submit-button" 
+                  onClick={downloadTemplate}
+                  style={{ flex: 1 }}
+                >
+                  📥 Download Template
+                </button>
+                <label 
+                  htmlFor="csv-upload" 
+                  className="submit-button"
+                  style={{ flex: 1, textAlign: 'center', cursor: 'pointer', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  📤 Import CSV
+                </label>
+                <input
+                  id="csv-upload"
+                  type="file"
+                  accept=".csv"
+                  onChange={handleImportCSV}
+                  style={{ display: 'none' }}
+                />
+              </div>
+
               <div className="questions-grid">
                 {questions.map((q, idx) => (
                   <div key={idx} className="question-group">
