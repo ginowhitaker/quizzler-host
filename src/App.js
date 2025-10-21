@@ -293,6 +293,23 @@ const revealFinalQuestion = () => {
   alert('Final rankings sent to all teams!');
 };
 
+// Add this helper function near the top with other functions like getSortedTeams
+const getScoringProgress = () => {
+  if (!game?.teams) return { scored: 0, total: 0 };
+  const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
+  let scored = 0;
+  let total = 0;
+  
+  Object.values(game.teams).forEach(team => {
+    const answer = team.answers?.[questionKey];
+    if (answer) {
+      total++;
+      if (answer.marked) scored++;
+    }
+  });
+  
+  return { scored, total };
+};
 
   const getSortedTeams = () => {
     if (!game?.teams) return [];
@@ -865,9 +882,27 @@ const revealFinalQuestion = () => {
                 <br/><br/>
                 {questions[game.currentQuestionIndex].question}
               </div>
-              <button className="submit-button" onClick={pushQuestion}>
-                PUSH TO TEAMS
-              </button>
+              {/* Replace the "Push Next Question" button with this */}
+{(() => {
+  const { scored, total } = getScoringProgress();
+  const allScored = scored === total && total > 0;
+  const isLastQuestion = game.currentQuestionIndex >= 14;
+  
+  return (
+    <button 
+      onClick={pushNextQuestion}
+      disabled={!allScored}
+      className="submit-button"
+      style={{
+        opacity: allScored ? 1 : 0.5,
+        cursor: allScored ? 'pointer' : 'not-allowed'
+      }}
+    >
+      {!allScored ? `Scored ${scored} of ${total} teams` : 
+       isLastQuestion ? 'START FINAL QUESTION' : 'PUSH NEXT QUESTION'}
+    </button>
+  );
+})()}
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
