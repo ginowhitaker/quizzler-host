@@ -215,7 +215,7 @@ General,Final Question Example?,Final Answer Example`;
   };
 
   const continueToFirstQuestion = () => {
-    setGame(prev => ({ ...prev, currentQuestionIndex: 0 }));
+    setGame(prev => ({ ...prev, currentQuestionIndex: -1 }));
     setScreen('questionDisplay');
   };
 
