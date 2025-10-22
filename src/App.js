@@ -1059,43 +1059,53 @@ const getScoringProgress = () => {
       )}
 
 {screen === 'waitingForWagers' && (
-        <>
-          <div className="game-layout">
-            <div className="left-panel">
-              <div className="question-display">
-                <div className="question-number">WAITING FOR WAGERS...</div>
-                Teams are submitting their wagers (0-20 points) based on the category: {finalQuestion.category}
-                <br/><br/>
-                Once all teams have submitted, reveal the question below:
-                <br/><br/>
-                {finalQuestion.question}
-              </div>
-              <button className="submit-button" onClick={revealFinalQuestion}>
-                REVEAL FINAL QUESTION TO TEAMS
-              </button>
-            </div>
-            <div className="right-panel">
-              <div className="teams-header">TEAMS</div>
-              {getSortedTeams().map((team, idx) => {
-  console.log('Team on wager screen:', team); // ADD THIS
-  return (
-    <div key={team.name} className="team-item">
-      <span>{idx + 1}. {team.name}</span>
-      <div>
-        <span className="team-score">{team.score}</span>
-        {team.finalWager !== undefined && (
-          <span style={{marginLeft: '10px', color: '#9C27B0', fontWeight: 'bold'}}>
-            (Wager: {team.finalWager})
-          </span>
-        )}
+  <>
+    <div className="header">
+      <div className="logo">
+        <svg className="logo-icon" viewBox="0 0 100 100">
+          <circle cx="50" cy="20" r="10" fill="#FF6600"/>
+          <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
+          <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
+        </svg>
+        <div className="logo-text">QUIZZLER</div>
+      </div>
+      <div className="host-info">
+        {hostName} | {venueName} | {gameCode}
       </div>
     </div>
-  );
-})}
+    <div className="main-content">
+      <div className="left-panel">
+        <div className="question-display">
+          <div className="question-number">WAITING FOR WAGERS...</div>
+          Teams are submitting their wagers (0-20 points) based on the category: {finalQuestion.category}
+          <br/><br/>
+          Once all teams have submitted, reveal the question below:
+          <br/><br/>
+          {finalQuestion.question}
+        </div>
+        <button className="submit-button" onClick={revealFinalQuestion}>
+          REVEAL FINAL QUESTION TO TEAMS
+        </button>
+      </div>
+      <div className="right-panel">
+        <div className="teams-header">TEAMS</div>
+        {getSortedTeams().map((team, idx) => (
+          <div key={team.name} className="team-item">
+            <span>{idx + 1}. {team.name}</span>
+            <div>
+              <span className="team-score">{team.score}</span>
+              {team.finalWager !== undefined && (
+                <span style={{marginLeft: '10px', color: '#9C27B0', fontWeight: 'bold'}}>
+                  (Wager: {team.finalWager})
+                </span>
+              )}
             </div>
           </div>
-        </>
-      )}
+        ))}
+      </div>
+    </div>
+  </>
+)}
 
       {screen === 'finalScoring' && (
         <>
