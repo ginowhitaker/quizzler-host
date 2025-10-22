@@ -856,19 +856,9 @@ const getScoringProgress = () => {
   const nextQuestionNum = game.currentQuestionIndex + 2;
   
   return (
-    <button 
-      className="continue-button"
-      onClick={nextQuestion}
-      disabled={!allScored}
-      style={{
-        opacity: allScored ? 1 : 0.5,
-        cursor: allScored ? 'pointer' : 'not-allowed'
-      }}
-    >
-      {!allScored 
-        ? `Scored ${scored} of ${total} teams - Score remaining to continue` 
-        : `ON TO QUESTION ${nextQuestionNum}`}
-    </button>
+    <button className="continue-button" onClick={continueToFirstQuestion}>
+  CONTINUE
+</button>
   );
 })()}
             </div>
