@@ -256,17 +256,26 @@ General,Final Question Example?,Final Answer Example`;
   };
 
 const nextQuestion = () => {
-  const currentIndex = game.currentQuestionIndex || 0; // Start at 0 if undefined
+  const currentIndex = game.currentQuestionIndex || 0;
   console.log('Pushing question index:', currentIndex);
   
-  // Push current question to players
   socket.emit('host:pushQuestion', { 
     gameCode, 
     questionIndex: currentIndex,
     isFinal: false 
   });
   
-  setScreen('scoring'); // Go to scoring screen (not reviewAnswers)
+  // Increment for next question
+  const nextIndex = currentIndex + 1;
+  if (nextIndex < 15) {
+    setGame(prev => ({ ...prev, currentQuestionIndex: nextIndex }));
+  } else {
+    setGame(prev => ({ ...prev, status: 'final' }));
+    setScreen('finalQuestionDisplay');
+    return;
+  }
+  
+  setScreen('scoring');
 };
 
 const pushFinalCategory = () => {
