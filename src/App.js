@@ -220,9 +220,9 @@ General,Final Question Example?,Final Answer Example`;
   };
 
   const continueToFirstQuestion = () => {
-  setGame(prev => ({ ...prev, currentQuestionIndex: -1 }));
-  nextQuestion(); // This will push Q1 and go to scoring screen
-  };
+  setGame(prev => ({ ...prev, currentQuestionIndex: 0 }));
+  setScreen('questionDisplay'); // Show Q1 on host screen
+};
 
   const pushQuestion = () => {
   const questionIndex = game.currentQuestionIndex;
@@ -262,18 +262,16 @@ General,Final Question Example?,Final Answer Example`;
   };
 
 const nextQuestion = () => {
-  const currentIndex = game.currentQuestionIndex !== undefined ? game.currentQuestionIndex + 1 : 0;
+  const nextIndex = game.currentQuestionIndex + 1;
   
-  if (currentIndex >= 15) {
+  if (nextIndex >= 15) {
     setGame(prev => ({ ...prev, status: 'final' }));
     setScreen('finalQuestionDisplay');
     return;
   }
   
-  console.log('Pushing question index:', currentIndex);
-  socket.emit('host:pushQuestion', { gameCode, questionIndex: currentIndex, isFinal: false });
-  setGame(prev => ({ ...prev, currentQuestionIndex: currentIndex }));
-  // Removed setScreen - will change on backend confirmation
+  setGame(prev => ({ ...prev, currentQuestionIndex: nextIndex }));
+  setScreen('questionDisplay'); // Show next question on host screen
 };
 
 
