@@ -256,7 +256,16 @@ General,Final Question Example?,Final Answer Example`;
   };
 
 const nextQuestion = () => {
-  const currentIndex = game.currentQuestionIndex || 0;
+  // Calculate what index to push next
+  const currentIndex = game.currentQuestionIndex !== undefined ? game.currentQuestionIndex + 1 : 0;
+  
+  if (currentIndex >= 15) {
+    // All questions done, go to final
+    setGame(prev => ({ ...prev, status: 'final' }));
+    setScreen('finalQuestionDisplay');
+    return;
+  }
+  
   console.log('Pushing question index:', currentIndex);
   
   socket.emit('host:pushQuestion', { 
@@ -265,16 +274,8 @@ const nextQuestion = () => {
     isFinal: false 
   });
   
-  // Increment for next question
-  const nextIndex = currentIndex + 1;
-  if (nextIndex < 15) {
-    setGame(prev => ({ ...prev, currentQuestionIndex: nextIndex }));
-  } else {
-    setGame(prev => ({ ...prev, status: 'final' }));
-    setScreen('finalQuestionDisplay');
-    return;
-  }
-  
+  // Update to show we're now on this question
+  setGame(prev => ({ ...prev, currentQuestionIndex: currentIndex }));
   setScreen('scoring');
 };
 
