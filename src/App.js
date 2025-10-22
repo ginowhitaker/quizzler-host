@@ -678,7 +678,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
             </div>
           </div>
@@ -696,7 +696,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
             </div>
           </div>
@@ -736,7 +736,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
               <div className="logo-text">QUIZZLER</div>
             </div>
@@ -863,7 +863,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
               <div className="logo-text">QUIZZLER</div>
             </div>
@@ -943,7 +943,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
               <div className="logo-text">QUIZZLER</div>
             </div>
@@ -1006,7 +1006,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
               <div className="logo-text">QUIZZLER</div>
             </div>
@@ -1114,7 +1114,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
               <div className="logo-text">QUIZZLER</div>
             </div>
@@ -1177,7 +1177,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
         <div className="logo-text">QUIZZLER</div>
       </div>
@@ -1238,7 +1238,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
               <div className="logo-text">QUIZZLER</div>
             </div>
@@ -1324,7 +1324,7 @@ const getScoringProgress = () => {
                 src="https://quizzler.pro/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
-                style={{ height: '60px', width: 'auto' }}
+                style={{ height: '30px', width: 'auto' }}
               />
               <div className="logo-text">QUIZZLER</div>
             </div>
