@@ -82,13 +82,18 @@ socket.on('host:wagerReceived', (data) => {
   console.log(`Wager received from ${data.teamName}: ${data.wager}`);
 });
 
-    return () => {
-      socket.off('host:joined');
-      socket.off('host:teamJoined');
-      socket.off('host:answerReceived');
-      socket.off('host:wagerReceived');
+socket.on('host:questionPushed', () => {
+  setScreen('scoring');
+});
 
-    };
+return () => {
+  socket.off('host:joined');
+  socket.off('host:teamJoined');
+  socket.off('host:answerReceived');
+  socket.off('host:wagerReceived');
+  socket.off('host:questionPushed');
+};
+
   }, [socket, gameCode]);
 
   const createGame = async () => {
@@ -220,10 +225,11 @@ General,Final Question Example?,Final Answer Example`;
   };
 
   const pushQuestion = () => {
-    const questionIndex = game.currentQuestionIndex;
-    socket.emit('host:pushQuestion', { gameCode, questionIndex });
-    setScreen('scoring');
-  };
+  const questionIndex = game.currentQuestionIndex;
+  socket.emit('host:pushQuestion', { gameCode, questionIndex });
+  // Removed setScreen - will change on backend confirmation
+};
+
 
   const markAnswer = (teamName, correct) => {
     const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
@@ -256,28 +262,20 @@ General,Final Question Example?,Final Answer Example`;
   };
 
 const nextQuestion = () => {
-  // Calculate what index to push next
   const currentIndex = game.currentQuestionIndex !== undefined ? game.currentQuestionIndex + 1 : 0;
   
   if (currentIndex >= 15) {
-    // All questions done, go to final
     setGame(prev => ({ ...prev, status: 'final' }));
     setScreen('finalQuestionDisplay');
     return;
   }
   
   console.log('Pushing question index:', currentIndex);
-  
-  socket.emit('host:pushQuestion', { 
-    gameCode, 
-    questionIndex: currentIndex,
-    isFinal: false 
-  });
-  
-  // Update to show we're now on this question
+  socket.emit('host:pushQuestion', { gameCode, questionIndex: currentIndex, isFinal: false });
   setGame(prev => ({ ...prev, currentQuestionIndex: currentIndex }));
-  setScreen('scoring');
+  // Removed setScreen - will change on backend confirmation
 };
+
 
 const pushFinalCategory = () => {
 socket.emit('host:pushFinalCategory', { 
