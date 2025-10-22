@@ -891,27 +891,12 @@ const getScoringProgress = () => {
                 <br/><br/>
                 {questions[game.currentQuestionIndex].question}
               </div>
-              {/* Replace the "Push Next Question" button with this */}
-{(() => {
-  const { scored, total } = getScoringProgress();
-  const allScored = total === 0 || scored === total; // Allow if no answers yet OR all scored
-  const isLastQuestion = game.currentQuestionIndex >= 14;
-  
-  return (
-    <button 
-      onClick={nextQuestion}
-      disabled={!allScored}
-      className="submit-button"
-      style={{
-        opacity: allScored ? 1 : 0.5,
-        cursor: allScored ? 'pointer' : 'not-allowed'
-      }}
-    >
-      {!allScored ? `Scored ${scored} of ${total} teams` : 
-       isLastQuestion ? 'START FINAL QUESTION' : 'PUSH NEXT QUESTION'}
-    </button>
-  );
-})()}
+             <button 
+  onClick={pushQuestion}
+  className="submit-button"
+>
+  PUSH TO TEAMS
+</button>
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
