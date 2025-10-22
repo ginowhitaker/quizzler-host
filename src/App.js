@@ -256,16 +256,18 @@ General,Final Question Example?,Final Answer Example`;
   };
 
   const nextQuestion = () => {
-  const nextIndex = game.currentQuestionIndex + 1;
-  console.log('Pushing question', nextIndex); // Debug log
+  const currentIndex = game.currentQuestionIndex || 0; // Start at 0 if undefined
+  console.log('Pushing question index:', currentIndex);
   
-  if (nextIndex < 15) {
-    // Emit to backend to push to players
-    socket.emit('host:pushQuestion', { 
-      gameCode, 
-      questionIndex: nextIndex,
-      isFinal: false 
-    });
+  // Push current question to players
+  socket.emit('host:pushQuestion', { 
+    gameCode, 
+    questionIndex: currentIndex,
+    isFinal: false 
+  });
+  
+  setScreen('scoring'); // Go to scoring screen (not reviewAnswers)
+};
     
     setGame(prev => ({ ...prev, currentQuestionIndex: nextIndex }));
     setScreen('reviewAnswers'); // Go to review screen to wait for answers
