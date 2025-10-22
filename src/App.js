@@ -885,7 +885,7 @@ const getScoringProgress = () => {
               {/* Replace the "Push Next Question" button with this */}
 {(() => {
   const { scored, total } = getScoringProgress();
-  const allScored = scored === total && total > 0;
+  const allScored = total === 0 || scored === total; // Allow if no answers yet OR all scored
   const isLastQuestion = game.currentQuestionIndex >= 14;
   
   return (
