@@ -109,11 +109,17 @@ return () => {
       });
       
       const data = await response.json();
-      setGameCode(data.gameCode);
-      setGame({ hostName, venueName, venueSpecials, teams: {} });
-      
-      socket.emit('host:join', data.gameCode);
-      setScreen('questions');
+       setGameCode(data.gameCode);
+       setGame({ hostName, venueName, venueSpecials, teams: {} });
+
+     socket.emit('host:join', data.gameCode);
+     socket.emit('host:setup', {
+      gameCode: data.gameCode,
+      hostName,
+      venueName,
+      venueSpecials
+     });
+    setScreen('questions');
     } catch (error) {
       alert('Failed to create game');
       console.error(error);
