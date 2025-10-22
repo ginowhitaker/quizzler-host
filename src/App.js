@@ -890,7 +890,7 @@ const getScoringProgress = () => {
   
   return (
     <button 
-      onClick={pushNextQuestion}
+      onClick={nextQuestion}
       disabled={!allScored}
       className="submit-button"
       style={{
