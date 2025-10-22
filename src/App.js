@@ -970,9 +970,27 @@ const getScoringProgress = () => {
                   </div>
                 );
               })}
-              <button className="continue-button" onClick={nextQuestion}>
-                ON TO QUESTION {game.currentQuestionIndex + 2}
-              </button>
+              {(() => {
+  			const { scored, total } = getScoringProgress();
+  			const allScored = scored === total && total > 0;
+  			const nextQuestionNum = game.currentQuestionIndex + 2;
+  
+  			return (
+    			<button 
+    			className="continue-button"
+                onClick={nextQuestion}
+                disabled={!allScored}
+                style={{
+                opacity: allScored ? 1 : 0.5,
+                cursor: allScored ? 'pointer' : 'not-allowed'
+              }}
+               >
+      {!allScored 
+        ? `Scored ${scored} of ${total} teams - Score remaining to continue` 
+        : `ON TO QUESTION ${nextQuestionNum}`}
+    </button>
+  );
+})()}
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
