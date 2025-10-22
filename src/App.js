@@ -14,6 +14,8 @@ export default function QuizzlerHostApp() {
   const [game, setGame] = useState(null);
   const [questions, setQuestions] = useState(Array(15).fill({ category: '', question: '', answer: '' }));
   const [finalQuestion, setFinalQuestion] = useState({ category: '', question: '', answer: '' });
+  const [finalQuestion, setFinalQuestion] = useState({ category: '', question: '', answer: '' });
+  const [selectedTeamHistory, setSelectedTeamHistory] = useState(null);
 
   useEffect(() => {
     const newSocket = io(BACKEND_URL, {
