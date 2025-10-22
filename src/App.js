@@ -937,9 +937,12 @@ const getScoringProgress = () => {
           <div className="main-content">
             <div className="left-panel">
               <div className="section-title">TEAM ANSWERS FOR QUESTION {game.currentQuestionIndex + 1}</div>
-              <div style={{ background: '#FFF9E6', padding: '15px', borderRadius: '10px', marginBottom: '25px' }}>
-                <strong style={{ color: '#286586' }}>Correct answer:</strong> {questions[game.currentQuestionIndex].answer}
-              </div>
+              <div style={{ background: '#E3F2FD', padding: '15px', borderRadius: '10px', marginBottom: '10px' }}>
+  <strong style={{ color: '#286586' }}>Question:</strong> {questions[game.currentQuestionIndex].question}
+</div>
+<div style={{ background: '#FFF9E6', padding: '15px', borderRadius: '10px', marginBottom: '25px' }}>
+  <strong style={{ color: '#286586' }}>Correct answer:</strong> {questions[game.currentQuestionIndex].answer}
+</div>
               {getSortedTeams().map(team => {
                 const questionKey = `q${game.currentQuestionIndex + 1}`;
                 const answer = team.answers?.[questionKey];
