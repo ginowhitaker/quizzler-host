@@ -674,15 +674,12 @@ const getScoringProgress = () => {
         <div className="center-screen">
           <div className="header" style={{ width: '100%', maxWidth: '1400px', marginBottom: '100px' }}>
             <div className="logo">
-              <svg className="logo-icon" viewBox="0 0 100 100">
-                <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-                <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-                <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-                <ellipse cx="50" cy="60" rx="30" ry="5" fill="#FF6600" opacity="0.3"/>
-                <ellipse cx="50" cy="62" rx="25" ry="4" fill="#FF6600" opacity="0.4"/>
-                <ellipse cx="50" cy="64" rx="20" ry="3" fill="#FF6600" opacity="0.5"/>
-              </svg>
-              <div className="logo-text">QUIZZLER</div>
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
             </div>
           </div>
           <button className="start-button" onClick={() => setScreen('setup')}>
@@ -695,13 +692,12 @@ const getScoringProgress = () => {
         <>
           <div className="header">
             <div className="logo">
-              <svg className="logo-icon" viewBox="0 0 100 100">
-                <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-                <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-                <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-                <ellipse cx="50" cy="60" rx="30" ry="5" fill="#FF6600" opacity="0.3"/>
-              </svg>
-              <div className="logo-text">QUIZZLER</div>
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
             </div>
           </div>
           <div style={{ padding: '60px', maxWidth: '600px', margin: '0 auto' }}>
@@ -736,11 +732,12 @@ const getScoringProgress = () => {
         <>
           <div className="header">
             <div className="logo">
-              <svg className="logo-icon" viewBox="0 0 100 100">
-                <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-                <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-                <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-              </svg>
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
               <div className="logo-text">QUIZZLER</div>
             </div>
             <div className="host-info">
@@ -862,11 +859,12 @@ const getScoringProgress = () => {
         <>
           <div className="header">
             <div className="logo">
-              <svg className="logo-icon" viewBox="0 0 100 100">
-                <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-                <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-                <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-              </svg>
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
               <div className="logo-text">QUIZZLER</div>
             </div>
             <div className="host-info">
@@ -941,11 +939,12 @@ const getScoringProgress = () => {
         <>
           <div className="header">
             <div className="logo">
-              <svg className="logo-icon" viewBox="0 0 100 100">
-                <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-                <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-                <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-              </svg>
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
               <div className="logo-text">QUIZZLER</div>
             </div>
             <div className="host-info">
@@ -1003,11 +1002,12 @@ const getScoringProgress = () => {
         <>
           <div className="header">
             <div className="logo">
-              <svg className="logo-icon" viewBox="0 0 100 100">
-                <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-                <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-                <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-              </svg>
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
               <div className="logo-text">QUIZZLER</div>
             </div>
             <div className="host-info">
@@ -1110,11 +1110,12 @@ const getScoringProgress = () => {
         <>
           <div className="header">
             <div className="logo">
-              <svg className="logo-icon" viewBox="0 0 100 100">
-                <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-                <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-                <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-              </svg>
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
               <div className="logo-text">QUIZZLER</div>
             </div>
             <div className="host-info">
@@ -1172,11 +1173,12 @@ const getScoringProgress = () => {
   <>
     <div className="header">
       <div className="logo">
-        <svg className="logo-icon" viewBox="0 0 100 100">
-          <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-          <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-          <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-        </svg>
+        <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
         <div className="logo-text">QUIZZLER</div>
       </div>
       <div className="host-info">
@@ -1232,11 +1234,12 @@ const getScoringProgress = () => {
         <>
           <div className="header">
             <div className="logo">
-              <svg className="logo-icon" viewBox="0 0 100 100">
-                <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-                <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-                <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-              </svg>
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
               <div className="logo-text">QUIZZLER</div>
             </div>
             <div className="host-info">
@@ -1317,11 +1320,12 @@ const getScoringProgress = () => {
         <>
           <div className="header">
             <div className="logo">
-              <svg className="logo-icon" viewBox="0 0 100 100">
-                <circle cx="50" cy="20" r="10" fill="#FF6600"/>
-                <text x="50" y="25" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">?</text>
-                <rect x="47" y="30" width="6" height="20" fill="#FF6600"/>
-              </svg>
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '60px', width: 'auto' }}
+              />
               <div className="logo-text">QUIZZLER</div>
             </div>
             <div className="host-info">
