@@ -215,8 +215,8 @@ General,Final Question Example?,Final Answer Example`;
   };
 
   const continueToFirstQuestion = () => {
-    setGame(prev => ({ ...prev, currentQuestionIndex: -1 }));
-    setScreen('questionDisplay');
+  setGame(prev => ({ ...prev, currentQuestionIndex: -1 }));
+  nextQuestion(); // This will push Q1 and go to scoring screen
   };
 
   const pushQuestion = () => {
