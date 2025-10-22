@@ -86,12 +86,26 @@ socket.on('host:questionPushed', () => {
   setScreen('scoring');
 });
 
+socket.on('host:scoresCorrected', (data) => {
+  setGame(prev => ({
+    ...prev,
+    teams: data.teams.reduce((acc, team) => {
+      acc[team.name] = {
+        ...prev.teams[team.name],
+        score: team.score
+      };
+      return acc;
+    }, {})
+  }));
+});
+
 return () => {
   socket.off('host:joined');
   socket.off('host:teamJoined');
   socket.off('host:answerReceived');
   socket.off('host:wagerReceived');
   socket.off('host:questionPushed');
+  socket.off('host:scoresCorrected');
 };
 
   }, [socket, gameCode]);
@@ -236,6 +250,18 @@ General,Final Question Example?,Final Answer Example`;
   // Removed setScreen - will change on backend confirmation
 };
 
+const toggleCorrectness = (teamName, questionKey) => {
+  socket.emit('host:toggleCorrectness', { gameCode, teamName, questionKey });
+};
+
+const viewTeamHistory = (teamName) => {
+  const team = game.teams[teamName];
+  setSelectedTeamHistory({ teamName, team });
+};
+
+const closeHistory = () => {
+  setSelectedTeamHistory(null);
+};
 
   const markAnswer = (teamName, correct) => {
     const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
@@ -801,16 +827,27 @@ const getScoringProgress = () => {
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
   <div key={team.name} className="team-item">
-    <span>{idx + 1}. {team.name}</span>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
     <div>
-      <span className="team-score">{team.score}</span>
-      {team.finalWager !== undefined && (
-        <span style={{marginLeft: '10px', color: '#9C27B0', fontWeight: 'bold'}}>
-          (Wager: {team.finalWager})
-        </span>
-      )}
+      <span>{idx + 1}. {team.name}</span>
+      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
     </div>
+    <button
+      onClick={() => viewTeamHistory(team.name)}
+      style={{
+        background: '#FF6600',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        cursor: 'pointer'
+      }}
+    >
+      History
+    </button>
   </div>
+</div>
 ))}
               {getSortedTeams().length === 0 && (
                 <p style={{ color: '#999', textAlign: 'center' }}>Waiting for teams...</p>
@@ -872,9 +909,27 @@ const getScoringProgress = () => {
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-                  <span>{idx + 1}. {team.name}</span>
-                  <span className="team-score">{team.score}</span>
-                </div>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+    <div>
+      <span>{idx + 1}. {team.name}</span>
+      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+    </div>
+    <button
+      onClick={() => viewTeamHistory(team.name)}
+      style={{
+        background: '#FF6600',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        cursor: 'pointer'
+      }}
+    >
+      History
+    </button>
+  </div>
+</div>
               ))}
             </div>
           </div>
@@ -916,9 +971,27 @@ const getScoringProgress = () => {
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-                  <span>{idx + 1}. {team.name}</span>
-                  <span className="team-score">{team.score}</span>
-                </div>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+    <div>
+      <span>{idx + 1}. {team.name}</span>
+      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+    </div>
+    <button
+      onClick={() => viewTeamHistory(team.name)}
+      style={{
+        background: '#FF6600',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        cursor: 'pointer'
+      }}
+    >
+      History
+    </button>
+  </div>
+</div>
               ))}
             </div>
           </div>
@@ -1005,9 +1078,27 @@ const getScoringProgress = () => {
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-                  <span>{idx + 1}. {team.name}</span>
-                  <span className="team-score">{team.score}</span>
-                </div>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+    <div>
+      <span>{idx + 1}. {team.name}</span>
+      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+    </div>
+    <button
+      onClick={() => viewTeamHistory(team.name)}
+      style={{
+        background: '#FF6600',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        cursor: 'pointer'
+      }}
+    >
+      History
+    </button>
+  </div>
+</div>
               ))}
             </div>
           </div>
@@ -1048,9 +1139,27 @@ const getScoringProgress = () => {
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-                  <span>{idx + 1}. {team.name}</span>
-                  <span className="team-score">{team.score}</span>
-                </div>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+    <div>
+      <span>{idx + 1}. {team.name}</span>
+      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+    </div>
+    <button
+      onClick={() => viewTeamHistory(team.name)}
+      style={{
+        background: '#FF6600',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        cursor: 'pointer'
+      }}
+    >
+      History
+    </button>
+  </div>
+</div>
               ))}
             </div>
           </div>
@@ -1091,16 +1200,27 @@ const getScoringProgress = () => {
         <div className="teams-header">TEAMS</div>
         {getSortedTeams().map((team, idx) => (
           <div key={team.name} className="team-item">
-            <span>{idx + 1}. {team.name}</span>
-            <div>
-              <span className="team-score">{team.score}</span>
-              {team.finalWager !== undefined && (
-                <span style={{marginLeft: '10px', color: '#9C27B0', fontWeight: 'bold'}}>
-                  (Wager: {team.finalWager})
-                </span>
-              )}
-            </div>
-          </div>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+    <div>
+      <span>{idx + 1}. {team.name}</span>
+      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+    </div>
+    <button
+      onClick={() => viewTeamHistory(team.name)}
+      style={{
+        background: '#FF6600',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        cursor: 'pointer'
+      }}
+    >
+      History
+    </button>
+  </div>
+</div>
         ))}
       </div>
     </div>
@@ -1165,9 +1285,27 @@ const getScoringProgress = () => {
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-                  <span>{idx + 1}. {team.name}</span>
-                  <span className="team-score">{team.score}</span>
-                </div>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+    <div>
+      <span>{idx + 1}. {team.name}</span>
+      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+    </div>
+    <button
+      onClick={() => viewTeamHistory(team.name)}
+      style={{
+        background: '#FF6600',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        cursor: 'pointer'
+      }}
+    >
+      History
+    </button>
+  </div>
+</div>
               ))}
             </div>
           </div>
@@ -1202,14 +1340,157 @@ const getScoringProgress = () => {
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-                  <span>{idx + 1}. {team.name}</span>
-                  <span className="team-score">{team.score}</span>
-                </div>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+    <div>
+      <span>{idx + 1}. {team.name}</span>
+      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+    </div>
+    <button
+      onClick={() => viewTeamHistory(team.name)}
+      style={{
+        background: '#FF6600',
+        color: 'white',
+        border: 'none',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        cursor: 'pointer'
+      }}
+    >
+      History
+    </button>
+  </div>
+</div>
               ))}
             </div>
           </div>
         </>
       )}
+      {/* Team History Modal */}
+{selectedTeamHistory && (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.7)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000
+  }}>
+    <div style={{
+      background: 'white',
+      borderRadius: '20px',
+      padding: '40px',
+      maxWidth: '800px',
+      maxHeight: '80vh',
+      overflow: 'auto',
+      boxShadow: '0 10px 50px rgba(0,0,0,0.5)'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+        <h2 style={{ color: '#286586', fontSize: '28px', margin: 0 }}>
+          {selectedTeamHistory.teamName} - Answer History
+        </h2>
+        <button 
+          onClick={closeHistory}
+          style={{
+            background: '#FF6B6B',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            fontSize: '24px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          ×
+        </button>
+      </div>
+
+      <div style={{ marginBottom: '20px', padding: '15px', background: '#E3F2FD', borderRadius: '10px' }}>
+        <div style={{ fontSize: '18px', color: '#286586' }}>
+          <strong>Current Score:</strong> {selectedTeamHistory.team.score} points
+        </div>
+      </div>
+
+      {Object.entries(selectedTeamHistory.team.answers || {}).map(([questionKey, answer]) => {
+        const questionNum = questionKey === 'final' ? 'Final' : questionKey.replace('q', '');
+        const question = questionKey === 'final' 
+          ? finalQuestion 
+          : questions[parseInt(questionNum) - 1];
+        
+        return (
+          <div key={questionKey} style={{
+            background: answer.correct ? '#E8F5E9' : '#FFEBEE',
+            border: `2px solid ${answer.correct ? '#4CAF50' : '#F44336'}`,
+            borderRadius: '10px',
+            padding: '20px',
+            marginBottom: '15px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
+              <div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#286586', marginBottom: '5px' }}>
+                  Question {questionNum}
+                </div>
+                <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
+                  {question?.question || 'Question text not available'}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '14px', color: '#666' }}>Confidence</div>
+                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#FF6600' }}>
+                  {answer.confidence}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '10px' }}>
+              <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Their Answer:</div>
+              <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{answer.text}</div>
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Correct Answer:</div>
+              <div style={{ fontSize: '16px', color: '#4CAF50', fontWeight: 'bold' }}>
+                {question?.answer || 'N/A'}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: answer.correct ? '#2E7D32' : '#C62828'
+              }}>
+                {answer.correct ? '✓ CORRECT' : '✗ INCORRECT'}
+                {answer.correct ? ` (+${answer.confidence} pts)` : ' (+0 pts)'}
+              </div>
+              <button
+                onClick={() => toggleCorrectness(selectedTeamHistory.teamName, questionKey)}
+                style={{
+                  background: answer.correct ? '#F44336' : '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+              >
+                Mark as {answer.correct ? 'Incorrect' : 'Correct'}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
     </div>
   );
 }
