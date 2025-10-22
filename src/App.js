@@ -268,12 +268,13 @@ const nextQuestion = () => {
   
   setScreen('scoring'); // Go to scoring screen (not reviewAnswers)
 };
-  const pushFinalCategory = () => {
-  socket.emit('host:pushFinalCategory', { 
+
+const pushFinalCategory = () => {
+socket.emit('host:pushFinalCategory', { 
     gameCode, 
     category: finalQuestion.category 
-  });
-  setScreen('waitingForWagers');
+});
+setScreen('waitingForWagers');
 };
 
 const revealFinalQuestion = () => {
