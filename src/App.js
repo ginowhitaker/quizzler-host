@@ -354,18 +354,31 @@ const markVisualAnswer = (teamName, index, correct) => {
     const team = game.teams[teamName];
     const answer = team.answers[questionKey];
     
-    // Initialize correct array if needed
+    // Initialize correct array if needed (null = not marked yet)
     if (!Array.isArray(answer.correct)) {
-      answer.correct = [false, false, false, false, false, false];
+      answer.correct = [null, null, null, null, null, null];
     }
     
     // Update the specific answer
     answer.correct[index] = correct;
     
-    // Check if all 6 are marked
-    const allMarked = answer.correct.every((val, i) => 
-      Array.isArray(answer.text) && i < answer.text.length
-    );
+    // Update local state immediately for UI feedback
+    setGame(prev => ({
+      ...prev,
+      teams: {
+        ...prev.teams,
+        [teamName]: {
+          ...prev.teams[teamName],
+          answers: {
+            ...prev.teams[teamName].answers,
+            [questionKey]: { ...answer }
+          }
+        }
+      }
+    }));
+    
+    // Check if all 6 have been marked (not null)
+    const allMarked = answer.correct.every(val => val !== null);
     
     // If all marked, submit to backend
     if (allMarked) {
@@ -376,6 +389,26 @@ const markVisualAnswer = (teamName, index, correct) => {
         questionKey, 
         correct: answer.correct 
       });
+      
+      // Calculate score locally (1 point per correct = true)
+      const scoreChange = answer.correct.filter(val => val === true).length;
+      
+      setGame(prev => ({
+        ...prev,
+        teams: {
+          ...prev.teams,
+          [teamName]: {
+            ...prev.teams[teamName],
+            score: prev.teams[teamName].score + scoreChange,
+            answers: {
+              ...prev.teams[teamName].answers,
+              [questionKey]: { ...answer, marked: true }
+            }
+          }
+        }
+      }));
+    }
+  };
       
       // Calculate score locally (1 point per correct)
       const scoreChange = answer.correct.filter(Boolean).length;
