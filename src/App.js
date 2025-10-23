@@ -100,23 +100,30 @@ socket.on('host:questionPushed', (data) => {
 });
 
 socket.on('host:scoresCorrected', (data) => {
-  // Need to update both scores AND the answer correctness
   setGame(prev => {
-    const updatedTeams = { ...prev.teams };
+    const updatedTeams = {};
     
-    data.teams.forEach(teamData => {
-      if (updatedTeams[teamData.name]) {
-        updatedTeams[teamData.name] = {
-          ...updatedTeams[teamData.name],
+    // Rebuild teams object completely to ensure React detects changes
+    Object.keys(prev.teams).forEach(teamName => {
+      const teamData = data.teams.find(t => t.name === teamName);
+      
+      if (teamData) {
+        updatedTeams[teamName] = {
+          ...prev.teams[teamName],
           score: teamData.score,
-          // If we have answer updates, apply them
-          answers: teamData.answers ? {
-            ...updatedTeams[teamData.name].answers,
-            ...teamData.answers
-          } : updatedTeams[teamData.name].answers
+          answers: teamData.answers ? { ...teamData.answers } : prev.teams[teamName].answers
         };
+      } else {
+        updatedTeams[teamName] = prev.teams[teamName];
       }
     });
+    
+    return {
+      ...prev,
+      teams: updatedTeams
+    };
+  });
+});
     
     return {
       ...prev,
