@@ -10,12 +10,16 @@ export default function QuizzlerHostApp() {
   const [hostName, setHostName] = useState('');
   const [venueName, setVenueName] = useState('');
   const [venueSpecials, setVenueSpecials] = useState('');
+  const [regularTimer, setRegularTimer] = useState(0); // 0 = no timer
+  const [visualTimer, setVisualTimer] = useState(0); // 0 = no timer
   const [gameCode, setGameCode] = useState('');
   const [game, setGame] = useState(null);
   const [questions, setQuestions] = useState(Array(15).fill({ category: '', question: '', answer: '' }));
   const [finalQuestion, setFinalQuestion] = useState({ category: '', question: '', answer: '' });
   const [selectedTeamHistory, setSelectedTeamHistory] = useState(null);
-
+  const [timerDuration, setTimerDuration] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
   useEffect(() => {
     const newSocket = io(BACKEND_URL, {
       transports: ['websocket', 'polling']
@@ -83,7 +87,15 @@ socket.on('host:wagerReceived', (data) => {
   console.log(`Wager received from ${data.teamName}: ${data.wager}`);
 });
 
-socket.on('host:questionPushed', () => {
+socket.on('host:questionPushed', (data) => {
+  // Initialize timer if present
+  if (data.timerDuration && data.timerDuration > 0) {
+    setTimerDuration(data.timerDuration);
+    setTimeRemaining(data.timerDuration);
+    setTimerActive(true);
+  } else {
+    setTimerActive(false);
+  }
   setScreen('scoring');
 });
 
@@ -124,6 +136,29 @@ return () => {
 
   }, [socket, gameCode]);
 
+  // Timer countdown
+  useEffect(() => {
+    if (!timerActive || timeRemaining <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          setTimerActive(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timerActive, timeRemaining]);
+
+  const formatTimer = () => {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    return `${minutes}:${String(seconds).padStart(2, '0')}`;
+  };
+
   const createGame = async () => {
     if (!hostName || !venueName) {
       alert('Please enter host name and venue name');
@@ -145,7 +180,9 @@ return () => {
       gameCode: data.gameCode,
       hostName,
       venueName,
-      venueSpecials
+      venueSpecials,
+      regularTimer,
+      visualTimer
      });
     setScreen('questions');
     } catch (error) {
@@ -802,6 +839,35 @@ const getScoringProgress = () => {
               value={venueSpecials}
               onChange={(e) => setVenueSpecials(e.target.value)}
             />
+            <label className="form-label">REGULAR QUESTION TIMER</label>
+            <select
+              className="input-field"
+              value={regularTimer}
+              onChange={(e) => setRegularTimer(parseInt(e.target.value))}
+              style={{ padding: '15px' }}
+            >
+              <option value={0}>No Timer</option>
+              <option value={1}>1 Minute</option>
+              <option value={2}>2 Minutes</option>
+              <option value={3}>3 Minutes</option>
+              <option value={4}>4 Minutes</option>
+              <option value={5}>5 Minutes</option>
+            </select>
+            
+            <label className="form-label">VISUAL ROUND TIMER</label>
+            <select
+              className="input-field"
+              value={visualTimer}
+              onChange={(e) => setVisualTimer(parseInt(e.target.value))}
+              style={{ padding: '15px' }}
+            >
+              <option value={0}>No Timer</option>
+              <option value={1}>1 Minute</option>
+              <option value={2}>2 Minutes</option>
+              <option value={3}>3 Minutes</option>
+              <option value={4}>4 Minutes</option>
+              <option value={5}>5 Minutes</option>
+            </select>
             <button className="submit-button" onClick={createGame}>
               SUBMIT
             </button>
@@ -823,6 +889,11 @@ const getScoringProgress = () => {
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
             </div>
           </div>
           <div className="main-content">
@@ -950,6 +1021,11 @@ const getScoringProgress = () => {
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
             </div>
           </div>
           <div className="main-content">
@@ -1030,6 +1106,11 @@ const getScoringProgress = () => {
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
             </div>
           </div>
           <div className="main-content">
@@ -1093,6 +1174,11 @@ const getScoringProgress = () => {
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
             </div>
           </div>
           <div className="main-content">
@@ -1248,6 +1334,11 @@ const getScoringProgress = () => {
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
             </div>
           </div>
           <div className="main-content">
@@ -1310,8 +1401,13 @@ const getScoringProgress = () => {
         
       </div>
       <div className="host-info">
-        {hostName} | {venueName} | {gameCode}
-      </div>
+              {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
+            </div>
     </div>
     <div className="main-content">
       <div className="left-panel">
@@ -1372,6 +1468,11 @@ const getScoringProgress = () => {
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
             </div>
           </div>
           <div className="main-content">
@@ -1458,6 +1559,11 @@ const getScoringProgress = () => {
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
             </div>
           </div>
           <div className="main-content">
