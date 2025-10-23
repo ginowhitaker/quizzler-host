@@ -410,40 +410,6 @@ const markVisualAnswer = (teamName, index, correct) => {
     }
   };
       
-      // Calculate score locally (1 point per correct)
-      const scoreChange = answer.correct.filter(Boolean).length;
-      
-      setGame(prev => ({
-        ...prev,
-        teams: {
-          ...prev.teams,
-          [teamName]: {
-            ...prev.teams[teamName],
-            score: prev.teams[teamName].score + scoreChange,
-            answers: {
-              ...prev.teams[teamName].answers,
-              [questionKey]: answer
-            }
-          }
-        }
-      }));
-    } else {
-      // Just update local state
-      setGame(prev => ({
-        ...prev,
-        teams: {
-          ...prev.teams,
-          [teamName]: {
-            ...prev.teams[teamName],
-            answers: {
-              ...prev.teams[teamName].answers,
-              [questionKey]: answer
-            }
-          }
-        }
-      }));
-    }
-  };
 
 const nextQuestion = () => {
   const nextIndex = game.currentQuestionIndex + 1;
