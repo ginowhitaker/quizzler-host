@@ -88,16 +88,29 @@ socket.on('host:questionPushed', () => {
 });
 
 socket.on('host:scoresCorrected', (data) => {
-  setGame(prev => ({
-    ...prev,
-    teams: data.teams.reduce((acc, team) => {
-      acc[team.name] = {
-        ...prev.teams[team.name],
-        score: team.score
-      };
-      return acc;
-    }, {})
-  }));
+  // Need to update both scores AND the answer correctness
+  setGame(prev => {
+    const updatedTeams = { ...prev.teams };
+    
+    data.teams.forEach(teamData => {
+      if (updatedTeams[teamData.name]) {
+        updatedTeams[teamData.name] = {
+          ...updatedTeams[teamData.name],
+          score: teamData.score,
+          // If we have answer updates, apply them
+          answers: teamData.answers ? {
+            ...updatedTeams[teamData.name].answers,
+            ...teamData.answers
+          } : updatedTeams[teamData.name].answers
+        };
+      }
+    });
+    
+    return {
+      ...prev,
+      teams: updatedTeams
+    };
+  });
 });
 
 return () => {
