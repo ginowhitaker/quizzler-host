@@ -132,7 +132,7 @@ return () => {
   socket.off('host:wagerReceived');
   socket.off('host:questionPushed');
   socket.off('host:scoresCorrected');
-};
+}
 
   }, [socket, gameCode]);
 
