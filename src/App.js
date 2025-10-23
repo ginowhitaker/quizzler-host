@@ -1222,21 +1222,26 @@ const getScoringProgress = () => {
                             {Array.isArray(answer.text) ? answer.text.map((ans, idx) => (
                               <div key={idx} style={{ marginBottom: '10px', padding: '10px', background: '#f5f5f5', borderRadius: '5px' }}>
                                 <strong>#{idx + 1}:</strong> {ans}
-                                {answer.marked && (
-                                  <span style={{ marginLeft: '10px', fontWeight: '700', color: answer.correct[idx] ? '#00AA00' : '#C60404' }}>
-                                    {answer.correct[idx] ? '✓' : '✗'}
-                                  </span>
-                                )}
                                 {!answer.marked && (
                                   <span style={{ marginLeft: '10px' }}>
-                                    <button 
-                                      style={{ marginLeft: '5px', padding: '2px 8px', background: '#00AA00', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                                      onClick={() => markVisualAnswer(team.name, idx, true)}
-                                    >✓</button>
-                                    <button 
-                                      style={{ marginLeft: '5px', padding: '2px 8px', background: '#C60404', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-                                      onClick={() => markVisualAnswer(team.name, idx, false)}
-                                    >✗</button>
+                                    {answer.correct && answer.correct[idx] !== null ? (
+                                      // Already marked - show result
+                                      <span style={{ fontWeight: '700', color: answer.correct[idx] ? '#00AA00' : '#C60404' }}>
+                                        {answer.correct[idx] ? '✓ CORRECT' : '✗ INCORRECT'}
+                                      </span>
+                                    ) : (
+                                      // Not yet marked - show buttons
+                                      <>
+                                        <button 
+                                          style={{ marginLeft: '5px', padding: '2px 8px', background: '#00AA00', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                                          onClick={() => markVisualAnswer(team.name, idx, true)}
+                                        >✓</button>
+                                        <button 
+                                          style={{ marginLeft: '5px', padding: '2px 8px', background: '#C60404', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                                          onClick={() => markVisualAnswer(team.name, idx, false)}
+                                        >✗</button>
+                                      </>
+                                    )}
                                   </span>
                                 )}
                               </div>
