@@ -738,7 +738,7 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              <div className="logo-text">QUIZZLER</div>
+              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -865,7 +865,7 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              <div className="logo-text">QUIZZLER</div>
+              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -945,7 +945,7 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              <div className="logo-text">QUIZZLER</div>
+              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
