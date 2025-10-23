@@ -1546,11 +1546,11 @@ const getScoringProgress = () => {
 
       <div style={{ marginBottom: '20px', padding: '15px', background: '#E3F2FD', borderRadius: '10px' }}>
         <div style={{ fontSize: '18px', color: '#286586' }}>
-          <strong>Current Score:</strong> {selectedTeamHistory.team.score} points
+          <strong>Current Score:</strong> {game.teams[selectedTeamHistory.teamName]?.score} points
         </div>
       </div>
 
-      {Object.entries(selectedTeamHistory.team.answers || {}).map(([questionKey, answer]) => {
+      {Object.entries(game.teams[selectedTeamHistory.teamName]?.answers || {}).map(([questionKey, answer]) => {
         const questionNum = questionKey === 'final' ? 'Final' : questionKey.replace('q', '');
         const question = questionKey === 'final' 
           ? finalQuestion 
