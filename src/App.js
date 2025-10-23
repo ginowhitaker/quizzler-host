@@ -148,31 +148,30 @@ return () => {
   };
 
   const downloadTemplate = () => {
-    const template = `Category,Question,Answer
-Science,What is H2O?,Water
-History,Who was the first president?,George Washington
-Sports,How many players on a basketball team?,Five
-Geography,What is the capital of France?,Paris
-Math,What is 2+2?,Four
-Arts,Who painted the Mona Lisa?,Leonardo da Vinci
-Science,What planet is known as the Red Planet?,Mars
-History,In what year did World War II end?,1945
-Sports,How many points is a touchdown in American football?,Six
-Geography,What is the largest ocean?,Pacific Ocean
-Math,What is the square root of 144?,Twelve
-Arts,Who wrote Romeo and Juliet?,William Shakespeare
-Science,What is the speed of light?,299792458 meters per second
-History,Who discovered America?,Christopher Columbus
-Sports,How many innings in a baseball game?,Nine
-General,Final Question Example?,Final Answer Example`;
-    
+    const template = `Category,Question,Answer,Type,ImageURL
+Science,What is H2O?,Water,regular,
+History,Who was the first president?,George Washington,regular,
+Sports,How many players on a basketball team?,Five,regular,
+Geography,Identify these 6 logos,"1. Nike, 2. Apple, 3. McDonald's, 4. Starbucks, 5. Amazon, 6. Google",visual,https://quizzler.pro/img/visual-102225.jpg
+Math,What is 2+2?,Four,regular,
+Arts,Who painted the Mona Lisa?,Leonardo da Vinci,regular,
+Science,What planet is known as the Red Planet?,Mars,regular,
+History,In what year did World War II end?,1945,regular,
+Sports,How many points is a touchdown in American football?,Six,regular,
+Geography,What is the largest ocean?,Pacific Ocean,regular,
+Math,What is the square root of 144?,Twelve,regular,
+Arts,Who wrote Romeo and Juliet?,William Shakespeare,regular,
+Science,What is the speed of light?,299792458 meters per second,regular,
+History,Who discovered America?,Christopher Columbus,regular,
+Sports,How many innings in a baseball game?,Nine,regular,
+General,Final Question Example?,Final Answer Example,regular,`;
+
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'quizzler_template.csv';
+    a.download = 'quizzler-template.csv';
     a.click();
-    window.URL.revokeObjectURL(url);
   };
 
   const handleImportCSV = (event) => {
@@ -192,7 +191,9 @@ General,Final Question Example?,Final Answer Example`;
             newQuestions[i] = {
               category: imported[i].Category,
               question: imported[i].Question,
-              answer: imported[i].Answer
+              answer: imported[i].Answer,
+              type: imported[i].Type || 'regular',
+              imageUrl: imported[i].ImageURL || null
             };
           }
         }
@@ -202,7 +203,9 @@ General,Final Question Example?,Final Answer Example`;
           setFinalQuestion({
             category: imported[15].Category,
             question: imported[15].Question,
-            answer: imported[15].Answer
+            answer: imported[15].Answer,
+            type: imported[15].Type || 'regular',
+            imageUrl: imported[15].ImageURL || null
           });
         }
         
@@ -231,7 +234,9 @@ General,Final Question Example?,Final Answer Example`;
         gameCode,
         question: {
           text: q.question,
-          answer: q.answer
+          answer: q.answer,
+          type: q.type || 'regular',
+          imageUrl: q.imageUrl || null
         }
       });
     });
@@ -292,6 +297,69 @@ const closeHistory = () => {
         }
       }
     }));
+  };
+
+const markVisualAnswer = (teamName, index, correct) => {
+    const questionKey = `q${game.currentQuestionIndex + 1}`;
+    const team = game.teams[teamName];
+    const answer = team.answers[questionKey];
+    
+    // Initialize correct array if needed
+    if (!Array.isArray(answer.correct)) {
+      answer.correct = [false, false, false, false, false, false];
+    }
+    
+    // Update the specific answer
+    answer.correct[index] = correct;
+    
+    // Check if all 6 are marked
+    const allMarked = answer.correct.every((val, i) => 
+      Array.isArray(answer.text) && i < answer.text.length
+    );
+    
+    // If all marked, submit to backend
+    if (allMarked) {
+      answer.marked = true;
+      socket.emit('host:markAnswer', { 
+        gameCode, 
+        teamName, 
+        questionKey, 
+        correct: answer.correct 
+      });
+      
+      // Calculate score locally (1 point per correct)
+      const scoreChange = answer.correct.filter(Boolean).length;
+      
+      setGame(prev => ({
+        ...prev,
+        teams: {
+          ...prev.teams,
+          [teamName]: {
+            ...prev.teams[teamName],
+            score: prev.teams[teamName].score + scoreChange,
+            answers: {
+              ...prev.teams[teamName].answers,
+              [questionKey]: answer
+            }
+          }
+        }
+      }));
+    } else {
+      // Just update local state
+      setGame(prev => ({
+        ...prev,
+        teams: {
+          ...prev.teams,
+          [teamName]: {
+            ...prev.teams[teamName],
+            answers: {
+              ...prev.teams[teamName].answers,
+              [questionKey]: answer
+            }
+          }
+        }
+      }));
+    }
   };
 
 const nextQuestion = () => {
@@ -1022,15 +1090,26 @@ const getScoringProgress = () => {
 </div>
 <div style={{ background: '#FFF9E6', padding: '15px', borderRadius: '10px', marginBottom: '25px' }}>
   <strong style={{ color: '#286586' }}>Correct answer:</strong> {questions[game.currentQuestionIndex].answer}
+  {questions[game.currentQuestionIndex].type === 'visual' && questions[game.currentQuestionIndex].imageUrl && (
+    <div style={{ marginTop: '15px', textAlign: 'center' }}>
+      <img 
+        src={questions[game.currentQuestionIndex].imageUrl} 
+        alt="Visual Question"
+        style={{ maxWidth: '300px', height: 'auto', borderRadius: '10px', border: '2px solid #286586' }}
+      />
+    </div>
+  )}
 </div>
               {getSortedTeams().map(team => {
                 const questionKey = `q${game.currentQuestionIndex + 1}`;
                 const answer = team.answers?.[questionKey];
+                const isVisual = questions[game.currentQuestionIndex].type === 'visual';
+                
                 return (
                   <div key={team.name} className="answer-item">
                     <div className="answer-header">
                       <div className="team-name-large">{team.name} | {team.score} pts</div>
-                      {answer && !answer.marked && (
+                      {answer && !answer.marked && !isVisual && (
                         <div className="answer-buttons">
                           <button className="correct-button" onClick={() => markAnswer(team.name, true)}>✓</button>
                           <button className="incorrect-button" onClick={() => markAnswer(team.name, false)}>✗</button>
@@ -1039,12 +1118,48 @@ const getScoringProgress = () => {
                     </div>
                     {answer ? (
                       <div className="answer-details">
-                        Their answer: "{answer.text}"<br/>
-                        Confidence: {answer.confidence} pts
-                        {answer.marked && (
-                          <div style={{ marginTop: '10px', fontWeight: '700', color: answer.correct ? '#00AA00' : '#C60404' }}>
-                            {answer.correct ? '✓ CORRECT' : '✗ INCORRECT'}
+                        {isVisual ? (
+                          // Visual question: show 6 answers
+                          <div>
+                            {Array.isArray(answer.text) ? answer.text.map((ans, idx) => (
+                              <div key={idx} style={{ marginBottom: '10px', padding: '10px', background: '#f5f5f5', borderRadius: '5px' }}>
+                                <strong>#{idx + 1}:</strong> {ans}
+                                {answer.marked && (
+                                  <span style={{ marginLeft: '10px', fontWeight: '700', color: answer.correct[idx] ? '#00AA00' : '#C60404' }}>
+                                    {answer.correct[idx] ? '✓' : '✗'}
+                                  </span>
+                                )}
+                                {!answer.marked && (
+                                  <span style={{ marginLeft: '10px' }}>
+                                    <button 
+                                      style={{ marginLeft: '5px', padding: '2px 8px', background: '#00AA00', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                                      onClick={() => markVisualAnswer(team.name, idx, true)}
+                                    >✓</button>
+                                    <button 
+                                      style={{ marginLeft: '5px', padding: '2px 8px', background: '#C60404', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                                      onClick={() => markVisualAnswer(team.name, idx, false)}
+                                    >✗</button>
+                                  </span>
+                                )}
+                              </div>
+                            )) : <div>Invalid answer format</div>}
+                            {answer.marked && (
+                              <div style={{ marginTop: '10px', fontWeight: '700', color: '#286586' }}>
+                                Score: {answer.correct.filter(Boolean).length} / 6 points
+                              </div>
+                            )}
                           </div>
+                        ) : (
+                          // Regular question
+                          <>
+                            Their answer: "{answer.text}"<br/>
+                            Confidence: {answer.confidence} pts
+                            {answer.marked && (
+                              <div style={{ marginTop: '10px', fontWeight: '700', color: answer.correct ? '#00AA00' : '#C60404' }}>
+                                {answer.correct ? '✓ CORRECT' : '✗ INCORRECT'}
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     ) : (
