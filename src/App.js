@@ -400,7 +400,7 @@ const getScoringProgress = () => {
         }
 
         .logo-text {
-          font-family: 'Paytone One', sans-serif;
+          font-family: 'Gabarito', sans-serif;
           font-size: 42px;
           color: #FF6600;
           letter-spacing: 2px;
@@ -1008,7 +1008,7 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              <div className="logo-text">QUIZZLER</div>
+              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -1116,7 +1116,7 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              <div className="logo-text">QUIZZLER</div>
+              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -1179,7 +1179,7 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-        <div className="logo-text">QUIZZLER</div>
+        
       </div>
       <div className="host-info">
         {hostName} | {venueName} | {gameCode}
@@ -1240,7 +1240,7 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              <div className="logo-text">QUIZZLER</div>
+              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -1326,7 +1326,7 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              <div className="logo-text">QUIZZLER</div>
+              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
