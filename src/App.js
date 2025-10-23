@@ -118,14 +118,7 @@ socket.on('host:scoresCorrected', (data) => {
       }
     });
     
-    return {
-      ...prev,
-      teams: updatedTeams
-    };
-  });
-});
-    
-    return {
+return {
       ...prev,
       teams: updatedTeams
     };
