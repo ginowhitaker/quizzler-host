@@ -151,7 +151,24 @@ return () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timerActive, timeRemaining]);
+}, [timerActive, timeRemaining]);
+
+  // Prevent accidental navigation away
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      // Only show warning if game is active
+      if (game && gameCode) {
+        e.preventDefault();
+        e.returnValue = ''; // Chrome requires returnValue to be set
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [game, gameCode]);
 
   const formatTimer = () => {
     const minutes = Math.floor(timeRemaining / 60);
