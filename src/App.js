@@ -14,7 +14,7 @@ export default function QuizzlerHostApp() {
   const [visualTimer, setVisualTimer] = useState(0); // 0 = no timer
   const [gameCode, setGameCode] = useState('');
   const [game, setGame] = useState(null);
-  const [questions, setQuestions] = useState(Array(15).fill({ category: '', question: '', answer: '' }));
+  const [questions, setQuestions] = useState(Array.from({ length: 15 }, () => ({ category: '', question: '', answer: '', type: 'regular', imageUrl: '' })));
   const [finalQuestion, setFinalQuestion] = useState({ category: '', question: '', answer: '' });
   const [selectedTeamHistory, setSelectedTeamHistory] = useState(null);
   const [timerDuration, setTimerDuration] = useState(0);
