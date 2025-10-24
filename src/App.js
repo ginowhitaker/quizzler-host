@@ -1400,10 +1400,6 @@ const getScoringProgress = () => {
               <button className="submit-button" onClick={pushFinalCategory}>
                 PUSH CATEGORY (PLAYERS WAGER)
               </button>
-              <button className="submit-button" onClick={pushFinalCategory}>
-  PUSH CATEGORY (PLAYERS WAGER)
-</button>
-
 
             </div>
             <div className="right-panel">
