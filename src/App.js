@@ -924,7 +924,7 @@ const getScoringProgress = () => {
                 />
               </div>
 
-              <div className="questions-grid">
+<div className="questions-grid">
                 {questions.map((q, idx) => (
                   <div key={idx} className="question-group">
                     <label className="question-label">Category {idx + 1}</label>
@@ -945,6 +945,33 @@ const getScoringProgress = () => {
                       value={q.answer}
                       onChange={(e) => updateQuestion(idx, 'answer', e.target.value)}
                     />
+                    
+                    {/* Visual Round Checkbox */}
+                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px', marginBottom: '10px' }}>
+                      <input
+                        type="checkbox"
+                        id={`visual-${idx}`}
+                        checked={q.type === 'visual'}
+                        onChange={(e) => updateQuestion(idx, 'type', e.target.checked ? 'visual' : 'regular')}
+                        style={{ marginRight: '8px', cursor: 'pointer' }}
+                      />
+                      <label htmlFor={`visual-${idx}`} style={{ cursor: 'pointer', fontWeight: 'bold', color: '#286586' }}>
+                        📸 Visual Round
+                      </label>
+                    </div>
+                    
+                    {/* Image URL Field - Only show if visual */}
+                    {q.type === 'visual' && (
+                      <>
+                        <label className="question-label">Image URL</label>
+                        <input
+                          className="question-input"
+                          placeholder="https://quizzler.pro/img/visual-example.jpg"
+                          value={q.imageUrl || ''}
+                          onChange={(e) => updateQuestion(idx, 'imageUrl', e.target.value)}
+                        />
+                      </>
+                    )}
                   </div>
                 ))}
                 <div className="question-group">
