@@ -1396,11 +1396,7 @@ const getScoringProgress = () => {
                   {getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length} of {getSortedTeams().length} teams wagered
                 </div>
               </div>
-
-              <button className="submit-button" onClick={pushFinalCategory}>
-                PUSH CATEGORY (PLAYERS WAGER)
-              </button>
-
+              
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
