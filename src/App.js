@@ -1354,49 +1354,11 @@ const getScoringProgress = () => {
                 <br/><br/>
                 {finalQuestion.question}
               </div>
-              {/* Wager Status */}
-              <div style={{ 
-                background: '#FFF9E6', 
-                padding: '20px', 
-                borderRadius: '10px', 
-                marginBottom: '20px',
-                border: '2px solid #FFB300'
-              }}>
-                <h3 style={{ color: '#286586', fontSize: '18px', marginBottom: '15px', marginTop: 0 }}>
-                  Wager Status
-                </h3>
-                {getSortedTeams().map(team => {
-                  const hasWagered = team.finalWager !== undefined && team.finalWager !== null;
-                  return (
-                    <div key={team.name} style={{ 
-                      padding: '8px', 
-                      marginBottom: '5px',
-                      background: hasWagered ? '#C8E6C9' : '#FFCDD2',
-                      borderRadius: '5px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <span style={{ fontWeight: 'bold' }}>{team.name}</span>
-                      <span style={{ color: hasWagered ? '#2E7D32' : '#C62828' }}>
-                        {hasWagered ? '✓ Wagered' : '⏳ Waiting...'}
-                      </span>
-                    </div>
-                  );
-                })}
-                <div style={{ 
-                  marginTop: '15px', 
-                  padding: '10px', 
-                  background: '#E3F2FD', 
-                  borderRadius: '5px',
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  color: '#286586'
-                }}>
-                  {getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length} of {getSortedTeams().length} teams wagered
-                </div>
-              </div>
-              
+
+              <button className="submit-button" onClick={pushFinalCategory}>
+                PUSH CATEGORY (PLAYERS WAGER)
+              </button>
+
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
