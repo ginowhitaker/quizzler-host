@@ -1463,13 +1463,72 @@ const getScoringProgress = () => {
       <div className="left-panel">
         <div className="question-display">
           <div className="question-number">WAITING FOR WAGERS...</div>
-          Teams are submitting their wagers (0-20 points) based on the category: {finalQuestion.category}
-          <br/><br/>
-          Once all teams have submitted, reveal the question below:
-          <br/><br/>
+          Teams are submitting their wagers (0-20 points) based on the category: <strong>{finalQuestion.category}</strong>
+        </div>
+        
+        {/* Wager Status */}
+        <div style={{ 
+          background: '#FFF9E6', 
+          padding: '20px', 
+          borderRadius: '10px', 
+          marginBottom: '20px',
+          border: '2px solid #FFB300'
+        }}>
+          <h3 style={{ color: '#286586', fontSize: '18px', marginBottom: '15px', marginTop: 0 }}>
+            Wager Status
+          </h3>
+          {getSortedTeams().map(team => {
+            const hasWagered = team.finalWager !== undefined && team.finalWager !== null;
+            return (
+              <div key={team.name} style={{ 
+                padding: '10px', 
+                marginBottom: '8px',
+                background: hasWagered ? '#C8E6C9' : '#FFCDD2',
+                borderRadius: '5px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ fontWeight: 'bold', fontSize: '16px' }}>{team.name}</span>
+                <span style={{ 
+                  color: hasWagered ? '#2E7D32' : '#C62828',
+                  fontWeight: 'bold',
+                  fontSize: '16px'
+                }}>
+                  {hasWagered ? `✓ ${team.finalWager} points` : '⏳ Waiting...'}
+                </span>
+              </div>
+            );
+          })}
+          <div style={{ 
+            marginTop: '15px', 
+            padding: '12px', 
+            background: '#E3F2FD', 
+            borderRadius: '5px',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            fontSize: '18px',
+            color: '#286586'
+          }}>
+            {getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length} of {getSortedTeams().length} teams wagered
+          </div>
+        </div>
+
+        <div style={{ background: 'white', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '2px solid #286586' }}>
+          <strong>Final Question:</strong>
+          <br/>
           {finalQuestion.question}
         </div>
-        <button className="submit-button" onClick={revealFinalQuestion}>
+        
+        <button 
+          className="submit-button" 
+          onClick={revealFinalQuestion}
+          disabled={getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length !== getSortedTeams().length}
+          style={{
+            opacity: getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length !== getSortedTeams().length ? 0.5 : 1,
+            cursor: getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length !== getSortedTeams().length ? 'not-allowed' : 'pointer'
+          }}
+        >
           REVEAL FINAL QUESTION TO TEAMS
         </button>
       </div>
