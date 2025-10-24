@@ -994,6 +994,18 @@ const getScoringProgress = () => {
                     onChange={(e) => setFinalQuestion(prev => ({ ...prev, answer: e.target.value }))}
                   />
                 </div>
+                )}
+                    
+                    {/* Separator - don't show after last question */}
+                    {idx < 14 && (
+                      <hr style={{ 
+                        border: 'none', 
+                        borderTop: '1px solid #cccccc', 
+                        margin: '20px 0 0 0' 
+                      }} />
+                    )}
+                  </div>
+                ))}
               </div>
               <button className="submit-button" onClick={startGame}>
                 START
