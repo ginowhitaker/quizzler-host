@@ -1777,69 +1777,167 @@ const getScoringProgress = () => {
         const question = questionKey === 'final' 
           ? finalQuestion 
           : questions[parseInt(questionNum) - 1];
+        const isVisual = question?.type === 'visual' || Array.isArray(answer.text);
         
         return (
           <div key={questionKey} style={{
-            background: answer.correct ? '#E8F5E9' : '#FFEBEE',
-            border: `2px solid ${answer.correct ? '#4CAF50' : '#F44336'}`,
+            background: isVisual ? '#FFF9E6' : (answer.correct ? '#E8F5E9' : '#FFEBEE'),
+            border: `2px solid ${isVisual ? '#FFB300' : (answer.correct ? '#4CAF50' : '#F44336')}`,
             borderRadius: '10px',
             padding: '20px',
             marginBottom: '15px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
-              <div>
+              <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#286586', marginBottom: '5px' }}>
-                  Question {questionNum}
+                  Question {questionNum} {isVisual && '📸 Visual Round'}
                 </div>
                 <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
                   {question?.question || 'Question text not available'}
                 </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '14px', color: '#666' }}>Confidence</div>
-                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#FF6600' }}>
-                  {answer.confidence}
+              {!isVisual && (
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '14px', color: '#666' }}>Confidence</div>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#FF6600' }}>
+                    {answer.confidence}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {isVisual ? (
+              // Visual question - show 6 answers
+              <div>
+                {Array.isArray(answer.text) && answer.text.map((ans, idx) => {
+                  const isCorrect = Array.isArray(answer.correct) ? answer.correct[idx] : false;
+                  return (
+                    <div key={idx} style={{
+                      background: isCorrect ? '#E8F5E9' : '#FFEBEE',
+                      border: `2px solid ${isCorrect ? '#4CAF50' : '#F44336'}`,
+                      borderRadius: '8px',
+                      padding: '15px',
+                      marginBottom: '10px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#286586', marginBottom: '5px' }}>
+                          #{idx + 1}
+                        </div>
+                        <div style={{ fontSize: '16px' }}>{ans}</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div style={{
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          color: isCorrect ? '#2E7D32' : '#C62828'
+                        }}>
+                          {isCorrect ? '✓ CORRECT' : '✗ INCORRECT'}
+                        </div>
+                        <button
+                          onClick={() => {
+                            // Toggle this specific visual answer
+                            const newCorrect = [...(answer.correct || [false, false, false, false, false, false])];
+                            newCorrect[idx] = !newCorrect[idx];
+                            
+                            // Calculate new score
+                            const oldCorrectCount = (answer.correct || []).filter(Boolean).length;
+                            const newCorrectCount = newCorrect.filter(Boolean).length;
+                            const scoreDiff = newCorrectCount - oldCorrectCount;
+                            
+                            // Update local state
+                            setGame(prev => ({
+                              ...prev,
+                              teams: {
+                                ...prev.teams,
+                                [selectedTeamHistory.teamName]: {
+                                  ...prev.teams[selectedTeamHistory.teamName],
+                                  score: prev.teams[selectedTeamHistory.teamName].score + scoreDiff,
+                                  answers: {
+                                    ...prev.teams[selectedTeamHistory.teamName].answers,
+                                    [questionKey]: {
+                                      ...answer,
+                                      correct: newCorrect
+                                    }
+                                  }
+                                }
+                              }
+                            }));
+                            
+                            // Notify backend
+                            socket.emit('host:toggleCorrectness', { 
+                              gameCode, 
+                              teamName: selectedTeamHistory.teamName, 
+                              questionKey,
+                              visualIndex: idx
+                            });
+                          }}
+                          style={{
+                            background: isCorrect ? '#F44336' : '#4CAF50',
+                            color: 'white',
+                            border: 'none',
+                            padding: '8px 16px',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          Mark as {isCorrect ? 'Incorrect' : 'Correct'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div style={{ marginTop: '15px', padding: '10px', background: '#E3F2FD', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold', color: '#286586' }}>
+                  Score: {Array.isArray(answer.correct) ? answer.correct.filter(Boolean).length : 0} / 6 points
                 </div>
               </div>
-            </div>
+            ) : (
+              // Regular question
+              <>
+                <div style={{ marginBottom: '10px' }}>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Their Answer:</div>
+                  <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{answer.text}</div>
+                </div>
 
-            <div style={{ marginBottom: '10px' }}>
-              <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Their Answer:</div>
-              <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{answer.text}</div>
-            </div>
+                <div style={{ marginBottom: '15px' }}>
+                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Correct Answer:</div>
+                  <div style={{ fontSize: '16px', color: '#4CAF50', fontWeight: 'bold' }}>
+                    {question?.answer || 'N/A'}
+                  </div>
+                </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Correct Answer:</div>
-              <div style={{ fontSize: '16px', color: '#4CAF50', fontWeight: 'bold' }}>
-                {question?.answer || 'N/A'}
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{
-                fontSize: '16px',
-                fontWeight: 'bold',
-                color: answer.correct ? '#2E7D32' : '#C62828'
-              }}>
-                {answer.correct ? '✓ CORRECT' : '✗ INCORRECT'}
-                {answer.correct ? ` (+${answer.confidence} pts)` : ' (+0 pts)'}
-              </div>
-              <button
-                onClick={() => toggleCorrectness(selectedTeamHistory.teamName, questionKey)}
-                style={{
-                  background: answer.correct ? '#F44336' : '#4CAF50',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                Mark as {answer.correct ? 'Incorrect' : 'Correct'}
-              </button>
-            </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    color: answer.correct ? '#2E7D32' : '#C62828'
+                  }}>
+                    {answer.correct ? '✓ CORRECT' : '✗ INCORRECT'}
+                    {answer.correct ? ` (+${answer.confidence} pts)` : ' (+0 pts)'}
+                  </div>
+                  <button
+                    onClick={() => toggleCorrectness(selectedTeamHistory.teamName, questionKey)}
+                    style={{
+                      background: answer.correct ? '#F44336' : '#4CAF50',
+                      color: 'white',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Mark as {answer.correct ? 'Incorrect' : 'Correct'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         );
       })}
