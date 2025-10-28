@@ -1201,7 +1201,6 @@ const getScoringProgress = () => {
 >
   PUSH QUESTION {selectedQuestionIndex + 1} TO TEAMS
 </button>
-             <button 
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
