@@ -93,6 +93,8 @@ socket.on('host:wagerReceived', (data) => {
 });
 
 socket.on('host:questionPushed', (data) => {
+  console.log('Question pushed successfully, current selectedQuestionIndex:', selectedQuestionIndex);
+  
   // Initialize timer if present
   if (data.timerDuration && data.timerDuration > 0) {
     setTimerDuration(data.timerDuration);
@@ -101,9 +103,15 @@ socket.on('host:questionPushed', (data) => {
   } else {
     setTimerActive(false);
   }
-  setScreen('scoring');
+  
+  // Auto-advance to next question for preview
+  setSelectedQuestionIndex(prev => {
+    console.log('Advancing from', prev, 'to', prev + 1);
+    return prev + 1;
+  });
+  
+  setScreen('active');
 });
-
 socket.on('host:scoresCorrected', (data) => {
   setGame(prev => {
     const updatedTeams = {};
@@ -323,8 +331,9 @@ General,Final Question Example?,Final Answer Example,regular,`;
 };
 
 const pushQuestion = () => {
+  console.log('Pushing question with index:', selectedQuestionIndex);
+  console.log('Question details:', questions[selectedQuestionIndex]);
   socket.emit('host:pushQuestion', { gameCode, questionIndex: selectedQuestionIndex });
-  // Removed setScreen - will change on backend confirmation
 };
 
 const toggleCorrectness = (teamName, questionKey) => {
