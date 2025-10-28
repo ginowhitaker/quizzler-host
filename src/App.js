@@ -413,11 +413,11 @@ socket.emit('host:addAllQuestions', {
   const team = game.teams[teamName];
   const answer = team.answers[questionKey];
   
-  // GUARD: Prevent double-marking
-  if (!answer || answer.marked) {
-    console.log('Answer already marked, ignoring click');
-    return;
-  }
+  // TEMPORARILY COMMENTED OUT FOR DEBUGGING
+  // if (!answer || answer.marked) {
+  //   console.log('Answer already marked, ignoring click');
+  //   return;
+  // }
   
   socket.emit('host:markAnswer', { gameCode, teamName, questionKey, correct });
 
