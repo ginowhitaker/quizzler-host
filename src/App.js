@@ -56,7 +56,6 @@ export default function QuizzlerHostApp() {
 
   newSocket.on('reconnect', (attemptNumber) => {
   console.log('Reconnected after', attemptNumber, 'attempts');
-  
   // Rejoin game room on reconnect
   if (gameCode) {
     newSocket.emit('host:join', gameCode);
@@ -67,10 +66,16 @@ export default function QuizzlerHostApp() {
       .then(gameData => {
         console.log('Synced game state after reconnect:', gameData);
         
+        // Update current question index
+        if (gameData.current_question_index !== undefined) {
+          setSelectedQuestionIndex(gameData.current_question_index);
+        }
+        
         // Update teams with latest answers and scores
         if (gameData.teams) {
           setGame(prev => ({
             ...prev,
+            currentQuestionIndex: gameData.current_question_index || 0,
             teams: gameData.teams.reduce((acc, team) => {
               acc[team.name] = {
                 name: team.name,
