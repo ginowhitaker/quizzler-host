@@ -43,31 +43,22 @@ export default function QuizzlerHostApp() {
   });
 
   newSocket.on('connect', () => {
-    console.log('Connected to server');
-    // If reconnecting mid-game, rejoin the game room
-    if (gameCode) {
-      newSocket.emit('host:join', gameCode);
-    }
-  });
-
-  newSocket.on('disconnect', () => {
-    console.log('Disconnected from server - attempting to reconnect...');
-  });
-
-  newSocket.on('reconnect', (attemptNumber) => {
-  console.log('Reconnected after', attemptNumber, 'attempts');
-  // Rejoin game room on reconnect
+  console.log('Connected to server');
+  
+  // If we have a gameCode, rejoin and sync (handles both initial join and reconnection)
   if (gameCode) {
+    console.log('Rejoining game:', gameCode);
     newSocket.emit('host:join', gameCode);
     
-    // SYNC GAME STATE: Fetch latest data from database
+    // SYNC GAME STATE from database
     fetch(`${BACKEND_URL}/api/game/${gameCode}`)
       .then(res => res.json())
       .then(gameData => {
-        console.log('Synced game state after reconnect:', gameData);
+        console.log('Synced game state:', gameData);
         
         // Update current question index
         if (gameData.current_question_index !== undefined) {
+          console.log('Setting question index to:', gameData.current_question_index);
           setSelectedQuestionIndex(gameData.current_question_index);
         }
         
