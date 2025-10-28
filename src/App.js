@@ -307,19 +307,11 @@ General,Final Question Example?,Final Answer Example,regular,`;
       return;
     }
     
-    // Send each question to the backend
-    for (const q of validQuestions) {
-      socket.emit('host:addQuestion', {
-        gameCode,
-        question: {
-          category: q.category,
-          text: q.text,  // Correct field name
-          answer: q.answer,
-          type: q.type || 'regular',
-          imageUrl: q.imageUrl || null
-        }
-      });
-    }
+// Send ALL questions at once to avoid race condition
+socket.emit('host:addAllQuestions', {
+  gameCode,
+  questions: validQuestions
+});
     
     // Wait a bit for all questions to be saved, then fetch game state
     setTimeout(() => {
@@ -646,7 +638,7 @@ General,Final Question Example?,Final Answer Example,regular,`;
           font-weight: 700;
           font-family: 'Gabarito', sans-serif;
           cursor: pointer;
-          margin-top: 10px;
+          margin-top: 0px;
           transition: background 0.3s;
         }
 
@@ -926,14 +918,14 @@ General,Final Question Example?,Final Answer Example,regular,`;
                   onClick={downloadTemplate}
                   style={{ flex: 1 }}
                 >
-                  📥 Download Template
+                  Download Template
                 </button>
                 <label 
                   htmlFor="csv-upload" 
                   className="submit-button"
                   style={{ flex: 1, textAlign: 'center', cursor: 'pointer', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  📤 Import CSV
+                  Import CSV
                 </label>
                 <input
                   id="csv-upload"
