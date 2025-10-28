@@ -14,17 +14,25 @@ export default function QuizzlerHostApp() {
   const [visualTimer, setVisualTimer] = useState(0); // 0 = no timer
   const [gameCode, setGameCode] = useState('');
   const [game, setGame] = useState({
-  code: '',
-  currentQuestionIndex: 0,
-  questionNumber: 0
-});
-const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);  // ADD THIS
-  const [questions, setQuestions] = useState(Array.from({ length: 15 }, () => ({ category: '', question: '', answer: '', type: 'regular', imageUrl: '' })));
+    code: '',
+    currentQuestionIndex: 0,
+    questionNumber: 0
+  });
+  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
+  // FIXED: Changed 'question' to 'text' to match PostgreSQL schema
+  const [questions, setQuestions] = useState(Array.from({ length: 15 }, () => ({ 
+    category: '', 
+    text: '',  // FIXED: was 'question'
+    answer: '', 
+    type: 'regular', 
+    imageUrl: '' 
+  })));
   const [finalQuestion, setFinalQuestion] = useState({ category: '', question: '', answer: '' });
   const [selectedTeamHistory, setSelectedTeamHistory] = useState(null);
   const [timerDuration, setTimerDuration] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+
   useEffect(() => {
     const newSocket = io(BACKEND_URL, {
       transports: ['websocket', 'polling']
@@ -81,68 +89,67 @@ const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);  // ADD T
         }
       }));
     });
-socket.on('host:wagerReceived', (data) => {
-  setGame(prev => ({
-    ...prev,
-    teams: data.teams.reduce((acc, team) => {
-      acc[team.name] = team;
-      return acc;
-    }, {})
-  }));
-  console.log(`Wager received from ${data.teamName}: ${data.wager}`);
-});
 
-socket.on('host:questionPushed', (data) => {
-  console.log('Question pushed successfully');
-  
-  // Initialize timer if present
-  if (data.timerDuration && data.timerDuration > 0) {
-    setTimerDuration(data.timerDuration);
-    setTimeRemaining(data.timerDuration);
-    setTimerActive(true);
-  } else {
-    setTimerActive(false);
-  }
-  
-  setScreen('scoring');  // ← CHANGE back to 'scoring'
-  // Don't auto-advance here - let host manually advance when ready for next question
-});
-
-socket.on('host:scoresCorrected', (data) => {
-  setGame(prev => {
-    const updatedTeams = {};
-    
-    // Rebuild teams object completely to ensure React detects changes
-    Object.keys(prev.teams).forEach(teamName => {
-      const teamData = data.teams.find(t => t.name === teamName);
-      
-      if (teamData) {
-        updatedTeams[teamName] = {
-          ...prev.teams[teamName],
-          score: teamData.score,
-          answers: teamData.answers ? { ...teamData.answers } : prev.teams[teamName].answers
-        };
-      } else {
-        updatedTeams[teamName] = prev.teams[teamName];
-      }
+    socket.on('host:wagerReceived', (data) => {
+      setGame(prev => ({
+        ...prev,
+        teams: data.teams.reduce((acc, team) => {
+          acc[team.name] = team;
+          return acc;
+        }, {})
+      }));
+      console.log(`Wager received from ${data.teamName}: ${data.wager}`);
     });
-    
-return {
-      ...prev,
-      teams: updatedTeams
+
+    socket.on('host:questionPushed', (data) => {
+      console.log('Question pushed successfully');
+      
+      // Initialize timer if present
+      if (data.timerDuration && data.timerDuration > 0) {
+        setTimerDuration(data.timerDuration);
+        setTimeRemaining(data.timerDuration);
+        setTimerActive(true);
+      } else {
+        setTimerActive(false);
+      }
+      
+      setScreen('scoring');
+    });
+
+    socket.on('host:scoresCorrected', (data) => {
+      setGame(prev => {
+        const updatedTeams = {};
+        
+        // Rebuild teams object completely to ensure React detects changes
+        Object.keys(prev.teams).forEach(teamName => {
+          const teamData = data.teams.find(t => t.name === teamName);
+          
+          if (teamData) {
+            updatedTeams[teamName] = {
+              ...prev.teams[teamName],
+              score: teamData.score,
+              answers: teamData.answers ? { ...teamData.answers } : prev.teams[teamName].answers
+            };
+          } else {
+            updatedTeams[teamName] = prev.teams[teamName];
+          }
+        });
+        
+        return {
+          ...prev,
+          teams: updatedTeams
+        };
+      });
+    });
+
+    return () => {
+      socket.off('host:joined');
+      socket.off('host:teamJoined');
+      socket.off('host:answerReceived');
+      socket.off('host:wagerReceived');
+      socket.off('host:questionPushed');
+      socket.off('host:scoresCorrected');
     };
-  });
-});
-
-return () => {
-  socket.off('host:joined');
-  socket.off('host:teamJoined');
-  socket.off('host:answerReceived');
-  socket.off('host:wagerReceived');
-  socket.off('host:questionPushed');
-  socket.off('host:scoresCorrected');
-}
-
   }, [socket, gameCode]);
 
   // Timer countdown
@@ -160,23 +167,19 @@ return () => {
     }, 1000);
 
     return () => clearInterval(interval);
-}, [timerActive, timeRemaining]);
+  }, [timerActive, timeRemaining]);
 
   // Prevent accidental navigation away
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      // Only show warning if game is active
       if (game && gameCode) {
         e.preventDefault();
-        e.returnValue = ''; // Chrome requires returnValue to be set
+        e.returnValue = '';
       }
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [game, gameCode]);
 
   const formatTimer = () => {
@@ -198,19 +201,19 @@ return () => {
       });
       
       const data = await response.json();
-       setGameCode(data.gameCode);
-       setGame({ hostName, venueName, venueSpecials, teams: {} });
+      setGameCode(data.gameCode);
+      setGame({ hostName, venueName, venueSpecials, teams: {} });
 
-     socket.emit('host:join', data.gameCode);
-     socket.emit('host:setup', {
-      gameCode: data.gameCode,
-      hostName,
-      venueName,
-      venueSpecials,
-      regularTimer,
-      visualTimer
-     });
-    setScreen('questions');
+      socket.emit('host:join', data.gameCode);
+      socket.emit('host:setup', {
+        gameCode: data.gameCode,
+        hostName,
+        venueName,
+        venueSpecials,
+        regularTimer,
+        visualTimer
+      });
+      setScreen('questions');
     } catch (error) {
       alert('Failed to create game');
       console.error(error);
@@ -266,7 +269,7 @@ General,Final Question Example?,Final Answer Example,regular,`;
           if (imported[i].Category && imported[i].Question && imported[i].Answer) {
             newQuestions[i] = {
               category: imported[i].Category,
-              question: imported[i].Question,
+              text: imported[i].Question,  // FIXED: was 'question'
               answer: imported[i].Answer,
               type: imported[i].Type || 'regular',
               imageUrl: imported[i].ImageURL || null
@@ -293,71 +296,73 @@ General,Final Question Example?,Final Answer Example,regular,`;
       }
     });
     
-    // Reset file input
     event.target.value = '';
   };
 
   const startGame = async () => {
-  const validQuestions = questions.filter(q => q.question && q.answer);
-  if (validQuestions.length < 15) {
-    alert('Please fill in all 15 questions and answers');
-    return;
-  }
-  
-  // Send each question to the backend
-  for (const q of validQuestions) {
-    socket.emit('host:addQuestion', {
-  gameCode,
-  question: {
-    category: q.category,  // ADD THIS
-    text: q.question,
-    answer: q.answer,
-    type: q.type || 'regular',
-    imageUrl: q.imageUrl || null
-  }
-});
-  }
-  
-  // Wait a bit for all questions to be saved, then fetch game state
-  setTimeout(() => {
-    fetch(`${BACKEND_URL}/api/game/${gameCode}`)
-      .then(res => res.json())
-      .then(gameData => {
-        console.log('Fetched game data:', gameData);
-        setQuestions(gameData.questions || []);  // Sync local state with database
-        setGame(prev => ({ ...prev, questions: gameData.questions }));
-        setScreen('welcome');
-      })
-      .catch(err => {
-        console.error('Error fetching game:', err);
-        setScreen('welcome');
+    // FIXED: Check for 'text' field instead of 'question'
+    const validQuestions = questions.filter(q => q.text && q.answer);
+    if (validQuestions.length < 15) {
+      alert('Please fill in all 15 questions and answers');
+      return;
+    }
+    
+    // Send each question to the backend
+    for (const q of validQuestions) {
+      socket.emit('host:addQuestion', {
+        gameCode,
+        question: {
+          category: q.category,
+          text: q.text,  // Correct field name
+          answer: q.answer,
+          type: q.type || 'regular',
+          imageUrl: q.imageUrl || null
+        }
       });
-  }, 1000);
-};
+    }
+    
+    // Wait a bit for all questions to be saved, then fetch game state
+    setTimeout(() => {
+      fetch(`${BACKEND_URL}/api/game/${gameCode}`)
+        .then(res => res.json())
+        .then(gameData => {
+          console.log('Fetched game data:', gameData);
+          setQuestions(gameData.questions || []);
+          setSelectedQuestionIndex(0);  // FIXED: Reset to 0 when starting
+          setGame(prev => ({ ...prev, questions: gameData.questions }));
+          setScreen('welcome');
+        })
+        .catch(err => {
+          console.error('Error fetching game:', err);
+          setScreen('welcome');
+        });
+    }, 1000);
+  };
 
   const continueToFirstQuestion = () => {
-  setGame(prev => ({ ...prev, currentQuestionIndex: 0 }));
-  setScreen('questionDisplay'); // Show Q1 on host screen
-};
+    setSelectedQuestionIndex(0);  // FIXED: Reset to 0
+    setGame(prev => ({ ...prev, currentQuestionIndex: 0 }));
+    setScreen('questionDisplay');
+  };
 
-const pushQuestion = () => {
-  console.log('Pushing question with index:', selectedQuestionIndex);
-  console.log('Question details:', questions[selectedQuestionIndex]);
-  socket.emit('host:pushQuestion', { gameCode, questionIndex: selectedQuestionIndex });
-};
+  const pushQuestion = () => {
+    console.log('Pushing question with index:', selectedQuestionIndex);
+    console.log('Question details:', questions[selectedQuestionIndex]);
+    socket.emit('host:pushQuestion', { gameCode, questionIndex: selectedQuestionIndex });
+  };
 
-const toggleCorrectness = (teamName, questionKey) => {
-  socket.emit('host:toggleCorrectness', { gameCode, teamName, questionKey });
-};
+  const toggleCorrectness = (teamName, questionKey) => {
+    socket.emit('host:toggleCorrectness', { gameCode, teamName, questionKey });
+  };
 
-const viewTeamHistory = (teamName) => {
-  const team = game.teams[teamName];
-  setSelectedTeamHistory({ teamName, team });
-};
+  const viewTeamHistory = (teamName) => {
+    const team = game.teams[teamName];
+    setSelectedTeamHistory({ teamName, team });
+  };
 
-const closeHistory = () => {
-  setSelectedTeamHistory(null);
-};
+  const closeHistory = () => {
+    setSelectedTeamHistory(null);
+  };
 
   const markAnswer = (teamName, correct) => {
     const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
@@ -389,20 +394,17 @@ const closeHistory = () => {
     }));
   };
 
-const markVisualAnswer = (teamName, index, correct) => {
+  const markVisualAnswer = (teamName, index, correct) => {
     const questionKey = `q${game.currentQuestionIndex + 1}`;
     const team = game.teams[teamName];
     const answer = team.answers[questionKey];
     
-    // Initialize correct array if needed (null = not marked yet)
     if (!Array.isArray(answer.correct)) {
       answer.correct = [null, null, null, null, null, null];
     }
     
-    // Update the specific answer
     answer.correct[index] = correct;
     
-    // Update local state immediately for UI feedback
     setGame(prev => ({
       ...prev,
       teams: {
@@ -417,10 +419,8 @@ const markVisualAnswer = (teamName, index, correct) => {
       }
     }));
     
-    // Check if all 6 have been marked (not null)
     const allMarked = answer.correct.every(val => val !== null);
     
-    // If all marked, submit to backend
     if (allMarked) {
       answer.marked = true;
       socket.emit('host:markAnswer', { 
@@ -430,7 +430,6 @@ const markVisualAnswer = (teamName, index, correct) => {
         correct: answer.correct 
       });
       
-      // Calculate score locally (1 point per correct = true)
       const scoreChange = answer.correct.filter(val => val === true).length;
       
       setGame(prev => ({
@@ -449,38 +448,36 @@ const markVisualAnswer = (teamName, index, correct) => {
       }));
     }
   };
-      
 
-const nextQuestion = () => {
-  const nextIndex = selectedQuestionIndex + 1;  // Use selectedQuestionIndex instead
-  
-  if (nextIndex >= 15) {
-    setGame(prev => ({ ...prev, status: 'final' }));
-    setScreen('finalQuestionDisplay');
-    return;
-  }
-  
-  setSelectedQuestionIndex(nextIndex);  // Update selectedQuestionIndex
-  setScreen('questionDisplay'); // Show next question on host screen
-};
+  const nextQuestion = () => {
+    const nextIndex = selectedQuestionIndex + 1;
+    
+    if (nextIndex >= 15) {
+      setGame(prev => ({ ...prev, status: 'final' }));
+      setScreen('finalQuestionDisplay');
+      return;
+    }
+    
+    setSelectedQuestionIndex(nextIndex);
+    setScreen('questionDisplay');
+  };
 
+  const pushFinalCategory = () => {
+    socket.emit('host:pushFinalCategory', { 
+      gameCode, 
+      category: finalQuestion.category 
+    });
+    setScreen('waitingForWagers');
+  };
 
-const pushFinalCategory = () => {
-socket.emit('host:pushFinalCategory', { 
-    gameCode, 
-    category: finalQuestion.category 
-});
-setScreen('waitingForWagers');
-};
-
-const revealFinalQuestion = () => {
-  socket.emit('host:revealFinalQuestion', { 
-    gameCode,
-    question: finalQuestion.question,
-    answer: finalQuestion.answer
-  });
-  setScreen('finalScoring');
-};
+  const revealFinalQuestion = () => {
+    socket.emit('host:revealFinalQuestion', { 
+      gameCode,
+      question: finalQuestion.question,
+      answer: finalQuestion.answer
+    });
+    setScreen('finalScoring');
+  };
 
   const endGame = () => {
     socket.emit('host:endGame', { gameCode });
@@ -488,27 +485,26 @@ const revealFinalQuestion = () => {
   };
 
   const pushFinalRankings = () => {
-  socket.emit('host:pushFinalRankings', { gameCode });
-  alert('Final rankings sent to all teams!');
-};
+    socket.emit('host:pushFinalRankings', { gameCode });
+    alert('Final rankings sent to all teams!');
+  };
 
-// Add this helper function near the top with other functions like getSortedTeams
-const getScoringProgress = () => {
-  if (!game?.teams) return { scored: 0, total: 0 };
-  const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
-  let scored = 0;
-  let total = 0;
-  
-  Object.values(game.teams).forEach(team => {
-    const answer = team.answers?.[questionKey];
-    if (answer) {
-      total++;
-      if (answer.marked) scored++;
-    }
-  });
-  
-  return { scored, total };
-};
+  const getScoringProgress = () => {
+    if (!game?.teams) return { scored: 0, total: 0 };
+    const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
+    let scored = 0;
+    let total = 0;
+    
+    Object.values(game.teams).forEach(team => {
+      const answer = team.answers?.[questionKey];
+      if (answer) {
+        total++;
+        if (answer.marked) scored++;
+      }
+    });
+    
+    return { scored, total };
+  };
 
   const getSortedTeams = () => {
     if (!game?.teams) return [];
@@ -599,156 +595,146 @@ const getScoringProgress = () => {
           font-weight: 700;
           margin-bottom: 20px;
           text-align: center;
-          border-bottom: 3px solid #286586;
-          padding-bottom: 10px;
         }
 
         .team-item {
-          color: #286586;
-          font-size: 16px;
-          padding: 12px 0;
-          border-bottom: 1px solid #E0E0E0;
+          background: #F5F5F5;
+          padding: 15px;
+          border-radius: 10px;
+          margin-bottom: 10px;
           display: flex;
           justify-content: space-between;
+          align-items: center;
         }
 
         .team-score {
-          font-weight: 700;
           color: #FF6600;
-        }
-
-        .center-screen {
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          padding: 40px;
-        }
-
-        .start-button {
-          padding: 20px 60px;
-          background: #32ADE6;
-          color: #FFFFFF;
-          font-size: 22px;
-          font-weight: 600;
-          font-family: 'Gabarito', sans-serif;
-          border: none;
-          border-radius: 30px;
-          cursor: pointer;
-          transition: all 0.3s;
-          box-shadow: 0 4px 15px rgba(50, 173, 230, 0.3);
-        }
-
-        .start-button:hover {
-          background: #2894C7;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(50, 173, 230, 0.4);
-        }
-
-        .form-label {
-          color: #286586;
-          font-size: 16px;
-          font-weight: 600;
-          margin-bottom: 10px;
-          display: block;
-        }
-
-        .input-field {
-          width: 100%;
-          max-width: 500px;
-          padding: 15px;
-          font-size: 16px;
-          font-family: 'Gabarito', sans-serif;
-          border: 2px solid #286586;
-          border-radius: 10px;
-          margin-bottom: 20px;
-        }
-
-        .textarea-field {
-          width: 100%;
-          max-width: 500px;
-          padding: 15px;
-          font-size: 16px;
-          font-family: 'Gabarito', sans-serif;
-          border: 2px solid #286586;
-          border-radius: 10px;
-          margin-bottom: 20px;
-          min-height: 120px;
-          resize: vertical;
-        }
-
-        .submit-button {
-          padding: 15px 40px;
-          background: #32ADE6;
-          color: #FFFFFF;
-          font-size: 18px;
-          font-weight: 600;
-          font-family: 'Gabarito', sans-serif;
-          border: none;
-          border-radius: 25px;
-          cursor: pointer;
-          transition: all 0.3s;
-        }
-
-        .submit-button:hover {
-          background: #2894C7;
-          transform: translateY(-2px);
-        }
-
-        .questions-grid {
-          display: grid;
-          gap: 25px;
-          max-height: 600px;
-          overflow-y: auto;
-          margin-bottom: 30px;
-        }
-
-        .question-group {
-          display: grid;
-          gap: 10px;
-        }
-
-        .question-label {
-          color: #286586;
-          font-size: 14px;
-          font-weight: 600;
-        }
-
-        .question-input {
-          padding: 10px;
-          font-size: 14px;
-          font-family: 'Gabarito', sans-serif;
-          border: 1px solid #CCC;
-          border-radius: 8px;
+          font-weight: 700;
         }
 
         .section-title {
           color: #286586;
-          font-size: 28px;
+          font-size: 32px;
           font-weight: 700;
           margin-bottom: 30px;
+          text-align: center;
+        }
+
+        .input-field {
+          width: 100%;
+          padding: 15px;
+          margin-bottom: 15px;
+          border: 2px solid #E0E0E0;
+          border-radius: 10px;
+          font-size: 16px;
+          font-family: 'Gabarito', sans-serif;
+        }
+
+        .input-field:focus {
+          outline: none;
+          border-color: #FF6600;
+        }
+
+        .submit-button {
+          width: 100%;
+          padding: 18px;
+          background: #FF6600;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-size: 20px;
+          font-weight: 700;
+          font-family: 'Gabarito', sans-serif;
+          cursor: pointer;
+          margin-top: 10px;
+          transition: background 0.3s;
+        }
+
+        .submit-button:hover {
+          background: #E65C00;
+        }
+
+        .continue-button {
+          width: 100%;
+          padding: 18px;
+          background: #00AA00;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-size: 20px;
+          font-weight: 700;
+          font-family: 'Gabarito', sans-serif;
+          cursor: pointer;
+          margin-top: 30px;
+          transition: background 0.3s;
+        }
+
+        .continue-button:hover:not(:disabled) {
+          background: #009900;
+        }
+
+        .continue-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+
+        .questions-grid {
+          margin-bottom: 20px;
+        }
+
+        .question-group {
+          margin-bottom: 10px;
+        }
+
+        .question-label {
+          display: block;
+          color: #286586;
+          font-size: 14px;
+          font-weight: 600;
+          margin-bottom: 8px;
+          margin-top: 10px;
+        }
+
+        .question-input {
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #E0E0E0;
+          border-radius: 8px;
+          font-size: 14px;
+          font-family: 'Gabarito', sans-serif;
+        }
+
+        .question-input:focus {
+          outline: none;
+          border-color: #FF6600;
         }
 
         .welcome-script {
-          color: #286586;
           font-size: 18px;
           line-height: 1.8;
+          color: #333;
+          padding: 20px;
+          background: #FFF9E6;
+          border-radius: 15px;
           margin-bottom: 30px;
         }
 
         .question-display {
-          color: #286586;
-          font-size: 24px;
-          margin-bottom: 20px;
+          font-size: 28px;
           line-height: 1.6;
+          color: #286586;
+          padding: 30px;
+          background: #E3F2FD;
+          border-radius: 15px;
+          margin-bottom: 30px;
+          text-align: center;
+          font-weight: 600;
         }
 
         .answer-item {
-          background: #F8F8F8;
-          border: 2px solid #E0E0E0;
-          border-radius: 15px;
+          background: #F5F5F5;
           padding: 20px;
+          border-radius: 10px;
           margin-bottom: 15px;
         }
 
@@ -756,13 +742,13 @@ const getScoringProgress = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 10px;
+          margin-bottom: 15px;
         }
 
         .team-name-large {
-          color: #286586;
           font-size: 20px;
           font-weight: 700;
+          color: #286586;
         }
 
         .answer-buttons {
@@ -770,82 +756,78 @@ const getScoringProgress = () => {
           gap: 10px;
         }
 
+        .correct-button, .incorrect-button {
+          width: 50px;
+          height: 50px;
+          border: none;
+          border-radius: 8px;
+          font-size: 24px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: transform 0.2s;
+        }
+
         .correct-button {
-          padding: 10px 20px;
           background: #00AA00;
           color: white;
-          border: none;
-          border-radius: 10px;
-          font-size: 18px;
-          cursor: pointer;
-          font-weight: 600;
         }
 
         .incorrect-button {
-          padding: 10px 20px;
           background: #C60404;
           color: white;
-          border: none;
-          border-radius: 10px;
-          font-size: 18px;
-          cursor: pointer;
-          font-weight: 600;
+        }
+
+        .correct-button:hover, .incorrect-button:hover {
+          transform: scale(1.1);
         }
 
         .answer-details {
-          color: #286586;
           font-size: 16px;
-          line-height: 1.6;
+          color: #333;
         }
 
-        .continue-button {
-          width: 100%;
-          max-width: 400px;
-          padding: 18px;
-          background: #32ADE6;
-          color: #FFFFFF;
-          font-size: 20px;
-          font-weight: 600;
-          font-family: 'Gabarito', sans-serif;
-          border: none;
-          border-radius: 25px;
-          cursor: pointer;
-          transition: all 0.3s;
-          margin-top: 30px;
+        .leaderboard-item {
+          background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+          padding: 20px;
+          border-radius: 10px;
+          margin-bottom: 15px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
         }
 
-        .continue-button:hover {
-          background: #2894C7;
-          transform: translateY(-2px);
-        }
-
-        .thank-you-text {
-          color: #286586;
-          font-size: 32px;
+        .leaderboard-rank {
+          font-size: 36px;
           font-weight: 700;
-          margin-bottom: 40px;
+          color: white;
+        }
+
+        .leaderboard-name {
+          font-size: 24px;
+          font-weight: 700;
+          color: white;
+        }
+
+        .leaderboard-score {
+          font-size: 28px;
+          font-weight: 700;
+          color: white;
+        }
+
+        .game-code-display {
+          font-size: 72px;
+          font-weight: 700;
+          color: #FF6600;
+          text-align: center;
+          padding: 40px;
+          background: white;
+          border-radius: 20px;
+          margin-bottom: 30px;
+          box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         }
       `}</style>
 
       {screen === 'start' && (
-        <div className="center-screen">
-          <div className="header" style={{ width: '100%', maxWidth: '1400px', marginBottom: '100px' }}>
-            <div className="logo">
-              <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
-                alt="Quizzler Logo" 
-                className="logo-icon"
-                style={{ height: '30px', width: 'auto' }}
-              />
-            </div>
-          </div>
-          <button className="start-button" onClick={() => setScreen('setup')}>
-            START NEW GAME
-          </button>
-        </div>
-      )}
-
-      {screen === 'setup' && (
         <>
           <div className="header">
             <div className="logo">
@@ -857,29 +839,30 @@ const getScoringProgress = () => {
               />
             </div>
           </div>
-          <div style={{ padding: '60px', maxWidth: '600px', margin: '0 auto' }}>
-            <label className="form-label">ENTER HOST NAME</label>
-            <input
-              type="text"
-              className="input-field"
+          <div style={{ maxWidth: '600px', margin: '60px auto', padding: '40px' }}>
+            <div className="section-title">HOST SETUP</div>
+            <input 
+              className="input-field" 
+              placeholder="Host Name"
               value={hostName}
               onChange={(e) => setHostName(e.target.value)}
             />
-            <label className="form-label">ENTER VENUE NAME</label>
-            <input
-              type="text"
-              className="input-field"
+            <input 
+              className="input-field" 
+              placeholder="Venue Name"
               value={venueName}
               onChange={(e) => setVenueName(e.target.value)}
             />
-            <label className="form-label">ENTER VENUE SPECIALS</label>
-            <textarea
-              className="textarea-field"
+            <textarea 
+              className="input-field" 
+              placeholder="Venue Specials (optional)"
               value={venueSpecials}
               onChange={(e) => setVenueSpecials(e.target.value)}
+              rows={4}
+              style={{ resize: 'vertical' }}
             />
-            <label className="form-label">REGULAR QUESTION TIMER</label>
-            <select
+            <label className="question-label" style={{ marginTop: '20px' }}>Regular Question Timer:</label>
+            <select 
               className="input-field"
               value={regularTimer}
               onChange={(e) => setRegularTimer(parseInt(e.target.value))}
@@ -892,9 +875,8 @@ const getScoringProgress = () => {
               <option value={4}>4 Minutes</option>
               <option value={5}>5 Minutes</option>
             </select>
-            
-            <label className="form-label">VISUAL ROUND TIMER</label>
-            <select
+            <label className="question-label">Visual Round Timer:</label>
+            <select 
               className="input-field"
               value={visualTimer}
               onChange={(e) => setVisualTimer(parseInt(e.target.value))}
@@ -924,7 +906,6 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -939,7 +920,6 @@ const getScoringProgress = () => {
             <div className="left-panel">
               <div className="section-title">ENTER QUESTIONS</div>
               
-              {/* CSV Import/Export Buttons */}
               <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
                 <button 
                   className="submit-button" 
@@ -964,7 +944,7 @@ const getScoringProgress = () => {
                 />
               </div>
 
-<div className="questions-grid">
+              <div className="questions-grid">
                 {questions.map((q, idx) => (
                   <div key={idx} className="question-group">
                     <label className="question-label">Category {idx + 1}</label>
@@ -976,8 +956,8 @@ const getScoringProgress = () => {
                     <label className="question-label">Question {idx + 1}</label>
                     <input
                       className="question-input"
-                      value={q.question}
-                      onChange={(e) => updateQuestion(idx, 'question', e.target.value)}
+                      value={q.text}
+                      onChange={(e) => updateQuestion(idx, 'text', e.target.value)}
                     />
                     <label className="question-label">Answer {idx + 1}</label>
                     <input
@@ -986,7 +966,6 @@ const getScoringProgress = () => {
                       onChange={(e) => updateQuestion(idx, 'answer', e.target.value)}
                     />
                     
-                    {/* Visual Round Checkbox */}
                     <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px', marginBottom: '10px' }}>
                       <input
                         type="checkbox"
@@ -1000,7 +979,6 @@ const getScoringProgress = () => {
                       </label>
                     </div>
                     
-                    {/* Image URL Field - Only show if visual */}
                     {q.type === 'visual' && (
                       <>
                         <label className="question-label">Image URL</label>
@@ -1013,7 +991,6 @@ const getScoringProgress = () => {
                       </>
                     )}
                     
-                    {/* Separator - don't show after last question */}
                     {idx < 14 && (
                       <hr style={{ 
                         border: 'none', 
@@ -1051,29 +1028,29 @@ const getScoringProgress = () => {
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
-  <div key={team.name} className="team-item">
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-    <div>
-      <span>{idx + 1}. {team.name}</span>
-      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
-    </div>
-    <button
-      onClick={() => viewTeamHistory(team.name)}
-      style={{
-        background: '#FF6600',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontSize: '12px',
-        cursor: 'pointer'
-      }}
-    >
-      History
-    </button>
-  </div>
-</div>
-))}
+                <div key={team.name} className="team-item">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <div>
+                      <span>{idx + 1}. {team.name}</span>
+                      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+                    </div>
+                    <button
+                      onClick={() => viewTeamHistory(team.name)}
+                      style={{
+                        background: '#FF6600',
+                        color: 'white',
+                        border: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      History
+                    </button>
+                  </div>
+                </div>
+              ))}
               {getSortedTeams().length === 0 && (
                 <p style={{ color: '#999', textAlign: 'center' }}>Waiting for teams...</p>
               )}
@@ -1092,7 +1069,6 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -1116,51 +1092,45 @@ const getScoringProgress = () => {
                 <br/><br/>
                 We have 15 questions from various categories. Those questions will be sent to your device. Each question has to have a confidence score from 1 to 15, but you can only use each number one time. If you are very confident in your answer, give it higher points. Lower confidence, lower points. Get it? You get 2 minutes to answer each question.
                 <br/><br/>
+                There is also a Visual Round where we will show you 6 images to identify. Each answer is worth 1 point for a possible total of 6 points for that round. 
+                <br/><br/>
                 You will be able to see your current score after each question. I'll give you team standings at various points throughout the game.
                 <br/><br/>
                 At the end of the 15 rounds, we will have a final question where you can wager up to 20pts. If you get the final answer correct, your wager will be added to your final score. However, if you get it wrong, the wager will be deducted from your final score. Before you get the final answer, I will give you the category and give you a moment to put in your wager. Once all wagers are in, I will send you the final question.
                 <br/><br/>
                 Winners will get $20 and the second place team will get $10. Second to last place will receive $5.
                 <br/><br/>
-                Any question? OK! Let's get started!
+                Any questions? OK! Let's get started!
               </div>
-              {(() => {
-  const { scored, total } = getScoringProgress();
-  const allScored = scored === total && total > 0;
-  const nextQuestionNum = game.currentQuestionIndex + 2;
-  
-  return (
-    <button className="continue-button" onClick={continueToFirstQuestion}>
-  CONTINUE
-</button>
-  );
-})()}
+              <button className="continue-button" onClick={continueToFirstQuestion}>
+                CONTINUE
+              </button>
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-    <div>
-      <span>{idx + 1}. {team.name}</span>
-      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
-    </div>
-    <button
-      onClick={() => viewTeamHistory(team.name)}
-      style={{
-        background: '#FF6600',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontSize: '12px',
-        cursor: 'pointer'
-      }}
-    >
-      History
-    </button>
-  </div>
-</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <div>
+                      <span>{idx + 1}. {team.name}</span>
+                      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+                    </div>
+                    <button
+                      onClick={() => viewTeamHistory(team.name)}
+                      style={{
+                        background: '#FF6600',
+                        color: 'white',
+                        border: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      History
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -1177,7 +1147,6 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -1191,45 +1160,45 @@ const getScoringProgress = () => {
           <div className="main-content">
             <div className="left-panel">
               <div className="question-display">
-  Question {selectedQuestionIndex + 1}...
-  <br/><br/>
-  The category is {questions[selectedQuestionIndex]?.category || 'N/A'}
-  <br/><br/>
-  {questions[selectedQuestionIndex]?.text}
-</div>
+                Question {selectedQuestionIndex + 1}...
+                <br/><br/>
+                The category is {questions[selectedQuestionIndex]?.category || 'N/A'}
+                <br/><br/>
+                {questions[selectedQuestionIndex]?.text}
+              </div>
               
-<button 
-  onClick={pushQuestion}
-  className="submit-button"
->
-  PUSH QUESTION {selectedQuestionIndex + 1} TO TEAMS
-</button>
+              <button 
+                onClick={pushQuestion}
+                className="submit-button"
+              >
+                PUSH QUESTION {selectedQuestionIndex + 1} TO TEAMS
+              </button>
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-    <div>
-      <span>{idx + 1}. {team.name}</span>
-      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
-    </div>
-    <button
-      onClick={() => viewTeamHistory(team.name)}
-      style={{
-        background: '#FF6600',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontSize: '12px',
-        cursor: 'pointer'
-      }}
-    >
-      History
-    </button>
-  </div>
-</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <div>
+                      <span>{idx + 1}. {team.name}</span>
+                      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+                    </div>
+                    <button
+                      onClick={() => viewTeamHistory(team.name)}
+                      style={{
+                        background: '#FF6600',
+                        color: 'white',
+                        border: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      History
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -1246,7 +1215,6 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -1261,24 +1229,24 @@ const getScoringProgress = () => {
             <div className="left-panel">
               <div className="section-title">TEAM ANSWERS FOR QUESTION {selectedQuestionIndex + 1}</div>
               <div style={{ background: '#E3F2FD', padding: '15px', borderRadius: '10px', marginBottom: '10px' }}>
-  <strong style={{ color: '#286586' }}>Question:</strong> {questions[selectedQuestionIndex].question}
-</div>
-<div style={{ background: '#FFF9E6', padding: '15px', borderRadius: '10px', marginBottom: '25px' }}>
-  <strong style={{ color: '#286586' }}>Correct answer:</strong> {questions[selectedQuestionIndex].answer}
-  {questions[selectedQuestionIndex].type === 'visual' && questions[selectedQuestionIndex].imageUrl && (
-    <div style={{ marginTop: '15px', textAlign: 'center' }}>
-      <img 
-        src={questions[game.currentQuestionIndex].imageUrl} 
-        alt="Visual Question"
-        style={{ maxWidth: '300px', height: 'auto', borderRadius: '10px', border: '2px solid #286586' }}
-      />
-    </div>
-  )}
-</div>
+                <strong style={{ color: '#286586' }}>Question:</strong> {questions[selectedQuestionIndex]?.text}
+              </div>
+              <div style={{ background: '#FFF9E6', padding: '15px', borderRadius: '10px', marginBottom: '25px' }}>
+                <strong style={{ color: '#286586' }}>Correct answer:</strong> {questions[selectedQuestionIndex]?.answer}
+                {questions[selectedQuestionIndex]?.type === 'visual' && questions[selectedQuestionIndex]?.imageUrl && (
+                  <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                    <img 
+                      src={questions[selectedQuestionIndex].imageUrl} 
+                      alt="Visual Question"
+                      style={{ maxWidth: '300px', height: 'auto', borderRadius: '10px', border: '2px solid #286586' }}
+                    />
+                  </div>
+                )}
+              </div>
               {getSortedTeams().map(team => {
                 const questionKey = `q${selectedQuestionIndex + 1}`;
                 const answer = team.answers?.[questionKey];
-                const isVisual = questions[selectedQuestionIndex].type === 'visual';
+                const isVisual = questions[selectedQuestionIndex]?.type === 'visual';
                 
                 return (
                   <div key={team.name} className="answer-item">
@@ -1294,7 +1262,6 @@ const getScoringProgress = () => {
                     {answer ? (
                       <div className="answer-details">
                         {isVisual ? (
-                          // Visual question: show 6 answers
                           <div>
                             {Array.isArray(answer.text) ? answer.text.map((ans, idx) => (
                               <div key={idx} style={{ marginBottom: '10px', padding: '10px', background: '#f5f5f5', borderRadius: '5px' }}>
@@ -1302,12 +1269,10 @@ const getScoringProgress = () => {
                                 {!answer.marked && (
                                   <span style={{ marginLeft: '10px' }}>
                                     {answer.correct && answer.correct[idx] !== null ? (
-                                      // Already marked - show result
                                       <span style={{ fontWeight: '700', color: answer.correct[idx] ? '#00AA00' : '#C60404' }}>
                                         {answer.correct[idx] ? '✓ CORRECT' : '✗ INCORRECT'}
                                       </span>
                                     ) : (
-                                      // Not yet marked - show buttons
                                       <>
                                         <button 
                                           style={{ marginLeft: '5px', padding: '2px 8px', background: '#00AA00', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
@@ -1330,7 +1295,6 @@ const getScoringProgress = () => {
                             )}
                           </div>
                         ) : (
-                          // Regular question
                           <>
                             Their answer: "{answer.text}"<br/>
                             Confidence: {answer.confidence} pts
@@ -1349,52 +1313,52 @@ const getScoringProgress = () => {
                 );
               })}
               {(() => {
-  			const { scored, total } = getScoringProgress();
-  			const allScored = scored === total && total > 0;
-  			const nextQuestionNum = game.currentQuestionIndex + 2;
+                const { scored, total } = getScoringProgress();
+                const allScored = scored === total && total > 0;
+                const nextQuestionNum = selectedQuestionIndex + 2;
   
-  			return (
-    			<button 
-    			className="continue-button"
-                onClick={nextQuestion}
-                disabled={!allScored}
-                style={{
-                opacity: allScored ? 1 : 0.5,
-                cursor: allScored ? 'pointer' : 'not-allowed'
-              }}
-               >
-      {!allScored 
-        ? `Scored ${scored} of ${total} teams - Score remaining to continue` 
-        : `ON TO QUESTION ${nextQuestionNum}`}
-    </button>
-  );
-})()}
+                return (
+                  <button 
+                    className="continue-button"
+                    onClick={nextQuestion}
+                    disabled={!allScored}
+                    style={{
+                      opacity: allScored ? 1 : 0.5,
+                      cursor: allScored ? 'pointer' : 'not-allowed'
+                    }}
+                  >
+                    {!allScored 
+                      ? `Scored ${scored} of ${total} teams - Score remaining to continue` 
+                      : `ON TO QUESTION ${nextQuestionNum}`}
+                  </button>
+                );
+              })()}
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-    <div>
-      <span>{idx + 1}. {team.name}</span>
-      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
-    </div>
-    <button
-      onClick={() => viewTeamHistory(team.name)}
-      style={{
-        background: '#FF6600',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontSize: '12px',
-        cursor: 'pointer'
-      }}
-    >
-      History
-    </button>
-  </div>
-</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <div>
+                      <span>{idx + 1}. {team.name}</span>
+                      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+                    </div>
+                    <button
+                      onClick={() => viewTeamHistory(team.name)}
+                      style={{
+                        background: '#FF6600',
+                        color: 'white',
+                        border: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      History
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -1411,7 +1375,6 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -1435,166 +1398,39 @@ const getScoringProgress = () => {
               <button className="submit-button" onClick={pushFinalCategory}>
                 PUSH CATEGORY (PLAYERS WAGER)
               </button>
-
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-    <div>
-      <span>{idx + 1}. {team.name}</span>
-      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
-    </div>
-    <button
-      onClick={() => viewTeamHistory(team.name)}
-      style={{
-        background: '#FF6600',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontSize: '12px',
-        cursor: 'pointer'
-      }}
-    >
-      History
-    </button>
-  </div>
-</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <div>
+                      <span>{idx + 1}. {team.name}</span>
+                      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+                    </div>
+                    <button
+                      onClick={() => viewTeamHistory(team.name)}
+                      style={{
+                        background: '#FF6600',
+                        color: 'white',
+                        border: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      History
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </>
-
       )}
 
-{screen === 'waitingForWagers' && (
-  <>
-    <div className="header">
-      <div className="logo">
-        <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
-                alt="Quizzler Logo" 
-                className="logo-icon"
-                style={{ height: '30px', width: 'auto' }}
-              />
-        
-      </div>
-      <div className="host-info">
-              {hostName} | {venueName} | {gameCode}
-              {timerActive && (
-                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
-                </span>
-              )}
-            </div>
-    </div>
-    <div className="main-content">
-      <div className="left-panel">
-        <div className="question-display">
-          <div className="question-number">WAITING FOR WAGERS...</div>
-          Teams are submitting their wagers (0-20 points) based on the category: <strong>{finalQuestion.category}</strong>
-        </div>
-        
-        {/* Wager Status */}
-        <div style={{ 
-          background: '#FFF9E6', 
-          padding: '20px', 
-          borderRadius: '10px', 
-          marginBottom: '20px',
-          border: '2px solid #FFB300'
-        }}>
-          <h3 style={{ color: '#286586', fontSize: '18px', marginBottom: '15px', marginTop: 0 }}>
-            Wager Status
-          </h3>
-          {getSortedTeams().map(team => {
-            const hasWagered = team.finalWager !== undefined && team.finalWager !== null;
-            return (
-              <div key={team.name} style={{ 
-                padding: '10px', 
-                marginBottom: '8px',
-                background: hasWagered ? '#C8E6C9' : '#FFCDD2',
-                borderRadius: '5px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <span style={{ fontWeight: 'bold', fontSize: '16px' }}>{team.name}</span>
-                <span style={{ 
-                  color: hasWagered ? '#2E7D32' : '#C62828',
-                  fontWeight: 'bold',
-                  fontSize: '16px'
-                }}>
-                  {hasWagered ? `✓ ${team.finalWager} points` : '⏳ Waiting...'}
-                </span>
-              </div>
-            );
-          })}
-          <div style={{ 
-            marginTop: '15px', 
-            padding: '12px', 
-            background: '#E3F2FD', 
-            borderRadius: '5px',
-            textAlign: 'center',
-            fontWeight: 'bold',
-            fontSize: '18px',
-            color: '#286586'
-          }}>
-            {getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length} of {getSortedTeams().length} teams wagered
-          </div>
-        </div>
-
-        <div style={{ background: 'white', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '2px solid #286586' }}>
-          <strong>Final Question:</strong>
-          <br/>
-          {finalQuestion.question}
-        </div>
-        
-        <button 
-          className="submit-button" 
-          onClick={revealFinalQuestion}
-          disabled={getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length !== getSortedTeams().length}
-          style={{
-            opacity: getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length !== getSortedTeams().length ? 0.5 : 1,
-            cursor: getSortedTeams().filter(t => t.finalWager !== undefined && t.finalWager !== null).length !== getSortedTeams().length ? 'not-allowed' : 'pointer'
-          }}
-        >
-          REVEAL FINAL QUESTION TO TEAMS
-        </button>
-      </div>
-      <div className="right-panel">
-        <div className="teams-header">TEAMS</div>
-        {getSortedTeams().map((team, idx) => (
-          <div key={team.name} className="team-item">
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-    <div>
-      <span>{idx + 1}. {team.name}</span>
-      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
-    </div>
-    <button
-      onClick={() => viewTeamHistory(team.name)}
-      style={{
-        background: '#FF6600',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontSize: '12px',
-        cursor: 'pointer'
-      }}
-    >
-      History
-    </button>
-  </div>
-</div>
-        ))}
-      </div>
-    </div>
-  </>
-)}
-
-      {screen === 'finalScoring' && (
+      {screen === 'waitingForWagers' && (
         <>
           <div className="header">
             <div className="logo">
@@ -1604,7 +1440,6 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
@@ -1617,12 +1452,104 @@ const getScoringProgress = () => {
           </div>
           <div className="main-content">
             <div className="left-panel">
-              <div className="section-title">FINAL QUESTION ANSWERS</div>
+              <div className="question-display">
+                <div className="question-number">WAITING FOR WAGERS...</div>
+                Teams are submitting their wagers (0-20 points) based on the category: <strong>{finalQuestion.category}</strong>
+              </div>
+
+              <div style={{ marginTop: '30px' }}>
+                {getSortedTeams().map(team => {
+                  const wager = team.answers?.final?.confidence;
+                  return (
+                    <div key={team.name} style={{
+                      background: wager !== undefined ? '#E8F5E9' : '#FFF9E6',
+                      padding: '15px',
+                      borderRadius: '10px',
+                      marginBottom: '10px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <span style={{ fontSize: '18px', fontWeight: '700', color: '#286586' }}>
+                        {team.name}
+                      </span>
+                      <span style={{ fontSize: '18px', fontWeight: '700', color: wager !== undefined ? '#00AA00' : '#999' }}>
+                        {wager !== undefined ? `Wager: ${wager} pts` : 'Waiting...'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {getSortedTeams().every(team => team.answers?.final?.confidence !== undefined) && (
+                <button className="continue-button" onClick={revealFinalQuestion}>
+                  REVEAL FINAL QUESTION
+                </button>
+              )}
+            </div>
+            <div className="right-panel">
+              <div className="teams-header">TEAMS</div>
+              {getSortedTeams().map((team, idx) => (
+                <div key={team.name} className="team-item">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <div>
+                      <span>{idx + 1}. {team.name}</span>
+                      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+                    </div>
+                    <button
+                      onClick={() => viewTeamHistory(team.name)}
+                      style={{
+                        background: '#FF6600',
+                        color: 'white',
+                        border: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      History
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {screen === 'finalScoring' && (
+        <>
+          <div className="header">
+            <div className="logo">
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '30px', width: 'auto' }}
+              />
+            </div>
+            <div className="host-info">
+              {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="main-content">
+            <div className="left-panel">
+              <div className="section-title">FINAL ANSWERS</div>
+              <div style={{ background: '#E3F2FD', padding: '15px', borderRadius: '10px', marginBottom: '10px' }}>
+                <strong style={{ color: '#286586' }}>Final Question:</strong> {finalQuestion.question}
+              </div>
               <div style={{ background: '#FFF9E6', padding: '15px', borderRadius: '10px', marginBottom: '25px' }}>
                 <strong style={{ color: '#286586' }}>Correct answer:</strong> {finalQuestion.answer}
               </div>
+
               {getSortedTeams().map(team => {
-                const answer = team.answers?.['final'];
+                const answer = team.answers?.final;
                 return (
                   <div key={team.name} className="answer-item">
                     <div className="answer-header">
@@ -1650,35 +1577,38 @@ const getScoringProgress = () => {
                   </div>
                 );
               })}
-              <button className="continue-button" onClick={endGame}>
-                END GAME
-              </button>
+
+              {getSortedTeams().every(team => team.answers?.final?.marked) && (
+                <button className="continue-button" onClick={endGame}>
+                  END GAME & VIEW FINAL LEADERBOARD
+                </button>
+              )}
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
               {getSortedTeams().map((team, idx) => (
                 <div key={team.name} className="team-item">
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-    <div>
-      <span>{idx + 1}. {team.name}</span>
-      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
-    </div>
-    <button
-      onClick={() => viewTeamHistory(team.name)}
-      style={{
-        background: '#FF6600',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontSize: '12px',
-        cursor: 'pointer'
-      }}
-    >
-      History
-    </button>
-  </div>
-</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <div>
+                      <span>{idx + 1}. {team.name}</span>
+                      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
+                    </div>
+                    <button
+                      onClick={() => viewTeamHistory(team.name)}
+                      style={{
+                        background: '#FF6600',
+                        color: 'white',
+                        border: 'none',
+                        padding: '5px 10px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      History
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -1695,279 +1625,252 @@ const getScoringProgress = () => {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-              
             </div>
             <div className="host-info">
               {hostName} | {venueName} | {gameCode}
-              {timerActive && (
-                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
-                </span>
-              )}
             </div>
           </div>
-          <div className="main-content">
-            <div className="left-panel">
-              <div className="thank-you-text">
-                Thanks for playing everyone! See you next week!
+          <div style={{ maxWidth: '1200px', margin: '60px auto', padding: '40px' }}>
+            <div className="section-title" style={{ marginBottom: '40px' }}>FINAL LEADERBOARD</div>
+            {getSortedTeams().map((team, idx) => (
+              <div key={team.name} className="leaderboard-item" style={{
+                background: idx === 0 
+                  ? 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)' 
+                  : idx === 1 
+                  ? 'linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%)' 
+                  : idx === 2 
+                  ? 'linear-gradient(135deg, #CD7F32 0%, #B87333 100%)'
+                  : 'linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%)'
+              }}>
+                <div className="leaderboard-rank">#{idx + 1}</div>
+                <div className="leaderboard-name">{team.name}</div>
+                <div className="leaderboard-score">{team.score} pts</div>
               </div>
-              <button className="submit-button" onClick={pushFinalRankings}>
-                PUSH FINAL RANKING TO ALL TEAMS
-              </button>
-            </div>
-            <div className="right-panel">
-              <div className="teams-header">TEAMS</div>
-              {getSortedTeams().map((team, idx) => (
-                <div key={team.name} className="team-item">
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-    <div>
-      <span>{idx + 1}. {team.name}</span>
-      <span className="team-score" style={{ marginLeft: '10px' }}>{team.score}</span>
-    </div>
-    <button
-      onClick={() => viewTeamHistory(team.name)}
-      style={{
-        background: '#FF6600',
-        color: 'white',
-        border: 'none',
-        padding: '5px 10px',
-        borderRadius: '5px',
-        fontSize: '12px',
-        cursor: 'pointer'
-      }}
-    >
-      History
-    </button>
-  </div>
-</div>
-              ))}
-            </div>
+            ))}
+            <button className="submit-button" onClick={pushFinalRankings} style={{ marginTop: '30px' }}>
+              PUSH FINAL RANKINGS TO TEAMS
+            </button>
           </div>
         </>
       )}
-      {/* Team History Modal */}
-{selectedTeamHistory && (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0,0,0,0.7)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000
-  }}>
-    <div style={{
-      background: 'white',
-      borderRadius: '20px',
-      padding: '40px',
-      maxWidth: '800px',
-      maxHeight: '80vh',
-      overflow: 'auto',
-      boxShadow: '0 10px 50px rgba(0,0,0,0.5)'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h2 style={{ color: '#286586', fontSize: '28px', margin: 0 }}>
-          {selectedTeamHistory.teamName} - Answer History
-        </h2>
-        <button 
-          onClick={closeHistory}
-          style={{
-            background: '#FF6B6B',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            fontSize: '24px',
-            cursor: 'pointer',
-            fontWeight: 'bold'
-          }}
-        >
-          ×
-        </button>
-      </div>
 
-      <div style={{ marginBottom: '20px', padding: '15px', background: '#E3F2FD', borderRadius: '10px' }}>
-        <div style={{ fontSize: '18px', color: '#286586' }}>
-          <strong>Current Score:</strong> {game.teams[selectedTeamHistory.teamName]?.score} points
-        </div>
-      </div>
-
-      {Object.entries(game.teams[selectedTeamHistory.teamName]?.answers || {}).map(([questionKey, answer]) => {
-        const questionNum = questionKey === 'final' ? 'Final' : questionKey.replace('q', '');
-        const question = questionKey === 'final' 
-          ? finalQuestion 
-          : questions[parseInt(questionNum) - 1];
-        const isVisual = question?.type === 'visual' || Array.isArray(answer.text);
-        
-        return (
-          <div key={questionKey} style={{
-            background: isVisual ? '#FFF9E6' : (answer.correct ? '#E8F5E9' : '#FFEBEE'),
-            border: `2px solid ${isVisual ? '#FFB300' : (answer.correct ? '#4CAF50' : '#F44336')}`,
-            borderRadius: '10px',
-            padding: '20px',
-            marginBottom: '15px'
+      {selectedTeamHistory && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '40px',
+            maxWidth: '800px',
+            maxHeight: '80vh',
+            overflow: 'auto',
+            boxShadow: '0 10px 50px rgba(0,0,0,0.5)'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#286586', marginBottom: '5px' }}>
-                  Question {questionNum} {isVisual && '📸 Visual Round'}
-                </div>
-                <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
-                  {question?.question || 'Question text not available'}
-                </div>
-              </div>
-              {!isVisual && (
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '14px', color: '#666' }}>Confidence</div>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#FF6600' }}>
-                    {answer.confidence}
-                  </div>
-                </div>
-              )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+              <h2 style={{ color: '#286586', fontSize: '28px', margin: 0 }}>
+                {selectedTeamHistory.teamName} - Answer History
+              </h2>
+              <button 
+                onClick={closeHistory}
+                style={{
+                  background: '#FF6B6B',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                ×
+              </button>
             </div>
 
-            {isVisual ? (
-              // Visual question - show 6 answers
-              <div>
-                {Array.isArray(answer.text) && answer.text.map((ans, idx) => {
-                  const isCorrect = Array.isArray(answer.correct) ? answer.correct[idx] : false;
-                  return (
-                    <div key={idx} style={{
-                      background: isCorrect ? '#E8F5E9' : '#FFEBEE',
-                      border: `2px solid ${isCorrect ? '#4CAF50' : '#F44336'}`,
-                      borderRadius: '8px',
-                      padding: '15px',
-                      marginBottom: '10px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#286586', marginBottom: '5px' }}>
-                          #{idx + 1}
-                        </div>
-                        <div style={{ fontSize: '16px' }}>{ans}</div>
+            <div style={{ marginBottom: '20px', padding: '15px', background: '#E3F2FD', borderRadius: '10px' }}>
+              <div style={{ fontSize: '18px', color: '#286586' }}>
+                <strong>Current Score:</strong> {game.teams[selectedTeamHistory.teamName]?.score} points
+              </div>
+            </div>
+
+            {Object.entries(game.teams[selectedTeamHistory.teamName]?.answers || {}).map(([questionKey, answer]) => {
+              const questionNum = questionKey === 'final' ? 'Final' : questionKey.replace('q', '');
+              const question = questionKey === 'final' 
+                ? finalQuestion 
+                : questions[parseInt(questionNum) - 1];
+              const isVisual = question?.type === 'visual' || Array.isArray(answer.text);
+              
+              return (
+                <div key={questionKey} style={{
+                  background: isVisual ? '#FFF9E6' : (answer.correct ? '#E8F5E9' : '#FFEBEE'),
+                  border: `2px solid ${isVisual ? '#FFB300' : (answer.correct ? '#4CAF50' : '#F44336')}`,
+                  borderRadius: '10px',
+                  padding: '20px',
+                  marginBottom: '15px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#286586', marginBottom: '5px' }}>
+                        Question {questionNum} {isVisual && '📸 Visual Round'}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                      <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
+                        {/* FIXED: Changed from .question to .text */}
+                        {question?.text || question?.question || 'Question text not available'}
+                      </div>
+                    </div>
+                    {!isVisual && (
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '14px', color: '#666' }}>Confidence</div>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#FF6600' }}>
+                          {answer.confidence}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {isVisual ? (
+                    <div>
+                      {Array.isArray(answer.text) && answer.text.map((ans, idx) => {
+                        const isCorrect = Array.isArray(answer.correct) ? answer.correct[idx] : false;
+                        return (
+                          <div key={idx} style={{
+                            background: isCorrect ? '#E8F5E9' : '#FFEBEE',
+                            border: `2px solid ${isCorrect ? '#4CAF50' : '#F44336'}`,
+                            borderRadius: '8px',
+                            padding: '15px',
+                            marginBottom: '10px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#286586', marginBottom: '5px' }}>
+                                #{idx + 1}
+                              </div>
+                              <div style={{ fontSize: '16px' }}>{ans}</div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                              <div style={{
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                                color: isCorrect ? '#2E7D32' : '#C62828'
+                              }}>
+                                {isCorrect ? '✓ CORRECT' : '✗ INCORRECT'}
+                              </div>
+                              <button
+                                onClick={() => {
+                                  const newCorrect = [...(answer.correct || [false, false, false, false, false, false])];
+                                  newCorrect[idx] = !newCorrect[idx];
+                                  
+                                  const oldCorrectCount = (answer.correct || []).filter(Boolean).length;
+                                  const newCorrectCount = newCorrect.filter(Boolean).length;
+                                  const scoreDiff = newCorrectCount - oldCorrectCount;
+                                  
+                                  setGame(prev => ({
+                                    ...prev,
+                                    teams: {
+                                      ...prev.teams,
+                                      [selectedTeamHistory.teamName]: {
+                                        ...prev.teams[selectedTeamHistory.teamName],
+                                        score: prev.teams[selectedTeamHistory.teamName].score + scoreDiff,
+                                        answers: {
+                                          ...prev.teams[selectedTeamHistory.teamName].answers,
+                                          [questionKey]: {
+                                            ...answer,
+                                            correct: newCorrect
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }));
+                                  
+                                  socket.emit('host:toggleCorrectness', { 
+                                    gameCode, 
+                                    teamName: selectedTeamHistory.teamName, 
+                                    questionKey,
+                                    visualIndex: idx
+                                  });
+                                }}
+                                style={{
+                                  background: isCorrect ? '#F44336' : '#4CAF50',
+                                  color: 'white',
+                                  border: 'none',
+                                  padding: '8px 16px',
+                                  borderRadius: '6px',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                Mark as {isCorrect ? 'Incorrect' : 'Correct'}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <div style={{ marginTop: '15px', padding: '10px', background: '#E3F2FD', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold', color: '#286586' }}>
+                        Score: {Array.isArray(answer.correct) ? answer.correct.filter(Boolean).length : 0} / 6 points
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ marginBottom: '10px' }}>
+                        <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Their Answer:</div>
+                        <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{answer.text}</div>
+                      </div>
+
+                      <div style={{ marginBottom: '15px' }}>
+                        <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Correct Answer:</div>
+                        <div style={{ fontSize: '16px', color: '#4CAF50', fontWeight: 'bold' }}>
+                          {question?.answer || 'N/A'}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{
                           fontSize: '16px',
                           fontWeight: 'bold',
-                          color: isCorrect ? '#2E7D32' : '#C62828'
+                          color: answer.correct ? '#2E7D32' : '#C62828'
                         }}>
-                          {isCorrect ? '✓ CORRECT' : '✗ INCORRECT'}
+                          {answer.correct ? '✓ CORRECT' : '✗ INCORRECT'}
+                          {answer.correct ? ` (+${answer.confidence} pts)` : ' (+0 pts)'}
                         </div>
                         <button
-                          onClick={() => {
-                            // Toggle this specific visual answer
-                            const newCorrect = [...(answer.correct || [false, false, false, false, false, false])];
-                            newCorrect[idx] = !newCorrect[idx];
-                            
-                            // Calculate new score
-                            const oldCorrectCount = (answer.correct || []).filter(Boolean).length;
-                            const newCorrectCount = newCorrect.filter(Boolean).length;
-                            const scoreDiff = newCorrectCount - oldCorrectCount;
-                            
-                            // Update local state
-                            setGame(prev => ({
-                              ...prev,
-                              teams: {
-                                ...prev.teams,
-                                [selectedTeamHistory.teamName]: {
-                                  ...prev.teams[selectedTeamHistory.teamName],
-                                  score: prev.teams[selectedTeamHistory.teamName].score + scoreDiff,
-                                  answers: {
-                                    ...prev.teams[selectedTeamHistory.teamName].answers,
-                                    [questionKey]: {
-                                      ...answer,
-                                      correct: newCorrect
-                                    }
-                                  }
-                                }
-                              }
-                            }));
-                            
-                            // Notify backend
-                            socket.emit('host:toggleCorrectness', { 
-                              gameCode, 
-                              teamName: selectedTeamHistory.teamName, 
-                              questionKey,
-                              visualIndex: idx
-                            });
-                          }}
+                          onClick={() => toggleCorrectness(selectedTeamHistory.teamName, questionKey)}
                           style={{
-                            background: isCorrect ? '#F44336' : '#4CAF50',
+                            background: answer.correct ? '#F44336' : '#4CAF50',
                             color: 'white',
                             border: 'none',
-                            padding: '8px 16px',
-                            borderRadius: '6px',
-                            fontSize: '12px',
+                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
                             fontWeight: 'bold',
-                            cursor: 'pointer',
-                            whiteSpace: 'nowrap'
+                            cursor: 'pointer'
                           }}
                         >
-                          Mark as {isCorrect ? 'Incorrect' : 'Correct'}
+                          Mark as {answer.correct ? 'Incorrect' : 'Correct'}
                         </button>
                       </div>
-                    </div>
-                  );
-                })}
-                <div style={{ marginTop: '15px', padding: '10px', background: '#E3F2FD', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold', color: '#286586' }}>
-                  Score: {Array.isArray(answer.correct) ? answer.correct.filter(Boolean).length : 0} / 6 points
+                    </>
+                  )}
                 </div>
-              </div>
-            ) : (
-              // Regular question
-              <>
-                <div style={{ marginBottom: '10px' }}>
-                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Their Answer:</div>
-                  <div style={{ fontSize: '16px', fontWeight: 'bold' }}>{answer.text}</div>
-                </div>
-
-                <div style={{ marginBottom: '15px' }}>
-                  <div style={{ fontSize: '12px', color: '#999', marginBottom: '5px' }}>Correct Answer:</div>
-                  <div style={{ fontSize: '16px', color: '#4CAF50', fontWeight: 'bold' }}>
-                    {question?.answer || 'N/A'}
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    color: answer.correct ? '#2E7D32' : '#C62828'
-                  }}>
-                    {answer.correct ? '✓ CORRECT' : '✗ INCORRECT'}
-                    {answer.correct ? ` (+${answer.confidence} pts)` : ' (+0 pts)'}
-                  </div>
-                  <button
-                    onClick={() => toggleCorrectness(selectedTeamHistory.teamName, questionKey)}
-                    style={{
-                      background: answer.correct ? '#F44336' : '#4CAF50',
-                      color: 'white',
-                      border: 'none',
-                      padding: '10px 20px',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Mark as {answer.correct ? 'Incorrect' : 'Correct'}
-                  </button>
-                </div>
-              </>
-            )}
+              );
+            })}
           </div>
-        );
-      })}
-    </div>
-  </div>
-)}
+        </div>
+      )}
     </div>
   );
 }
