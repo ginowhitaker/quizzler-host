@@ -55,13 +55,37 @@ export default function QuizzlerHostApp() {
   });
 
   newSocket.on('reconnect', (attemptNumber) => {
-    console.log('Reconnected after', attemptNumber, 'attempts');
-    // Rejoin game room on reconnect
-    if (gameCode) {
-      newSocket.emit('host:join', gameCode);
-    }
-  });
-
+  console.log('Reconnected after', attemptNumber, 'attempts');
+  
+  // Rejoin game room on reconnect
+  if (gameCode) {
+    newSocket.emit('host:join', gameCode);
+    
+    // SYNC GAME STATE: Fetch latest data from database
+    fetch(`${BACKEND_URL}/api/game/${gameCode}`)
+      .then(res => res.json())
+      .then(gameData => {
+        console.log('Synced game state after reconnect:', gameData);
+        
+        // Update teams with latest answers and scores
+        if (gameData.teams) {
+          setGame(prev => ({
+            ...prev,
+            teams: gameData.teams.reduce((acc, team) => {
+              acc[team.name] = {
+                name: team.name,
+                score: team.score,
+                usedConfidences: team.usedConfidences || [],
+                answers: team.answers || {}
+              };
+              return acc;
+            }, {})
+          }));
+        }
+      })
+      .catch(err => console.error('Failed to sync game state:', err));
+  }
+});
   newSocket.on('error', (error) => alert(error.message));
 
   setSocket(newSocket);
