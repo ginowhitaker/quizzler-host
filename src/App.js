@@ -93,7 +93,7 @@ socket.on('host:wagerReceived', (data) => {
 });
 
 socket.on('host:questionPushed', (data) => {
-  console.log('Question pushed successfully, current selectedQuestionIndex:', selectedQuestionIndex);
+  console.log('Question pushed successfully');
   
   // Initialize timer if present
   if (data.timerDuration && data.timerDuration > 0) {
@@ -104,14 +104,10 @@ socket.on('host:questionPushed', (data) => {
     setTimerActive(false);
   }
   
-  // Auto-advance to next question for preview
-  setSelectedQuestionIndex(prev => {
-    console.log('Advancing from', prev, 'to', prev + 1);
-    return prev + 1;
-  });
-  
-  setScreen('active');
+  setScreen('scoring');  // ← CHANGE back to 'scoring'
+  // Don't auto-advance here - let host manually advance when ready for next question
 });
+
 socket.on('host:scoresCorrected', (data) => {
   setGame(prev => {
     const updatedTeams = {};
@@ -442,7 +438,7 @@ const markVisualAnswer = (teamName, index, correct) => {
       
 
 const nextQuestion = () => {
-  const nextIndex = game.currentQuestionIndex + 1;
+  const nextIndex = selectedQuestionIndex + 1;  // Use selectedQuestionIndex instead
   
   if (nextIndex >= 15) {
     setGame(prev => ({ ...prev, status: 'final' }));
@@ -450,7 +446,7 @@ const nextQuestion = () => {
     return;
   }
   
-  setGame(prev => ({ ...prev, currentQuestionIndex: nextIndex }));
+  setSelectedQuestionIndex(nextIndex);  // Update selectedQuestionIndex
   setScreen('questionDisplay'); // Show next question on host screen
 };
 
@@ -1267,11 +1263,11 @@ const getScoringProgress = () => {
             <div className="left-panel">
               <div className="section-title">TEAM ANSWERS FOR QUESTION {selectedQuestionIndex + 1}</div>
               <div style={{ background: '#E3F2FD', padding: '15px', borderRadius: '10px', marginBottom: '10px' }}>
-  <strong style={{ color: '#286586' }}>Question:</strong> {questions[game.currentQuestionIndex].question}
+  <strong style={{ color: '#286586' }}>Question:</strong> {questions[selectedQuestionIndex].question}
 </div>
 <div style={{ background: '#FFF9E6', padding: '15px', borderRadius: '10px', marginBottom: '25px' }}>
-  <strong style={{ color: '#286586' }}>Correct answer:</strong> {questions[game.currentQuestionIndex].answer}
-  {questions[game.currentQuestionIndex].type === 'visual' && questions[game.currentQuestionIndex].imageUrl && (
+  <strong style={{ color: '#286586' }}>Correct answer:</strong> {questions[selectedQuestionIndex].answer}
+  {questions[selectedQuestionIndex].type === 'visual' && questions[selectedQuestionIndex].imageUrl && (
     <div style={{ marginTop: '15px', textAlign: 'center' }}>
       <img 
         src={questions[game.currentQuestionIndex].imageUrl} 
@@ -1282,9 +1278,9 @@ const getScoringProgress = () => {
   )}
 </div>
               {getSortedTeams().map(team => {
-                const questionKey = `q${game.currentQuestionIndex + 1}`;
+                const questionKey = `q${selectedQuestionIndex + 1}`;
                 const answer = team.answers?.[questionKey];
-                const isVisual = questions[game.currentQuestionIndex].type === 'visual';
+                const isVisual = questions[selectedQuestionIndex].type === 'visual';
                 
                 return (
                   <div key={team.name} className="answer-item">
