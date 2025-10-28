@@ -357,34 +357,41 @@ socket.emit('host:addAllQuestions', {
   };
 
   const markAnswer = (teamName, correct) => {
-    const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
-    socket.emit('host:markAnswer', { gameCode, teamName, questionKey, correct });
+  const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
+  const team = game.teams[teamName];
+  const answer = team.answers[questionKey];
+  
+  // GUARD: Prevent double-marking
+  if (!answer || answer.marked) {
+    console.log('Answer already marked, ignoring click');
+    return;
+  }
+  
+  socket.emit('host:markAnswer', { gameCode, teamName, questionKey, correct });
 
-    const team = game.teams[teamName];
-    const answer = team.answers[questionKey];
-    let scoreChange = 0;
-    
-    if (game.status === 'final') {
-      scoreChange = correct ? answer.confidence : -answer.confidence;
-    } else {
-      scoreChange = correct ? answer.confidence : 0;
-    }
+  let scoreChange = 0;
+  
+  if (game.status === 'final') {
+    scoreChange = correct ? answer.confidence : -answer.confidence;
+  } else {
+    scoreChange = correct ? answer.confidence : 0;
+  }
 
-    setGame(prev => ({
-      ...prev,
-      teams: {
-        ...prev.teams,
-        [teamName]: {
-          ...prev.teams[teamName],
-          score: prev.teams[teamName].score + scoreChange,
-          answers: {
-            ...prev.teams[teamName].answers,
-            [questionKey]: { ...answer, marked: true, correct }
-          }
+  setGame(prev => ({
+    ...prev,
+    teams: {
+      ...prev.teams,
+      [teamName]: {
+        ...prev.teams[teamName],
+        score: prev.teams[teamName].score + scoreChange,
+        answers: {
+          ...prev.teams[teamName].answers,
+          [questionKey]: { ...answer, marked: true, correct }
         }
       }
-    }));
-  };
+    }
+  }));
+};
 
   const markVisualAnswer = (teamName, index, correct) => {
     const questionKey = `q${game.currentQuestionIndex + 1}`;
