@@ -33,17 +33,39 @@ export default function QuizzlerHostApp() {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
 
-  useEffect(() => {
-    const newSocket = io(BACKEND_URL, {
-      transports: ['websocket', 'polling']
+  const newSocket = io(BACKEND_URL, {
+  transports: ['websocket', 'polling'],
+  reconnection: true,
+  reconnectionAttempts: 10,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000
+});
+
+    newSocket.on('connect', () => {
+      console.log('Connected to server');
+      // If reconnecting mid-game, rejoin the game room
+      if (gameCode) {
+        newSocket.emit('host:join', gameCode);
+      }
     });
 
-    newSocket.on('connect', () => console.log('Connected'));
+    newSocket.on('disconnect', () => {
+      console.log('Disconnected from server - attempting to reconnect...');
+    });
+
+    newSocket.on('reconnect', (attemptNumber) => {
+      console.log('Reconnected after', attemptNumber, 'attempts');
+      // Rejoin game room on reconnect
+      if (gameCode) {
+        newSocket.emit('host:join', gameCode);
+      }
+    });
+
     newSocket.on('error', (error) => alert(error.message));
 
     setSocket(newSocket);
     return () => newSocket.close();
-  }, []);
+  }, [gameCode]);  // CHANGED: Added gameCode to dependencies
 
   useEffect(() => {
     if (!socket || !gameCode) return;
