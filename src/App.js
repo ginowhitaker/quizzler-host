@@ -13,7 +13,12 @@ export default function QuizzlerHostApp() {
   const [regularTimer, setRegularTimer] = useState(0); // 0 = no timer
   const [visualTimer, setVisualTimer] = useState(0); // 0 = no timer
   const [gameCode, setGameCode] = useState('');
-  const [game, setGame] = useState(null);
+  const [game, setGame] = useState({
+  code: '',
+  currentQuestionIndex: 0,
+  questionNumber: 0
+});
+const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);  // ADD THIS
   const [questions, setQuestions] = useState(Array.from({ length: 15 }, () => ({ category: '', question: '', answer: '', type: 'regular', imageUrl: '' })));
   const [finalQuestion, setFinalQuestion] = useState({ category: '', question: '', answer: '' });
   const [selectedTeamHistory, setSelectedTeamHistory] = useState(null);
@@ -317,9 +322,8 @@ General,Final Question Example?,Final Answer Example,regular,`;
   setScreen('questionDisplay'); // Show Q1 on host screen
 };
 
-  const pushQuestion = () => {
-  const questionIndex = game.currentQuestionIndex;
-  socket.emit('host:pushQuestion', { gameCode, questionIndex });
+const pushQuestion = () => {
+  socket.emit('host:pushQuestion', { gameCode, questionIndex: selectedQuestionIndex });
   // Removed setScreen - will change on backend confirmation
 };
 
@@ -1170,16 +1174,34 @@ const getScoringProgress = () => {
               <div className="question-display">
                 Question {game.currentQuestionIndex + 1}...
                 <br/><br/>
-                The category is {questions[game.currentQuestionIndex].category}
+                The category is {questions[selectedQuestionIndex].category}
                 <br/><br/>
-                {questions[game.currentQuestionIndex].question}
+                {questions[selectedQuestionIndex].question}
               </div>
-             <button 
+              
+    		<div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+  <button 
+    onClick={() => setSelectedQuestionIndex(Math.max(0, selectedQuestionIndex - 1))}
+    disabled={selectedQuestionIndex === 0}
+    className="submit-button"
+  >
+    ← Previous
+  </button>
+  <button 
+    onClick={() => setSelectedQuestionIndex(Math.min(questions.length - 1, selectedQuestionIndex + 1))}
+    disabled={selectedQuestionIndex === questions.length - 1}
+    className="submit-button"
+  >
+    Next →
+  </button>
+</div>
+<button 
   onClick={pushQuestion}
   className="submit-button"
 >
-  PUSH TO TEAMS
+  PUSH QUESTION {selectedQuestionIndex + 1} TO TEAMS
 </button>
+             <button 
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
@@ -1235,7 +1257,7 @@ const getScoringProgress = () => {
           </div>
           <div className="main-content">
             <div className="left-panel">
-              <div className="section-title">TEAM ANSWERS FOR QUESTION {game.currentQuestionIndex + 1}</div>
+              <div className="section-title">TEAM ANSWERS FOR QUESTION {selectedQuestionIndex + 1}</div>
               <div style={{ background: '#E3F2FD', padding: '15px', borderRadius: '10px', marginBottom: '10px' }}>
   <strong style={{ color: '#286586' }}>Question:</strong> {questions[game.currentQuestionIndex].question}
 </div>
