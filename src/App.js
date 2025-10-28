@@ -297,29 +297,42 @@ General,Final Question Example?,Final Answer Example,regular,`;
     event.target.value = '';
   };
 
-  const startGame = () => {
-    const validQuestions = questions.filter(q => q.question && q.answer);
-    if (validQuestions.length < 15) {
-      alert('Please fill in all 15 questions and answers');
-      return;
-    }
-    
-    // Send each question to the backend
-    validQuestions.forEach(q => {
-      socket.emit('host:addQuestion', {
-        gameCode,
-        question: {
-          text: q.question,
-          answer: q.answer,
-          type: q.type || 'regular',
-          imageUrl: q.imageUrl || null
-        }
-      });
+  const startGame = async () => {
+  const validQuestions = questions.filter(q => q.question && q.answer);
+  if (validQuestions.length < 15) {
+    alert('Please fill in all 15 questions and answers');
+    return;
+  }
+  
+  // Send each question to the backend
+  for (const q of validQuestions) {
+    socket.emit('host:addQuestion', {
+      gameCode,
+      question: {
+        text: q.question,
+        answer: q.answer,
+        type: q.type || 'regular',
+        imageUrl: q.imageUrl || null
+      }
     });
-    
-    setGame(prev => ({ ...prev, questions: validQuestions }));
-    setScreen('welcome');
-  };
+  }
+  
+  // Wait a bit for all questions to be saved, then fetch game state
+  setTimeout(() => {
+    fetch(`${BACKEND_URL}/api/game/${gameCode}`)
+      .then(res => res.json())
+      .then(gameData => {
+        console.log('Fetched game data:', gameData);
+        setQuestions(gameData.questions || []);  // Sync local state with database
+        setGame(prev => ({ ...prev, questions: gameData.questions }));
+        setScreen('welcome');
+      })
+      .catch(err => {
+        console.error('Error fetching game:', err);
+        setScreen('welcome');
+      });
+  }, 1000);
+};
 
   const continueToFirstQuestion = () => {
   setGame(prev => ({ ...prev, currentQuestionIndex: 0 }));
@@ -1184,22 +1197,6 @@ const getScoringProgress = () => {
                 {questions[selectedQuestionIndex].question}
               </div>
               
-    		<div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-  <button 
-    onClick={() => setSelectedQuestionIndex(Math.max(0, selectedQuestionIndex - 1))}
-    disabled={selectedQuestionIndex === 0}
-    className="submit-button"
-  >
-    ← Previous
-  </button>
-  <button 
-    onClick={() => setSelectedQuestionIndex(Math.min(questions.length - 1, selectedQuestionIndex + 1))}
-    disabled={selectedQuestionIndex === questions.length - 1}
-    className="submit-button"
-  >
-    Next →
-  </button>
-</div>
 <button 
   onClick={pushQuestion}
   className="submit-button"
