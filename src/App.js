@@ -307,14 +307,15 @@ General,Final Question Example?,Final Answer Example,regular,`;
   // Send each question to the backend
   for (const q of validQuestions) {
     socket.emit('host:addQuestion', {
-      gameCode,
-      question: {
-        text: q.question,
-        answer: q.answer,
-        type: q.type || 'regular',
-        imageUrl: q.imageUrl || null
-      }
-    });
+  gameCode,
+  question: {
+    category: q.category,  // ADD THIS
+    text: q.question,
+    answer: q.answer,
+    type: q.type || 'regular',
+    imageUrl: q.imageUrl || null
+  }
+});
   }
   
   // Wait a bit for all questions to be saved, then fetch game state
@@ -1190,12 +1191,12 @@ const getScoringProgress = () => {
           <div className="main-content">
             <div className="left-panel">
               <div className="question-display">
-                Question {game.currentQuestionIndex + 1}...
-                <br/><br/>
-                The category is {questions[selectedQuestionIndex].category}
-                <br/><br/>
-                {questions[selectedQuestionIndex].question}
-              </div>
+  Question {selectedQuestionIndex + 1}...
+  <br/><br/>
+  The category is {questions[selectedQuestionIndex]?.category || 'N/A'}
+  <br/><br/>
+  {questions[selectedQuestionIndex]?.text}
+</div>
               
 <button 
   onClick={pushQuestion}
