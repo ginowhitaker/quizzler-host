@@ -34,24 +34,25 @@ export default function QuizzlerHostApp() {
   const [timerActive, setTimerActive] = useState(false);
   const [resumeGameCode, setResumeGameCode] = useState('');
 
-  useEffect(() => {
+    useEffect(() => {
   const newSocket = io(BACKEND_URL, {
-  transports: ['websocket', 'polling'],
-  reconnection: true,
-  reconnectionAttempts: 10,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  timeout: 20000,           // ADD: Connection timeout
-  forceNew: true           // ADD: Prevent multiple connections
-});
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionAttempts: 10,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    timeout: 20000
+    // REMOVED: forceNew: true
+  });
 
-  newSocket.on('connect', () => {
-  console.log('Connected to server');
+  setSocket(newSocket);
   
-  // If we have a gameCode, rejoin and sync (handles both initial join and reconnection)
-  if (gameCode) {
-    console.log('Rejoining game:', gameCode);
-    newSocket.emit('host:join', gameCode);
+  newSocket.on('connect', () => {
+    console.log('Connected to server');
+    
+    if (gameCode) {
+      console.log('Rejoining game:', gameCode);
+      newSocket.emit('host:join', gameCode);
     
     // SYNC GAME STATE from database
     fetch(`${BACKEND_URL}/api/game/${gameCode}`)
@@ -89,10 +90,11 @@ export default function QuizzlerHostApp() {
 
   setSocket(newSocket);
   return () => newSocket.close();
-}, [gameCode]);
+}, []); // CHANGED: Back to empty array
 
   useEffect(() => {
-    if (!socket || !gameCode) return;
+    if (!socket || !gameCode) return;return () => newSocket.close();
+}, [gameCode]);
 
     socket.on('host:joined', (data) => {
       console.log('Host joined:', data);
