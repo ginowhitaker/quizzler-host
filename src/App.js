@@ -306,50 +306,74 @@ export default function QuizzlerHostApp() {
 };
 
   const handleImportCSV = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        const imported = results.data;
-        const newQuestions = [...questions];
-        
-        // Fill regular questions (first 15)
-        for (let i = 0; i < Math.min(15, imported.length); i++) {
-          if (imported[i].Category && imported[i].Question && imported[i].Answer) {
-            newQuestions[i] = {
-              category: imported[i].Category,
-              text: imported[i].Question,  // FIXED: was 'question'
-              answer: imported[i].Answer,
-              type: imported[i].Type || 'regular',
-              imageUrl: imported[i].ImageURL || null
-            };
-          }
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: (results) => {
+      const imported = results.data;
+      const newQuestions = [...questions];
+      
+      // Questions 1-7 (rows 0-6)
+      for (let i = 0; i < 7 && i < imported.length; i++) {
+        if (imported[i].Category && imported[i].Question && imported[i].Answer) {
+          newQuestions[i] = {
+            category: imported[i].Category,
+            text: imported[i].Question,
+            answer: imported[i].Answer,
+            type: imported[i].Type || 'regular',
+            imageUrl: imported[i]['Image URL'] || null
+          };
         }
-        
-        // Fill final question if there's a 16th row
-        if (imported.length >= 16 && imported[15].Category && imported[15].Question && imported[15].Answer) {
-          setFinalQuestion({
-            category: imported[15].Category,
-            question: imported[15].Question,
-            answer: imported[15].Answer,
-            type: imported[15].Type || 'regular',
-            imageUrl: imported[15].ImageURL || null
-          });
-        }
-        
-        setQuestions(newQuestions);
-        alert(`Imported ${Math.min(imported.length, 16)} questions successfully!`);
-      },
-      error: (error) => {
-        alert('Error parsing CSV: ' + error.message);
       }
-    });
-    
-    event.target.value = '';
-  };
+      
+      // Visual Round (row 7 - position 8 in template)
+      if (imported.length > 7 && imported[7].Type === 'visual') {
+        newQuestions[7] = {
+          category: imported[7].Category,
+          text: imported[7].Question,
+          answer: imported[7].Answer,
+          type: 'visual',
+          imageUrl: imported[7]['Image URL'] || null
+        };
+      }
+      
+      // Questions 8-15 (rows 8-14)
+      for (let i = 8; i < 15 && i < imported.length; i++) {
+        if (imported[i].Category && imported[i].Question && imported[i].Answer) {
+          newQuestions[i] = {
+            category: imported[i].Category,
+            text: imported[i].Question,
+            answer: imported[i].Answer,
+            type: imported[i].Type || 'regular',
+            imageUrl: imported[i]['Image URL'] || null
+          };
+        }
+      }
+      
+      // Final question (row 15)
+      if (imported.length >= 16 && imported[15].Category && imported[15].Question && imported[15].Answer) {
+        setFinalQuestion({
+          category: imported[15].Category,
+          question: imported[15].Question,
+          answer: imported[15].Answer,
+          type: imported[15].Type || 'final',
+          imageUrl: imported[15]['Image URL'] || null
+        });
+      }
+      
+      setQuestions(newQuestions);
+      alert(`Imported ${Math.min(imported.length, 16)} questions successfully!`);
+    },
+    error: (error) => {
+      alert('Error parsing CSV: ' + error.message);
+    }
+  });
+  
+  event.target.value = '';
+};
 
   const startGame = async () => {
     // FIXED: Check for 'text' field instead of 'question'
