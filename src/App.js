@@ -895,20 +895,6 @@ socket.emit('host:addAllQuestions', {
           </div>
           <div style={{ maxWidth: '600px', margin: '60px auto', padding: '40px' }}>
             <div className="section-title">HOST SETUP</div>
-            {screen === 'start' && (
-  <>
-    <div className="header">
-      <div className="logo">
-        <img 
-          src="https://quizzler.pro/img/quizzler_logo.png" 
-          alt="Quizzler Logo" 
-          className="logo-icon"
-          style={{ height: '30px', width: 'auto' }}
-        />
-      </div>
-    </div>
-    <div style={{ maxWidth: '600px', margin: '60px auto', padding: '40px' }}>
-      <div className="section-title">HOST SETUP</div>
       
       {/* ADD THIS RESUME SECTION */}
       <div style={{ marginBottom: '40px', padding: '20px', background: '#FFF9E6', borderRadius: '10px' }}>
