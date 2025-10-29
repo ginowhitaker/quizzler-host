@@ -972,7 +972,18 @@ socket.emit('host:addAllQuestions', {
       </div>
       
       <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #E0E0E0' }} />
-           
+      
+      {/* EXISTING NEW GAME SECTION */}
+      <h3 style={{ color: '#286586', marginBottom: '15px' }}>Start New Game</h3>
+      <input 
+        className="input-field" 
+        placeholder="Host Name"
+        value={hostName}
+        onChange={(e) => setHostName(e.target.value)}
+      />
+      {/* ... rest of existing form */}
+            
+            
             <input 
               className="input-field" 
               placeholder="Host Name"
