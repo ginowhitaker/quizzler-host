@@ -42,9 +42,8 @@ export default function QuizzlerHostApp() {
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     timeout: 20000
-    // REMOVED: forceNew: true
   });
-
+  
   setSocket(newSocket);
   
   newSocket.on('connect', () => {
@@ -53,68 +52,75 @@ export default function QuizzlerHostApp() {
     if (gameCode) {
       console.log('Rejoining game:', gameCode);
       newSocket.emit('host:join', gameCode);
-    
-    // SYNC GAME STATE from database
-    fetch(`${BACKEND_URL}/api/game/${gameCode}`)
-      .then(res => res.json())
-      .then(gameData => {
-        console.log('Synced game state:', gameData);
-        
-        // Update current question index
-        if (gameData.current_question_index !== undefined) {
-          console.log('Setting question index to:', gameData.current_question_index);
-          setSelectedQuestionIndex(gameData.current_question_index);
-        }
-        
-        // Update teams with latest answers and scores
-        if (gameData.teams) {
-          setGame(prev => ({
-            ...prev,
-            currentQuestionIndex: gameData.current_question_index || 0,
-            teams: gameData.teams.reduce((acc, team) => {
-              acc[team.name] = {
-                name: team.name,
-                score: team.score,
-                usedConfidences: team.usedConfidences || [],
-                answers: team.answers || {}
-              };
-              return acc;
-            }, {})
-          }));
-        }
-      })
-      .catch(err => console.error('Failed to sync game state:', err));
-  }
-});
+      
+      // SYNC GAME STATE from database
+      fetch(`${BACKEND_URL}/api/game/${gameCode}`)
+        .then(res => res.json())
+        .then(gameData => {
+          console.log('Synced game state:', gameData);
+          
+          // Update current question index
+          if (gameData.current_question_index !== undefined) {
+            console.log('Setting question index to:', gameData.current_question_index);
+            setSelectedQuestionIndex(gameData.current_question_index);
+          }
+          
+          // Update teams with latest answers and scores
+          if (gameData.teams) {
+            setGame(prev => ({
+              ...prev,
+              currentQuestionIndex: gameData.current_question_index || 0,
+              teams: gameData.teams.reduce((acc, team) => {
+                acc[team.name] = {
+                  name: team.name,
+                  score: team.score,
+                  usedConfidences: team.usedConfidences || [],
+                  answers: team.answers || {}
+                };
+                return acc;
+              }, {})
+            }));
+          }
+        })
+        .catch(err => console.error('Failed to sync game state:', err));
+    }
+  });  // ADDED: Close connect handler
+  
+  newSocket.on('disconnect', () => {
+    console.log('Disconnected from backend - attempting to reconnect...');
+  });
+  
+  newSocket.on('reconnect', (attemptNumber) => {
+    console.log('Reconnected after', attemptNumber, 'attempts');
+  });
+  
   newSocket.on('error', (error) => alert(error.message));
-
-  setSocket(newSocket);
+  
   return () => newSocket.close();
-}, []); // CHANGED: Back to empty array
+}, []);
 
-  useEffect(() => {
-    if (!socket || !gameCode) return;return () => newSocket.close();
-}, [gameCode]);
-
-    socket.on('host:joined', (data) => {
-      console.log('Host joined:', data);
-    });
-
-    socket.on('host:teamJoined', (data) => {
-      console.log('Team joined:', data);
-      setGame(prev => {
-        const newTeams = {};
-        data.teams.forEach(team => {
-          newTeams[team.name] = {
-            name: team.name,
-            score: team.score,
-            usedConfidences: team.usedConfidences || [],
-            answers: prev?.teams?.[team.name]?.answers || {}
-          };
-        });
-        return { ...prev, teams: newTeams };
+useEffect(() => {
+  if (!socket || !gameCode) return;
+  
+  socket.on('host:joined', (data) => {
+    console.log('Host joined:', data);
+  });
+  
+  socket.on('host:teamJoined', (data) => {
+    console.log('Team joined:', data);
+    setGame(prev => {
+      const newTeams = {};
+      data.teams.forEach(team => {
+        newTeams[team.name] = {
+          name: team.name,
+          score: team.score,
+          usedConfidences: team.usedConfidences || [],
+          answers: prev?.teams?.[team.name]?.answers || {}
+        };
       });
+      return { ...prev, teams: newTeams };
     });
+  });
 
     socket.on('host:answerReceived', ({ teamName, questionKey, answerText, confidence }) => {
       console.log('Answer received:', teamName, questionKey);
