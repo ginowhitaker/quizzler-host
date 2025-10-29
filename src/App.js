@@ -896,67 +896,7 @@ socket.emit('host:addAllQuestions', {
           <div style={{ maxWidth: '600px', margin: '60px auto', padding: '40px' }}>
             <div className="section-title">HOST SETUP</div>
       
-
-      
-      {/* EXISTING NEW GAME SECTION */}
-      <h3 style={{ color: '#286586', marginBottom: '15px' }}>Start New Game</h3>
-            <input 
-              className="input-field" 
-              placeholder="Host Name"
-              value={hostName}
-              onChange={(e) => setHostName(e.target.value)}
-            />
-            <input 
-              className="input-field" 
-              placeholder="Venue Name"
-              value={venueName}
-              onChange={(e) => setVenueName(e.target.value)}
-            />
-            <textarea 
-              className="input-field" 
-              placeholder="Venue Specials (optional)"
-              value={venueSpecials}
-              onChange={(e) => setVenueSpecials(e.target.value)}
-              rows={4}
-              style={{ resize: 'vertical' }}
-            />
-            <label className="question-label" style={{ marginTop: '20px' }}>Regular Question Timer:</label>
-            <select 
-              className="input-field"
-              value={regularTimer}
-              onChange={(e) => setRegularTimer(parseInt(e.target.value))}
-              style={{ padding: '15px' }}
-            >
-              <option value={0}>No Timer</option>
-              <option value={1}>1 Minute</option>
-              <option value={2}>2 Minutes</option>
-              <option value={3}>3 Minutes</option>
-              <option value={4}>4 Minutes</option>
-              <option value={5}>5 Minutes</option>
-            </select>
-            <label className="question-label">Visual Round Timer:</label>
-            <select 
-              className="input-field"
-              value={visualTimer}
-              onChange={(e) => setVisualTimer(parseInt(e.target.value))}
-              style={{ padding: '15px' }}
-            >
-              <option value={0}>No Timer</option>
-              <option value={1}>1 Minute</option>
-              <option value={2}>2 Minutes</option>
-              <option value={3}>3 Minutes</option>
-              <option value={4}>4 Minutes</option>
-              <option value={5}>5 Minutes</option>
-            </select>
-            <button className="submit-button" onClick={createGame}>
-              SUBMIT
-            </button>
-          </div>
-        </>
-        
-              {/* ADD THIS RESUME SECTION */}
-              
-    <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #E0E0E0' }} />
+      {/* ADD THIS RESUME SECTION */}
       <div style={{ marginBottom: '40px', padding: '20px', background: '#FFF9E6', borderRadius: '10px' }}>
         <h3 style={{ color: '#286586', marginBottom: '15px' }}>Resume Existing Game</h3>
         <input 
@@ -1031,7 +971,61 @@ socket.emit('host:addAllQuestions', {
         </button>
       </div>
       
-      
+      <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #E0E0E0' }} />
+           
+            <input 
+              className="input-field" 
+              placeholder="Host Name"
+              value={hostName}
+              onChange={(e) => setHostName(e.target.value)}
+            />
+            <input 
+              className="input-field" 
+              placeholder="Venue Name"
+              value={venueName}
+              onChange={(e) => setVenueName(e.target.value)}
+            />
+            <textarea 
+              className="input-field" 
+              placeholder="Venue Specials (optional)"
+              value={venueSpecials}
+              onChange={(e) => setVenueSpecials(e.target.value)}
+              rows={4}
+              style={{ resize: 'vertical' }}
+            />
+            <label className="question-label" style={{ marginTop: '20px' }}>Regular Question Timer:</label>
+            <select 
+              className="input-field"
+              value={regularTimer}
+              onChange={(e) => setRegularTimer(parseInt(e.target.value))}
+              style={{ padding: '15px' }}
+            >
+              <option value={0}>No Timer</option>
+              <option value={1}>1 Minute</option>
+              <option value={2}>2 Minutes</option>
+              <option value={3}>3 Minutes</option>
+              <option value={4}>4 Minutes</option>
+              <option value={5}>5 Minutes</option>
+            </select>
+            <label className="question-label">Visual Round Timer:</label>
+            <select 
+              className="input-field"
+              value={visualTimer}
+              onChange={(e) => setVisualTimer(parseInt(e.target.value))}
+              style={{ padding: '15px' }}
+            >
+              <option value={0}>No Timer</option>
+              <option value={1}>1 Minute</option>
+              <option value={2}>2 Minutes</option>
+              <option value={3}>3 Minutes</option>
+              <option value={4}>4 Minutes</option>
+              <option value={5}>5 Minutes</option>
+            </select>
+            <button className="submit-button" onClick={createGame}>
+              SUBMIT
+            </button>
+          </div>
+        </>
       )}
 
       {screen === 'questions' && (
