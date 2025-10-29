@@ -145,16 +145,19 @@ useEffect(() => {
     });
 
     socket.on('host:wagerReceived', (data) => {
-      setGame(prev => ({
-        ...prev,
-        teams: data.teams.reduce((acc, team) => {
-          acc[team.name] = team;
-          return acc;
-        }, {})
-      }));
-      console.log(`Wager received from ${data.teamName}: ${data.wager}`);
-    });
-
+  console.log('Wager data received:', data);
+  console.log('Teams structure:', data.teams);
+  
+  setGame(prev => ({
+    ...prev,
+    teams: data.teams.reduce((acc, team) => {
+      console.log('Processing team:', team.name, 'answers:', team.answers);
+      acc[team.name] = team;
+      return acc;
+    }, {})
+  }));
+  console.log(`Wager received from ${data.teamName}: ${data.wager}`);
+});
     socket.on('host:questionPushed', (data) => {
       console.log('Question pushed successfully');
       
@@ -1668,7 +1671,15 @@ socket.emit('host:addAllQuestions', {
                   );
                 })}
               </div>
-
+              
+              {/* ADD DEBUG BUTTON HERE */}
+              <button 
+                onClick={() => console.log('Current game state:', game)}
+                style={{ margin: '20px 0', padding: '10px', background: '#666' }}
+              >
+                DEBUG: Log Game State
+              </button>
+              
               {getSortedTeams().every(team => team.answers?.final?.confidence !== undefined) && (
                 <button className="continue-button" onClick={revealFinalQuestion}>
                   REVEAL FINAL QUESTION
