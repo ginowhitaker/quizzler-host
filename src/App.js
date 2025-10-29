@@ -438,10 +438,12 @@ socket.emit('host:addAllQuestions', {
   }));
 };
 
-  const markVisualAnswer = (teamName, index, correct) => {
-    const questionKey = `q${game.currentQuestionIndex + 1}`;
-    const team = game.teams[teamName];
-    const answer = team.answers[questionKey];
+    const markVisualAnswer = (teamName, index, correct) => {
+  const questionKey = `q${selectedQuestionIndex + 1}`;
+  console.log('Marking visual answer - questionKey:', questionKey, 'index:', index, 'correct:', correct);
+  
+  const team = game.teams[teamName];
+  const answer = team.answers[questionKey];
     
     if (!Array.isArray(answer.correct)) {
       answer.correct = [null, null, null, null, null, null];
