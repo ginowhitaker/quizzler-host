@@ -1044,11 +1044,6 @@ socket.emit('host:addAllQuestions', {
           </div>
         </>
       )}
-
-          </div>
-        </>
-      )}
-
       {screen === 'questions' && (
         <>
           <div className="header">
