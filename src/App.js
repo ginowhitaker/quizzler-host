@@ -896,82 +896,7 @@ socket.emit('host:addAllQuestions', {
           <div style={{ maxWidth: '600px', margin: '60px auto', padding: '40px' }}>
             <div className="section-title">HOST SETUP</div>
       
-      {/* ADD THIS RESUME SECTION */}
-      <div style={{ marginBottom: '40px', padding: '20px', background: '#FFF9E6', borderRadius: '10px' }}>
-        <h3 style={{ color: '#286586', marginBottom: '15px' }}>Resume Existing Game</h3>
-        <input 
-          className="input-field" 
-          placeholder="Enter Game Code"
-          value={gameCode}
-          onChange={(e) => setGameCode(e.target.value.toUpperCase())}
-          maxLength={4}
-          style={{ marginBottom: '10px' }}
-        />
-        <button 
-          className="submit-button" 
-          onClick={async () => {
-            if (!gameCode) {
-              alert('Please enter a game code');
-              return;
-            }
-            try {
-              const response = await fetch(`${BACKEND_URL}/api/game/${gameCode}`);
-              const gameData = await response.json();
-              
-              if (!gameData) {
-                alert('Game not found');
-                return;
-              }
-              
-              socket.emit('host:join', gameCode);
-              setHostName(gameData.host_name);
-              setVenueName(gameData.venue_name);
-              setVenueSpecials(gameData.venueSpecials || '');
-              setQuestions(gameData.questions || []);
-              setSelectedQuestionIndex(gameData.current_question_index || 0);
-              setGame({ 
-                ...gameData, 
-                currentQuestionIndex: gameData.current_question_index || 0,
-                teams: {} 
-              });
-              
-              // Load teams
-              const teams = await fetch(`${BACKEND_URL}/api/game/${gameCode}`).then(r => r.json());
-              if (teams.teams) {
-                const teamsMap = {};
-                teams.teams.forEach(team => {
-                  teamsMap[team.name] = {
-                    name: team.name,
-                    score: team.score,
-                    usedConfidences: team.usedConfidences || [],
-                    answers: team.answers || {}
-                  };
-                });
-                setGame(prev => ({ ...prev, teams: teamsMap }));
-              }
-              
-              // Go to appropriate screen based on game state
-              if (gameData.status === 'final') {
-                setScreen('finalQuestionDisplay');
-              } else if (gameData.status === 'completed') {
-                setScreen('endGame');
-              } else if (gameData.question_number > 0) {
-                setScreen('scoring');
-              } else {
-                setScreen('welcome');
-              }
-            } catch (error) {
-              console.error('Error resuming game:', error);
-              alert('Failed to resume game');
-            }
-          }}
-          style={{ background: '#00AA00' }}
-        >
-          RESUME GAME
-        </button>
-      </div>
       
-      <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #E0E0E0' }} />
       
       {/* EXISTING NEW GAME SECTION */}
       <h3 style={{ color: '#286586', marginBottom: '15px' }}>Start New Game</h3>
@@ -1026,6 +951,100 @@ socket.emit('host:addAllQuestions', {
             <button className="submit-button" onClick={createGame}>
               SUBMIT
             </button>
+
+            <button className="submit-button" onClick={createGame}>
+              SUBMIT
+            </button>
+
+            {/* COLLAPSIBLE RESUME SECTION AT BOTTOM */}
+            <details style={{ marginTop: '40px', padding: '15px', background: '#F5F5F5', borderRadius: '10px', border: '1px solid #E0E0E0' }}>
+              <summary style={{ 
+                cursor: 'pointer', 
+                fontWeight: 'bold', 
+                color: '#286586', 
+                fontSize: '16px',
+                padding: '10px',
+                listStyle: 'none'
+              }}>
+                🔄 Resume Existing Game (Advanced)
+              </summary>
+              <div style={{ marginTop: '15px' }}>
+                <input 
+                  className="input-field" 
+                  placeholder="Enter Game Code (4 digits)"
+                  onChange={(e) => {
+                    const code = e.target.value.toUpperCase();
+                    setGameCode(code);
+                  }}
+                  maxLength={4}
+                />
+                <button 
+                  className="submit-button" 
+                  onClick={async () => {
+                    if (!gameCode) {
+                      alert('Please enter a game code');
+                      return;
+                    }
+                    try {
+                      const response = await fetch(`${BACKEND_URL}/api/game/${gameCode}`);
+                      const gameData = await response.json();
+                      
+                      if (!gameData) {
+                        alert('Game not found');
+                        return;
+                      }
+                      
+                      socket.emit('host:join', gameCode);
+                      setHostName(gameData.host_name);
+                      setVenueName(gameData.venue_name);
+                      setVenueSpecials(gameData.venue_specials || '');
+                      setQuestions(gameData.questions || []);
+                      setSelectedQuestionIndex(gameData.current_question_index || 0);
+                      setGame({ 
+                        ...gameData, 
+                        currentQuestionIndex: gameData.current_question_index || 0,
+                        teams: {} 
+                      });
+                      
+                      const teams = await fetch(`${BACKEND_URL}/api/game/${gameCode}`).then(r => r.json());
+                      if (teams.teams) {
+                        const teamsMap = {};
+                        teams.teams.forEach(team => {
+                          teamsMap[team.name] = {
+                            name: team.name,
+                            score: team.score,
+                            usedConfidences: team.usedConfidences || [],
+                            answers: team.answers || {}
+                          };
+                        });
+                        setGame(prev => ({ ...prev, teams: teamsMap }));
+                      }
+                      
+                      if (gameData.status === 'final') {
+                        setScreen('finalQuestionDisplay');
+                      } else if (gameData.status === 'completed') {
+                        setScreen('endGame');
+                      } else if (gameData.question_number > 0) {
+                        setScreen('scoring');
+                      } else {
+                        setScreen('welcome');
+                      }
+                    } catch (error) {
+                      console.error('Error resuming game:', error);
+                      alert('Failed to resume game');
+                    }
+                  }}
+                  style={{ background: '#00AA00' }}
+                >
+                  RESUME GAME
+                </button>
+              </div>
+            </details>
+
+          </div>
+        </>
+      )}
+
           </div>
         </>
       )}
