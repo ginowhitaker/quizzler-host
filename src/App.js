@@ -32,6 +32,7 @@ export default function QuizzlerHostApp() {
   const [timerDuration, setTimerDuration] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  const [resumeGameCode, setResumeGameCode] = useState('');
 
   useEffect(() => {
   const newSocket = io(BACKEND_URL, {
@@ -962,35 +963,36 @@ socket.emit('host:addAllQuestions', {
                 padding: '10px',
                 listStyle: 'none'
               }}>
-                🔄 Resume Existing Game (Advanced)
+                RESUME EXISTING GAME
               </summary>
               <div style={{ marginTop: '15px' }}>
                 <input 
-                  className="input-field" 
-                  placeholder="Enter Game Code (4 digits)"
-                  onChange={(e) => {
-                    const code = e.target.value.toUpperCase();
-                    setGameCode(code);
-                  }}
-                  maxLength={4}
-                />
-                <button 
-                  className="submit-button" 
-                  onClick={async () => {
-                    if (!gameCode) {
-                      alert('Please enter a game code');
-                      return;
-                    }
-                    try {
-                      const response = await fetch(`${BACKEND_URL}/api/game/${gameCode}`);
-                      const gameData = await response.json();
-                      
-                      if (!gameData) {
-                        alert('Game not found');
-                        return;
-                      }
-                      
-                      socket.emit('host:join', gameCode);
+  className="input-field" 
+  placeholder="Enter Game Code (4 digits)"
+  value={resumeGameCode}
+  onChange={(e) => {
+    setResumeGameCode(e.target.value.toUpperCase());
+  }}
+  maxLength={4}
+/>
+<button 
+  className="submit-button" 
+  onClick={async () => {
+    if (!resumeGameCode || resumeGameCode.length !== 4) {
+      alert('Please enter a valid 4-digit game code');
+      return;
+    }
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/game/${resumeGameCode}`);
+      const gameData = await response.json();
+      
+      if (!gameData) {
+        alert('Game not found');
+        return;
+      }
+      
+               socket.emit('host:join', resumeGameCode);
+               setGameCode(resumeGameCode); 
                       setHostName(gameData.host_name);
                       setVenueName(gameData.venue_name);
                       setVenueSpecials(gameData.venue_specials || '');
@@ -1002,7 +1004,7 @@ socket.emit('host:addAllQuestions', {
                         teams: {} 
                       });
                       
-                      const teams = await fetch(`${BACKEND_URL}/api/game/${gameCode}`).then(r => r.json());
+                      const teams = await fetch(`${BACKEND_URL}/api/game/${resumeGameCode}`).then(r => r.json());
                       if (teams.teams) {
                         const teamsMap = {};
                         teams.teams.forEach(team => {
