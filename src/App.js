@@ -271,31 +271,39 @@ export default function QuizzlerHostApp() {
   };
 
   const downloadTemplate = () => {
-    const template = `Category,Question,Answer,Type,ImageURL
-Science,What is H2O?,Water,regular,
-History,Who was the first president?,George Washington,regular,
-Sports,How many players on a basketball team?,Five,regular,
-Geography,Identify these 6 logos,"1. Nike, 2. Apple, 3. McDonald's, 4. Starbucks, 5. Amazon, 6. Google",visual,https://quizzler.pro/img/visual-102225.jpg
-Math,What is 2+2?,Four,regular,
-Arts,Who painted the Mona Lisa?,Leonardo da Vinci,regular,
-Science,What planet is known as the Red Planet?,Mars,regular,
-History,In what year did World War II end?,1945,regular,
-Sports,How many points is a touchdown in American football?,Six,regular,
-Geography,What is the largest ocean?,Pacific Ocean,regular,
-Math,What is the square root of 144?,Twelve,regular,
-Arts,Who wrote Romeo and Juliet?,William Shakespeare,regular,
-Science,What is the speed of light?,299792458 meters per second,regular,
-History,Who discovered America?,Christopher Columbus,regular,
-Sports,How many innings in a baseball game?,Nine,regular,
-General,Final Question Example?,Final Answer Example,regular,`;
-
-    const blob = new Blob([template], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'quizzler-template.csv';
-    a.click();
-  };
+  const headers = ['Category', 'Question', 'Answer', 'Type', 'Image URL'];
+  const rows = [
+    // Questions 1-7
+    ['Science', 'What is H2O?', 'Water', 'regular', ''],
+    ['History', 'Who was the first president?', 'George Washington', 'regular', ''],
+    ['Sports', 'How many players on a basketball team?', '5', 'regular', ''],
+    ['Geography', 'What is the capital of France?', 'Paris', 'regular', ''],
+    ['Pop Culture', 'Who played Iron Man in the MCU?', 'Robert Downey Jr.', 'regular', ''],
+    ['Music', 'What band released "Bohemian Rhapsody"?', 'Queen', 'regular', ''],
+    ['Literature', 'Who wrote "1984"?', 'George Orwell', 'regular', ''],
+    // Visual Round (after Q7)
+    ['Logos', 'Name these 6 logos', 'Mitsubishi|Fila|Quaker|Wikipedia|NVIDIA|HBSC', 'visual', 'https://quizzler.pro/img/visual-102225.jpg'],
+    // Questions 8-15
+    ['Science', 'What planet is known as the Red Planet?', 'Mars', 'regular', ''],
+    ['History', 'What year did World War II end?', '1945', 'regular', ''],
+    ['Sports', 'Who has won the most Super Bowls?', 'Tom Brady', 'regular', ''],
+    ['Geography', 'What is the largest ocean?', 'Pacific Ocean', 'regular', ''],
+    ['Pop Culture', 'What streaming service created "Stranger Things"?', 'Netflix', 'regular', ''],
+    ['Music', 'Who is known as the King of Pop?', 'Michael Jackson', 'regular', ''],
+    ['Literature', 'What wizard school does Harry Potter attend?', 'Hogwarts', 'regular', ''],
+    ['General', 'How many states are in the USA?', '50', 'regular', ''],
+    // Final Question
+    ['American History', 'In what year was the Declaration of Independence signed?', '1776', 'final', '']
+  ];
+  
+  const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'quizzler_template.csv';
+  a.click();
+};
 
   const handleImportCSV = (event) => {
     const file = event.target.files[0];
