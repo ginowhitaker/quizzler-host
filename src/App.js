@@ -895,6 +895,109 @@ socket.emit('host:addAllQuestions', {
           </div>
           <div style={{ maxWidth: '600px', margin: '60px auto', padding: '40px' }}>
             <div className="section-title">HOST SETUP</div>
+            {screen === 'start' && (
+  <>
+    <div className="header">
+      <div className="logo">
+        <img 
+          src="https://quizzler.pro/img/quizzler_logo.png" 
+          alt="Quizzler Logo" 
+          className="logo-icon"
+          style={{ height: '30px', width: 'auto' }}
+        />
+      </div>
+    </div>
+    <div style={{ maxWidth: '600px', margin: '60px auto', padding: '40px' }}>
+      <div className="section-title">HOST SETUP</div>
+      
+      {/* ADD THIS RESUME SECTION */}
+      <div style={{ marginBottom: '40px', padding: '20px', background: '#FFF9E6', borderRadius: '10px' }}>
+        <h3 style={{ color: '#286586', marginBottom: '15px' }}>Resume Existing Game</h3>
+        <input 
+          className="input-field" 
+          placeholder="Enter Game Code"
+          value={gameCode}
+          onChange={(e) => setGameCode(e.target.value.toUpperCase())}
+          maxLength={4}
+          style={{ marginBottom: '10px' }}
+        />
+        <button 
+          className="submit-button" 
+          onClick={async () => {
+            if (!gameCode) {
+              alert('Please enter a game code');
+              return;
+            }
+            try {
+              const response = await fetch(`${BACKEND_URL}/api/game/${gameCode}`);
+              const gameData = await response.json();
+              
+              if (!gameData) {
+                alert('Game not found');
+                return;
+              }
+              
+              socket.emit('host:join', gameCode);
+              setHostName(gameData.host_name);
+              setVenueName(gameData.venue_name);
+              setVenueSpecials(gameData.venueSpecials || '');
+              setQuestions(gameData.questions || []);
+              setSelectedQuestionIndex(gameData.current_question_index || 0);
+              setGame({ 
+                ...gameData, 
+                currentQuestionIndex: gameData.current_question_index || 0,
+                teams: {} 
+              });
+              
+              // Load teams
+              const teams = await fetch(`${BACKEND_URL}/api/game/${gameCode}`).then(r => r.json());
+              if (teams.teams) {
+                const teamsMap = {};
+                teams.teams.forEach(team => {
+                  teamsMap[team.name] = {
+                    name: team.name,
+                    score: team.score,
+                    usedConfidences: team.usedConfidences || [],
+                    answers: team.answers || {}
+                  };
+                });
+                setGame(prev => ({ ...prev, teams: teamsMap }));
+              }
+              
+              // Go to appropriate screen based on game state
+              if (gameData.status === 'final') {
+                setScreen('finalQuestionDisplay');
+              } else if (gameData.status === 'completed') {
+                setScreen('endGame');
+              } else if (gameData.question_number > 0) {
+                setScreen('scoring');
+              } else {
+                setScreen('welcome');
+              }
+            } catch (error) {
+              console.error('Error resuming game:', error);
+              alert('Failed to resume game');
+            }
+          }}
+          style={{ background: '#00AA00' }}
+        >
+          RESUME GAME
+        </button>
+      </div>
+      
+      <hr style={{ margin: '30px 0', border: 'none', borderTop: '2px solid #E0E0E0' }} />
+      
+      {/* EXISTING NEW GAME SECTION */}
+      <h3 style={{ color: '#286586', marginBottom: '15px' }}>Start New Game</h3>
+      <input 
+        className="input-field" 
+        placeholder="Host Name"
+        value={hostName}
+        onChange={(e) => setHostName(e.target.value)}
+      />
+      {/* ... rest of existing form */}
+            
+            
             <input 
               className="input-field" 
               placeholder="Host Name"
