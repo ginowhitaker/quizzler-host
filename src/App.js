@@ -496,17 +496,25 @@ socket.emit('host:addAllQuestions', {
   };
 
   const nextQuestion = () => {
-    const nextIndex = selectedQuestionIndex + 1;
-    
-    if (nextIndex >= 15) {
-      setGame(prev => ({ ...prev, status: 'final' }));
-      setScreen('finalQuestionDisplay');
-      return;
-    }
-    
-    setSelectedQuestionIndex(nextIndex);
-    setScreen('questionDisplay');
-  };
+  // VALIDATION: Check if all answers are scored before advancing
+  const { scored, total } = getScoringProgress();
+  
+  if (scored < total) {
+    alert(`Please score all ${total} team answers before continuing. (${scored}/${total} scored)`);
+    return;
+  }
+  
+  const nextIndex = selectedQuestionIndex + 1;
+  
+  if (nextIndex >= 15) {
+    setGame(prev => ({ ...prev, status: 'final' }));
+    setScreen('finalQuestionDisplay');
+    return;
+  }
+  
+  setSelectedQuestionIndex(nextIndex);
+  setScreen('questionDisplay');
+};
 
   const pushFinalCategory = () => {
     socket.emit('host:pushFinalCategory', { 
