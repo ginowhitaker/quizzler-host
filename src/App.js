@@ -952,10 +952,6 @@ socket.emit('host:addAllQuestions', {
               SUBMIT
             </button>
 
-            <button className="submit-button" onClick={createGame}>
-              SUBMIT
-            </button>
-
             {/* COLLAPSIBLE RESUME SECTION AT BOTTOM */}
             <details style={{ marginTop: '40px', padding: '15px', background: '#F5F5F5', borderRadius: '10px', border: '1px solid #E0E0E0' }}>
               <summary style={{ 
