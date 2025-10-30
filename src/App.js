@@ -1767,10 +1767,6 @@ socket.emit('host:addAllQuestions', {
   </div>
 )}
                     </div>
-                    {answer ? (
-                      <div className="answer-details">
-                        Their answer: "{answer.text}"<br/>
-                        Wager: {answer.confidence} pts
                         {answer && answer.text ? (
   <div className="answer-details">
     Their answer: "{answer.text}"<br/>
