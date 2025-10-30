@@ -1351,19 +1351,34 @@ socket.emit('host:addAllQuestions', {
           <div className="main-content">
             <div className="left-panel">
               <div className="question-display">
-                Question {selectedQuestionIndex + 1}...
-                <br/><br/>
-                The category is {questions[selectedQuestionIndex]?.category || 'N/A'}
-                <br/><br/>
-                {questions[selectedQuestionIndex]?.text}
-              </div>
-              
-              <button 
-                onClick={pushQuestion}
-                className="submit-button"
-              >
-                PUSH QUESTION {selectedQuestionIndex + 1} TO TEAMS
-              </button>
+  {questions[selectedQuestionIndex]?.type === 'visual' ? (
+    <>
+      VISUAL ROUND
+      <br/><br/>
+      The category is {questions[selectedQuestionIndex]?.category || 'N/A'}
+      <br/><br/>
+      {questions[selectedQuestionIndex]?.text}
+    </>
+  ) : (
+    <>
+      Question {selectedQuestionIndex < 7 ? selectedQuestionIndex + 1 : selectedQuestionIndex}...
+      <br/><br/>
+      The category is {questions[selectedQuestionIndex]?.category || 'N/A'}
+      <br/><br/>
+      {questions[selectedQuestionIndex]?.text}
+    </>
+  )}
+</div>
+
+<button 
+  onClick={pushQuestion}
+  className="submit-button"
+>
+  {questions[selectedQuestionIndex]?.type === 'visual' 
+    ? 'PUSH VISUAL ROUND TO TEAMS'
+    : `PUSH QUESTION ${selectedQuestionIndex < 7 ? selectedQuestionIndex + 1 : selectedQuestionIndex} TO TEAMS`
+  }
+</button>
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
