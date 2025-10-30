@@ -378,7 +378,7 @@ useEffect(() => {
       }
       
       setQuestions(newQuestions);
-      alert(`Imported ${Math.min(imported.length, 16)} questions successfully!`);
+      alert(`Successfully imported 15 questions + 1 visual round + 1 final question!`);
     },
     error: (error) => {
       alert('Error parsing CSV: ' + error.message);
@@ -1137,50 +1137,54 @@ socket.emit('host:addAllQuestions', {
 
               <div className="questions-grid">
                 {questions.map((q, idx) => (
-                  <div key={idx} className="question-group">
-                    <label className="question-label">Category {idx + 1}</label>
-                    <input
-                      className="question-input"
-                      value={q.category}
-                      onChange={(e) => updateQuestion(idx, 'category', e.target.value)}
-                    />
-                    <label className="question-label">Question {idx + 1}</label>
-                    <input
-                      className="question-input"
-                      value={q.text}
-                      onChange={(e) => updateQuestion(idx, 'text', e.target.value)}
-                    />
-                    <label className="question-label">Answer {idx + 1}</label>
-                    <input
-                      className="question-input"
-                      value={q.answer}
-                      onChange={(e) => updateQuestion(idx, 'answer', e.target.value)}
-                    />
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px', marginBottom: '10px' }}>
-                      <input
-                        type="checkbox"
-                        id={`visual-${idx}`}
-                        checked={q.type === 'visual'}
-                        onChange={(e) => updateQuestion(idx, 'type', e.target.checked ? 'visual' : 'regular')}
-                        style={{ marginRight: '8px', cursor: 'pointer' }}
-                      />
-                      <label htmlFor={`visual-${idx}`} style={{ cursor: 'pointer', fontWeight: 'bold', color: '#286586' }}>
-                        📸 Visual Round
-                      </label>
-                    </div>
-                    
-                    {q.type === 'visual' && (
-                      <>
-                        <label className="question-label">Image URL</label>
-                        <input
-                          className="question-input"
-                          placeholder="https://quizzler.pro/img/visual-example.jpg"
-                          value={q.imageUrl || ''}
-                          onChange={(e) => updateQuestion(idx, 'imageUrl', e.target.value)}
-                        />
-                      </>
-                    )}
+  <div key={idx} className="question-group">
+    <label className="question-label">
+      {idx === 7 ? 'Visual Round Category' : `Category ${idx < 7 ? idx + 1 : idx}`}
+    </label>
+    <input
+      className="question-input"
+      value={q.category}
+      onChange={(e) => updateQuestion(idx, 'category', e.target.value)}
+    />
+    <label className="question-label">
+      {idx === 7 ? 'Visual Round Question' : `Question ${idx < 7 ? idx + 1 : idx}`}
+    </label>
+    <input
+      className="question-input"
+      value={q.text}
+      onChange={(e) => updateQuestion(idx, 'text', e.target.value)}
+    />
+    <label className="question-label">
+      {idx === 7 ? 'Visual Round Answer' : `Answer ${idx < 7 ? idx + 1 : idx}`}
+    </label>
+    <input
+      className="question-input"
+      value={q.answer}
+      onChange={(e) => updateQuestion(idx, 'answer', e.target.value)}
+    />
+    
+    {idx === 7 && (
+      <>
+        <div style={{ 
+          background: '#E3F2FD', 
+          padding: '10px', 
+          borderRadius: '5px',
+          marginTop: '10px',
+          marginBottom: '10px',
+          color: '#286586',
+          fontWeight: 'bold'
+        }}>
+          📸 VISUAL ROUND (appears after Q7)
+        </div>
+        <label className="question-label">Image URL</label>
+        <input
+          className="question-input"
+          placeholder="https://quizzler.pro/img/visual-example.jpg"
+          value={q.imageUrl || ''}
+          onChange={(e) => updateQuestion(idx, 'imageUrl', e.target.value)}
+        />
+      </>
+    )}
                     
                     {idx < 14 && (
                       <hr style={{ 
