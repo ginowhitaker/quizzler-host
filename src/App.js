@@ -1672,14 +1672,6 @@ socket.emit('host:addAllQuestions', {
                 })}
               </div>
               
-              {/* ADD DEBUG BUTTON HERE */}
-              <button 
-                onClick={() => console.log('Current game state:', game)}
-                style={{ margin: '20px 0', padding: '10px', background: '#666' }}
-              >
-                DEBUG: Log Game State
-              </button>
-              
               {getSortedTeams().every(team => team.answers?.final?.confidence !== undefined) && (
                 <button className="continue-button" onClick={revealFinalQuestion}>
                   REVEAL FINAL QUESTION
@@ -1753,26 +1745,34 @@ socket.emit('host:addAllQuestions', {
                   <div key={team.name} className="answer-item">
                     <div className="answer-header">
                       <div className="team-name-large">{team.name} | {team.score} pts</div>
-                      {answer && !answer.marked && (
-                        <div className="answer-buttons">
-                          <button className="correct-button" onClick={() => markAnswer(team.name, true)}>✓</button>
-                          <button className="incorrect-button" onClick={() => markAnswer(team.name, false)}>✗</button>
-                        </div>
-                      )}
+                      {answer && answer.text && !answer.marked && (
+  <div className="answer-buttons">
+    <button className="correct-button" onClick={() => markAnswer(team.name, true)}>✓</button>
+    <button className="incorrect-button" onClick={() => markAnswer(team.name, false)}>✗</button>
+  </div>
+)}
                     </div>
                     {answer ? (
                       <div className="answer-details">
                         Their answer: "{answer.text}"<br/>
                         Wager: {answer.confidence} pts
-                        {answer.marked && (
-                          <div style={{ marginTop: '10px', fontWeight: '700', color: answer.correct ? '#00AA00' : '#C60404' }}>
-                            {answer.correct ? `✓ CORRECT (+${answer.confidence} pts)` : `✗ INCORRECT (-${answer.confidence} pts)`}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div style={{ color: '#999', fontStyle: 'italic' }}>Waiting for answer...</div>
-                    )}
+                        {answer && answer.text ? (
+  <div className="answer-details">
+    Their answer: "{answer.text}"<br/>
+    Wager: {answer.confidence} pts
+    {answer.marked && (
+      <div style={{ marginTop: '10px', fontWeight: '700', color: answer.correct ? '#00AA00' : '#C60404' }}>
+        {answer.correct ? `✓ CORRECT (+${answer.confidence} pts)` : `✗ INCORRECT (-${answer.confidence} pts)`}
+      </div>
+    )}
+  </div>
+) : answer ? (
+  <div style={{ color: '#999', fontStyle: 'italic' }}>
+    Wager submitted: {answer.confidence} pts. Waiting for answer...
+  </div>
+) : (
+  <div style={{ color: '#999', fontStyle: 'italic' }}>Waiting for wager and answer...</div>
+)}
                   </div>
                 );
               })}
