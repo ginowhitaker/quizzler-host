@@ -550,6 +550,19 @@ socket.emit('host:addAllQuestions', {
     return;
   }
   
+  // NEW: Check if all teams have submitted answers
+  const currentQ = `q${selectedQuestionIndex + 1}`;
+  const teamsWithoutAnswers = getSortedTeams().filter(team => !team.answers?.[currentQ]);
+  
+  if (teamsWithoutAnswers.length > 0) {
+    const teamNames = teamsWithoutAnswers.map(t => t.name).join(', ');
+    const confirmed = window.confirm(
+      `${teamsWithoutAnswers.length} team(s) haven't submitted answers yet: ${teamNames}\n\n` +
+      `Are you sure you want to proceed? Their answers will be marked incorrect.`
+    );
+    if (!confirmed) return;
+  }
+  
   const nextIndex = selectedQuestionIndex + 1;
   
   if (nextIndex >= 15) {
