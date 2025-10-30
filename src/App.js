@@ -786,6 +786,14 @@ socket.emit('host:addAllQuestions', {
           margin-bottom: 10px;
         }
 
+        .category-label {
+          display: block;
+          color: #286586;
+          font-size: 22px;
+          font-weight: 800;
+          margin-bottom: 8px;
+          margin-top: 10px;
+        }
         .question-label {
           display: block;
           color: #286586;
@@ -1138,7 +1146,7 @@ socket.emit('host:addAllQuestions', {
               <div className="questions-grid">
                 {questions.map((q, idx) => (
   <div key={idx} className="question-group">
-    <label className="question-label">
+    <label className="category-label">
       {idx === 7 ? 'Visual Round Category' : `Category ${idx < 7 ? idx + 1 : idx}`}
     </label>
     <input
