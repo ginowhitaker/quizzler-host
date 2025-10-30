@@ -629,6 +629,10 @@ socket.emit('host:addAllQuestions', {
 
         .quizzler-host {
           min-height: 100vh;
+          background-image: url(https://quizzler.pro/img/quizzler-background.png);
+          background-repeat: no-repeat;
+          background-size: cover;
+          background-position: center;
         }
 
         .header {
