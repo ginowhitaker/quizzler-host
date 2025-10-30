@@ -1208,7 +1208,7 @@ socket.emit('host:addAllQuestions', {
                   </div>
                 ))}
                 <div className="question-group">
-                  <label className="question-label">FINAL CATEGORY</label>
+                  <label className="round-label">FINAL CATEGORY</label>
                   <input
                     className="question-input"
                     value={finalQuestion.category}
