@@ -354,7 +354,7 @@ useEffect(() => {
       }
       
       // Questions 8-15 (rows 8-14)
-      for (let i = 8; i < 15 && i < imported.length; i++) {
+      for (let i = 8; i <= 15 && i < imported.length; i++) {
         if (imported[i].Category && imported[i].Question && imported[i].Answer) {
           newQuestions[i] = {
             category: imported[i].Category,
@@ -785,15 +785,16 @@ socket.emit('host:addAllQuestions', {
         .question-group {
           margin-bottom: 10px;
         }
-
-        .category-label {
-          display: block;
-          color: #286586;
-          font-size: 22px;
-          font-weight: 800;
-          margin-bottom: 8px;
-          margin-top: 10px;
+        
+        .round-label {
+         display: block;
+         color: #286586;
+         font-size: 22px;
+         font-weight: 800;
+         margin-bottom: 8px;
+         margin-top: 10px;
         }
+
         .question-label {
           display: block;
           color: #286586;
@@ -1146,7 +1147,10 @@ socket.emit('host:addAllQuestions', {
               <div className="questions-grid">
                 {questions.map((q, idx) => (
   <div key={idx} className="question-group">
-    <label className="category-label">
+    <div className="round-label">
+      {idx === 7 ? 'VISUAL ROUND' : `Round ${idx < 7 ? idx + 1 : idx}`}
+    </div>
+    <label className="question-label">
       {idx === 7 ? 'Visual Round Category' : `Category ${idx < 7 ? idx + 1 : idx}`}
     </label>
     <input
