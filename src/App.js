@@ -354,7 +354,7 @@ useEffect(() => {
       }
       
       // Questions 8-15 (rows 8-14)
-      for (let i = 8; i <= 15 && i < imported.length; i++) {
+      for (let i = 8; i < 15 && i < imported.length; i++) {
         if (imported[i].Category && imported[i].Question && imported[i].Answer) {
           newQuestions[i] = {
             category: imported[i].Category,
