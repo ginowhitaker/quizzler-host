@@ -1555,17 +1555,17 @@ socket.emit('host:addAllQuestions', {
               })}
               {(() => {
                 const { scored, total } = getScoringProgress();
-                const allScored = scored === total && total > 0;
-                const nextIndex = selectedQuestionIndex + 1;
-                const nextQuestion = questions[nextIndex];
-                const nextQuestionNum = nextQuestion?.type === 'visual' 
-                 ? 'VISUAL ROUND' 
-                 : nextIndex < 7 
-                 ? nextIndex + 1 
-                 : nextIndex;
-  
-                return (
-                  <button 
+const allScored = scored === total && total > 0;
+const nextIndex = selectedQuestionIndex + 1;
+const upcomingQuestion = questions[nextIndex];
+const nextQuestionNum = upcomingQuestion?.type === 'visual' 
+  ? 'VISUAL ROUND' 
+  : nextIndex < 7 
+    ? nextIndex + 1 
+    : nextIndex;
+
+return (
+  <button 
                     className="continue-button"
                     onClick={nextQuestion}
                     disabled={!allScored}
