@@ -446,7 +446,11 @@ socket.emit('host:addAllQuestions', {
   };
 
   const markAnswer = (teamName, correct) => {
-  const questionKey = game.status === 'final' ? 'final' : `q${selectedQuestionIndex + 1}`;
+  const questionKey = game.status === 'final' 
+  ? 'final' 
+  : questions[selectedQuestionIndex]?.type === 'visual'
+    ? 'visual'
+    : (selectedQuestionIndex < 7 ? `q${selectedQuestionIndex + 1}` : `q${selectedQuestionIndex}`);
   console.log('Marking answer - questionKey:', questionKey, 'selectedQuestionIndex:', selectedQuestionIndex);  
   const team = game.teams[teamName];
   const answer = team.answers[questionKey];
