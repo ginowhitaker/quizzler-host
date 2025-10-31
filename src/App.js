@@ -1483,9 +1483,9 @@ socket.emit('host:addAllQuestions', {
                 )}
               </div>
               {getSortedTeams().map(team => {
-                const questionKey = `q${selectedQuestionIndex + 1}`;
-                const answer = team.answers?.[questionKey];
                 const isVisual = questions[selectedQuestionIndex]?.type === 'visual';
+                const questionKey = isVisual ? 'visual' : (selectedQuestionIndex < 7 ? `q${selectedQuestionIndex + 1}` : `q${selectedQuestionIndex}`);
+                const answer = team.answers?.[questionKey];
                 
                 return (
                   <div key={team.name} className="answer-item">
