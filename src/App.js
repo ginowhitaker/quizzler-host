@@ -553,8 +553,11 @@ socket.emit('host:addAllQuestions', {
   }
   
   // NEW: Check if all teams have submitted answers
-  const currentQ = `q${selectedQuestionIndex + 1}`;
-  const teamsWithoutAnswers = getSortedTeams().filter(team => !team.answers?.[currentQ]);
+  // NEW: Check if all teams have submitted answers
+const isCurrentVisual = questions[selectedQuestionIndex]?.type === 'visual';
+const currentQ = isCurrentVisual 
+  ? 'visual' 
+  : (selectedQuestionIndex < 7 ? `q${selectedQuestionIndex + 1}` : `q${selectedQuestionIndex}`);
   
   if (teamsWithoutAnswers.length > 0) {
     const teamNames = teamsWithoutAnswers.map(t => t.name).join(', ');
