@@ -553,13 +553,14 @@ socket.emit('host:addAllQuestions', {
   }
   
   // NEW: Check if all teams have submitted answers
-  // NEW: Check if all teams have submitted answers
 const isCurrentVisual = questions[selectedQuestionIndex]?.type === 'visual';
 const currentQ = isCurrentVisual 
   ? 'visual' 
   : (selectedQuestionIndex < 7 ? `q${selectedQuestionIndex + 1}` : `q${selectedQuestionIndex}`);
+
+const teamsWithoutAnswers = getSortedTeams().filter(team => !team.answers?.[currentQ]);  // ADD THIS LINE
   
-  if (teamsWithoutAnswers.length > 0) {
+if (teamsWithoutAnswers.length > 0) {
     const teamNames = teamsWithoutAnswers.map(t => t.name).join(', ');
     const confirmed = window.confirm(
       `${teamsWithoutAnswers.length} team(s) haven't submitted answers yet: ${teamNames}\n\n` +
