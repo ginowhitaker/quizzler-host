@@ -484,8 +484,10 @@ socket.emit('host:addAllQuestions', {
   }));
 };
 
-    const markVisualAnswer = (teamName, index, correct) => {
-  const questionKey = `q${selectedQuestionIndex + 1}`;
+  const markVisualAnswer = (teamName, index, correct) => {
+  const questionKey = questions[selectedQuestionIndex]?.type === 'visual' 
+    ? 'visual' 
+    : (selectedQuestionIndex < 7 ? `q${selectedQuestionIndex + 1}` : `q${selectedQuestionIndex}`);
   console.log('Marking visual answer - questionKey:', questionKey, 'index:', index, 'correct:', correct);
   
   const team = game.teams[teamName];
