@@ -1556,7 +1556,13 @@ socket.emit('host:addAllQuestions', {
               {(() => {
                 const { scored, total } = getScoringProgress();
                 const allScored = scored === total && total > 0;
-                const nextQuestionNum = selectedQuestionIndex + 2;
+                const nextIndex = selectedQuestionIndex + 1;
+                const nextQuestion = questions[nextIndex];
+                const nextQuestionNum = nextQuestion?.type === 'visual' 
+                 ? 'VISUAL ROUND' 
+                 : nextIndex < 7 
+                 ? nextIndex + 1 
+                 : nextIndex;
   
                 return (
                   <button 
@@ -1570,6 +1576,8 @@ socket.emit('host:addAllQuestions', {
                   >
                     {!allScored 
                       ? `Scored ${scored} of ${total} teams - Score remaining to continue` 
+                      : typeof nextQuestionNum === 'string' 
+ 					  ? `ON TO ${nextQuestionNum}` 
                       : `ON TO QUESTION ${nextQuestionNum}`}
                   </button>
                 );
