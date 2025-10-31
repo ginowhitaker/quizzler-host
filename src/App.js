@@ -575,7 +575,7 @@ if (teamsWithoutAnswers.length > 0) {
   
   const nextIndex = selectedQuestionIndex + 1;
   
-  if (nextIndex >= 15) {
+  if (nextIndex >= 16) {  // Now have 16 questions (0-15)
     setGame(prev => ({ ...prev, status: 'final' }));
     setScreen('finalQuestionDisplay');
     return;
@@ -1476,7 +1476,11 @@ if (teamsWithoutAnswers.length > 0) {
           </div>
           <div className="main-content">
             <div className="left-panel">
-              <div className="section-title">TEAM ANSWERS FOR QUESTION {selectedQuestionIndex + 1}</div>
+              <div className="section-title">
+  TEAM ANSWERS FOR {questions[selectedQuestionIndex]?.type === 'visual' 
+    ? 'VISUAL ROUND' 
+    : `QUESTION ${selectedQuestionIndex < 7 ? selectedQuestionIndex + 1 : selectedQuestionIndex}`}
+</div>
               <div style={{ background: '#E3F2FD', padding: '15px', borderRadius: '10px', marginBottom: '10px' }}>
                 <strong style={{ color: '#286586' }}>Question:</strong> {questions[selectedQuestionIndex]?.text}
               </div>
