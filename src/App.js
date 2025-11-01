@@ -312,6 +312,76 @@ useEffect(() => {
       console.error(error);
     }
   };
+  
+// Authentication functions
+
+
+}; // End of createGame
+
+  // Authentication functions
+  const handleSignup = async (email, password, name) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        alert(data.error || 'Signup failed');
+        return false;
+      }
+      
+      localStorage.setItem('authToken', data.token);
+      setAuthToken(data.token);
+      setCurrentUser(data.host);
+      setIsAuthenticated(true);
+      setScreen('start');
+      return true;
+    } catch (error) {
+      console.error('Signup error:', error);
+      alert('Signup failed');
+      return false;
+    }
+  };
+
+  const handleLogin = async (email, password) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        alert(data.error || 'Login failed');
+        return false;
+      }
+      
+      localStorage.setItem('authToken', data.token);
+      setAuthToken(data.token);
+      setCurrentUser(data.host);
+      setIsAuthenticated(true);
+      setScreen('start');
+      return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed');
+      return false;
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    setAuthToken(null);
+    setCurrentUser(null);
+    setIsAuthenticated(false);
+    setScreen('login');
+  };
 
   const updateQuestion = (index, field, value) => {
     const newQuestions = [...questions];
@@ -423,14 +493,6 @@ useEffect(() => {
   
   event.target.value = '';
 };
-
-const startGame = async () => {
-  // FIXED: Check for 'text' field instead of 'question'
-  const validQuestions = questions.filter(q => q.text && q.answer);
-  if (validQuestions.length < 15) {
-    alert('Please fill in all 15 questions and answers');
-    return;
-  }
     
     // Authentication functions
 const handleSignup = async (email, password, name) => {
