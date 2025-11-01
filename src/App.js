@@ -1050,21 +1050,6 @@ if (teamsWithoutAnswers.length > 0) {
     <span style={{ color: '#286586', fontWeight: '600' }}>
       Welcome, {currentUser?.name || 'Host'}
     </span>
-    <button
-      onClick={handleLogout}
-      style={{
-        background: '#FF6600',
-        color: 'white',
-        border: 'none',
-        padding: '10px 20px',
-        borderRadius: '8px',
-        fontSize: '14px',
-        fontWeight: '600',
-        cursor: 'pointer'
-      }}
-    >
-      Logout
-    </button>
   </div>
 </div>
           <div style={{ maxWidth: '400px', margin: '60px auto', padding: '40px' }}>
