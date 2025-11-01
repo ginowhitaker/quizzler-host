@@ -1346,13 +1346,29 @@ if (teamsWithoutAnswers.length > 0) {
               />
             </div>
             <div className="host-info">
-              {hostName} | {venueName} | {gameCode}
-              {timerActive && (
-                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
-                </span>
-              )}
-            </div>
+  <div>
+    {hostName} | {venueName} | {gameCode}
+    {timerActive && (
+      <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+        ⏱️ {formatTimer()}
+      </span>
+    )}
+  </div>
+  <button
+    onClick={handleLogout}
+    style={{
+      background: 'none',
+      border: 'none',
+      color: '#286586',
+      textDecoration: 'underline',
+      cursor: 'pointer',
+      fontSize: '14px',
+      marginTop: '5px'
+    }}
+  >
+    Logout
+  </button>
+</div>
           </div>
           <div className="main-content">
             <div className="left-panel">
