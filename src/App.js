@@ -1238,8 +1238,6 @@ if (teamsWithoutAnswers.length > 0) {
     Forgot password?
   </button>
 </div>
-  </button>
-</div>
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
               <button 
                 onClick={() => setScreen('signup')}
