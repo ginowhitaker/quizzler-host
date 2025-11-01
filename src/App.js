@@ -6,7 +6,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://quizzler-produ
 
 export default function QuizzlerHostApp() {
   const [socket, setSocket] = useState(null);
-  const [screen, setScreen] = useState('start');
+  const [screen, setScreen] = useState('login'); // Start at login, auth check will change if needed
   const [hostName, setHostName] = useState('');
   const [venueName, setVenueName] = useState('');
   const [venueSpecials, setVenueSpecials] = useState('');
@@ -526,13 +526,6 @@ useEffect(() => {
   const team = game.teams[teamName];
   const answer = team.answers[questionKey];
 
-  
-  // TEMPORARILY COMMENTED OUT FOR DEBUGGING
-  // if (!answer || answer.marked) {
-  //   console.log('Answer already marked, ignoring click');
-  //   return;
-  // }
-  
   socket.emit('host:markAnswer', { gameCode, teamName, questionKey, correct });
 
   let scoreChange = 0;
@@ -683,22 +676,30 @@ if (teamsWithoutAnswers.length > 0) {
     alert('Final rankings sent to all teams!');
   };
 
-  const getScoringProgress = () => {
-    if (!game?.teams) return { scored: 0, total: 0 };
-    const questionKey = game.status === 'final' ? 'final' : `q${game.currentQuestionIndex + 1}`;
-    let scored = 0;
-    let total = 0;
-    
-    Object.values(game.teams).forEach(team => {
-      const answer = team.answers?.[questionKey];
-      if (answer) {
-        total++;
-        if (answer.marked) scored++;
-      }
-    });
-    
-    return { scored, total };
-  };
+ const getScoringProgress = () => {
+  if (!game?.teams) return { scored: 0, total: 0 };
+  
+  // Use same logic as nextQuestion to determine question key
+  const isCurrentVisual = questions[selectedQuestionIndex]?.type === 'visual';
+  const questionKey = game.status === 'final' 
+    ? 'final' 
+    : isCurrentVisual 
+      ? 'visual' 
+      : (selectedQuestionIndex < 7 ? `q${selectedQuestionIndex + 1}` : `q${selectedQuestionIndex}`);
+  
+  let scored = 0;
+  let total = 0;
+  
+  Object.values(game.teams).forEach(team => {
+    const answer = team.answers?.[questionKey];
+    if (answer) {
+      total++;
+      if (answer.marked) scored++;
+    }
+  });
+  
+  return { scored, total };
+};
 
   const getSortedTeams = () => {
     if (!game?.teams) return [];
