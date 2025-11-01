@@ -1077,10 +1077,9 @@ if (teamsWithoutAnswers.length > 0) {
   className="submit-button" 
   onClick={() => handleLogin(loginEmail, loginPassword)}
 >
-  LOGIN
-</button>
-
-{/* FORGOT PASSWORD - ADD HERE */}
+              LOGIN
+            </button>
+            {/* FORGOT PASSWORD - ADD HERE */}
 <div style={{ textAlign: 'center', marginTop: '15px' }}>
   <button 
     onClick={() => {
@@ -1101,22 +1100,22 @@ if (teamsWithoutAnswers.length > 0) {
     Forgot password?
   </button>
 </div>
-
-<div style={{ textAlign: 'center', marginTop: '20px' }}>
-  <button 
-    onClick={() => setScreen('signup')}
-    style={{
-      background: 'none',
-      border: 'none',
-      color: '#286586',
-      textDecoration: 'underline',
-      cursor: 'pointer',
-      fontSize: '16px'
-    }}
-  >
-    Don't have an account? Sign up
-  </button>
-</div>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <button 
+                onClick={() => setScreen('signup')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#286586',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
+              >
+                Don't have an account? Sign up
+              </button>
+            </div>
+          </div>
         </>
       )}
 
