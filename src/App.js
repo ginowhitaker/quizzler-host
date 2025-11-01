@@ -13,6 +13,44 @@ export default function QuizzlerHostApp() {
   const [regularTimer, setRegularTimer] = useState(0); // 0 = no timer
   const [visualTimer, setVisualTimer] = useState(0); // 0 = no timer
   const [gameCode, setGameCode] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+const [currentUser, setCurrentUser] = useState(null);
+const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+
+const [screen, setScreen] = useState('start');
+
+// Check authentication on load
+useEffect(() => {
+  const checkAuth = async () => {
+    if (!authToken) {
+      setScreen('login');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentUser(data.host);
+        setIsAuthenticated(true);
+      } else {
+        localStorage.removeItem('authToken');
+        setAuthToken(null);
+        setScreen('login');
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      setScreen('login');
+    }
+  };
+  
+  checkAuth();
+}, []);
+
+
   const [game, setGame] = useState({
     code: '',
     currentQuestionIndex: 0,
@@ -395,6 +433,71 @@ useEffect(() => {
       alert('Please fill in all 15 questions and answers');
       return;
     }
+    
+    // Authentication functions
+const handleSignup = async (email, password, name) => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name })
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      alert(data.error || 'Signup failed');
+      return false;
+    }
+    
+    localStorage.setItem('authToken', data.token);
+    setAuthToken(data.token);
+    setCurrentUser(data.host);
+    setIsAuthenticated(true);
+    setScreen('start');
+    return true;
+  } catch (error) {
+    console.error('Signup error:', error);
+    alert('Signup failed');
+    return false;
+  }
+};
+
+const handleLogin = async (email, password) => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      alert(data.error || 'Login failed');
+      return false;
+    }
+    
+    localStorage.setItem('authToken', data.token);
+    setAuthToken(data.token);
+    setCurrentUser(data.host);
+    setIsAuthenticated(true);
+    setScreen('start');
+    return true;
+  } catch (error) {
+    console.error('Login error:', error);
+    alert('Login failed');
+    return false;
+  }
+};
+
+const handleLogout = () => {
+  localStorage.removeItem('authToken');
+  setAuthToken(null);
+  setCurrentUser(null);
+  setIsAuthenticated(false);
+  setScreen('login');
+};
     
 // Send ALL questions at once to avoid race condition
 socket.emit('host:addAllQuestions', {
@@ -962,6 +1065,128 @@ if (teamsWithoutAnswers.length > 0) {
           box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         }
       `}</style>
+
+{/* LOGIN SCREEN */}
+      {screen === 'login' && (
+        <>
+          <div className="header">
+            <div className="logo">
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '30px', width: 'auto' }}
+              />
+            </div>
+          </div>
+          <div style={{ maxWidth: '400px', margin: '60px auto', padding: '40px' }}>
+            <div className="section-title">HOST LOGIN</div>
+            <input 
+              className="input-field" 
+              type="email"
+              placeholder="Email"
+              value={hostName}
+              onChange={(e) => setHostName(e.target.value)}
+            />
+            <input 
+              className="input-field" 
+              type="password"
+              placeholder="Password"
+              value={venueName}
+              onChange={(e) => setVenueName(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleLogin(hostName, venueName);
+                }
+              }}
+            />
+            <button 
+              className="submit-button" 
+              onClick={() => handleLogin(hostName, venueName)}
+            >
+              LOGIN
+            </button>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <button 
+                onClick={() => setScreen('signup')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#286586',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
+              >
+                Don't have an account? Sign up
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* SIGNUP SCREEN */}
+      {screen === 'signup' && (
+        <>
+          <div className="header">
+            <div className="logo">
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '30px', width: 'auto' }}
+              />
+            </div>
+          </div>
+          <div style={{ maxWidth: '400px', margin: '60px auto', padding: '40px' }}>
+            <div className="section-title">CREATE ACCOUNT</div>
+            <input 
+              className="input-field" 
+              placeholder="Full Name"
+              value={venueSpecials}
+              onChange={(e) => setVenueSpecials(e.target.value)}
+            />
+            <input 
+              className="input-field" 
+              type="email"
+              placeholder="Email"
+              value={hostName}
+              onChange={(e) => setHostName(e.target.value)}
+            />
+            <input 
+              className="input-field" 
+              type="password"
+              placeholder="Password (min 6 characters)"
+              value={venueName}
+              onChange={(e) => setVenueName(e.target.value)}
+            />
+            <button 
+              className="submit-button" 
+              onClick={() => handleSignup(hostName, venueName, venueSpecials)}
+            >
+              CREATE ACCOUNT
+            </button>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <button 
+                onClick={() => setScreen('login')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#286586',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
+              >
+                Already have an account? Log in
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* START SCREEN - existing code */}
+      {screen === 'start' && (
 
       {screen === 'start' && (
         <>
