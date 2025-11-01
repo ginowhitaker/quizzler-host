@@ -17,8 +17,6 @@ export default function QuizzlerHostApp() {
 const [currentUser, setCurrentUser] = useState(null);
 const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
 
-const [screen, setScreen] = useState('start');
-
 // Check authentication on load
 useEffect(() => {
   const checkAuth = async () => {
