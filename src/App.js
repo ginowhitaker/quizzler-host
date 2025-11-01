@@ -1185,8 +1185,6 @@ if (teamsWithoutAnswers.length > 0) {
 
       {/* START SCREEN - existing code */}
       {screen === 'start' && (
-
-      {screen === 'start' && (
         <>
           <div className="header">
             <div className="logo">
