@@ -424,13 +424,13 @@ useEffect(() => {
   event.target.value = '';
 };
 
-  const startGame = async () => {
-    // FIXED: Check for 'text' field instead of 'question'
-    const validQuestions = questions.filter(q => q.text && q.answer);
-    if (validQuestions.length < 15) {
-      alert('Please fill in all 15 questions and answers');
-      return;
-    }
+const startGame = async () => {
+  // FIXED: Check for 'text' field instead of 'question'
+  const validQuestions = questions.filter(q => q.text && q.answer);
+  if (validQuestions.length < 15) {
+    alert('Please fill in all 15 questions and answers');
+    return;
+  }
     
     // Authentication functions
 const handleSignup = async (email, password, name) => {
