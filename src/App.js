@@ -312,12 +312,6 @@ useEffect(() => {
       console.error(error);
     }
   };
-  
-// Authentication functions
-
-
-}; // End of createGame
-
   // Authentication functions
   const handleSignup = async (email, password, name) => {
     try {
