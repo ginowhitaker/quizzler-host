@@ -494,30 +494,6 @@ useEffect(() => {
   event.target.value = '';
 };
     
-// Send ALL questions at once to avoid race condition
-socket.emit('host:addAllQuestions', {
-  gameCode,
-  questions: validQuestions
-});
-    
-    // Wait a bit for all questions to be saved, then fetch game state
-    setTimeout(() => {
-      fetch(`${BACKEND_URL}/api/game/${gameCode}`)
-        .then(res => res.json())
-        .then(gameData => {
-          console.log('Fetched game data:', gameData);
-          setQuestions(gameData.questions || []);
-          setSelectedQuestionIndex(0);  // FIXED: Reset to 0 when starting
-          setGame(prev => ({ ...prev, questions: gameData.questions }));
-          setScreen('welcome');
-        })
-        .catch(err => {
-          console.error('Error fetching game:', err);
-          setScreen('welcome');
-        });
-    }, 1000);
-  };
-
   const continueToFirstQuestion = () => {
     setSelectedQuestionIndex(0);  // FIXED: Reset to 0
     setGame(prev => ({ ...prev, currentQuestionIndex: 0 }));
