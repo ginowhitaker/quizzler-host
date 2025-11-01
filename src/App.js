@@ -1156,9 +1156,6 @@ if (teamsWithoutAnswers.length > 0) {
 )}
 
 {/* LOGIN SCREEN */}
-{screen === 'login' && (
-
-{/* LOGIN SCREEN */}
       {screen === 'login' && (
         <>
           <div className="header">
