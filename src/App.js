@@ -1194,7 +1194,7 @@ if (teamsWithoutAnswers.length > 0) {
               />
             </div>
           </div>
-          <div style={{ maxWidth: '600px', margin: '60px auto', padding: '40px' }}>
+          <div style={{ maxWidth: '600px', margin: '60px auto', padding: '40px', background: '#FFFFFF', border-radius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}>
             <div className="section-title">HOST SETUP</div>
       
       
