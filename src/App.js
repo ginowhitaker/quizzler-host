@@ -1254,6 +1254,16 @@ if (teamsWithoutAnswers.length > 0) {
               </button>
             </div>
           </div>
+          <div style={{ 
+  textAlign: 'center', 
+  marginTop: '40px', 
+  paddingTop: '20px', 
+  borderTop: '1px solid #E0E0E0',
+  color: '#999',
+  fontSize: '12px'
+}}>
+  © 2025 Quizzler. All rights reserved.
+</div>
         </>
       )}
 
@@ -1315,6 +1325,16 @@ if (teamsWithoutAnswers.length > 0) {
             </div>
           </div>
           <div style={{ textAlign: 'center', marginTop: '15px' }}>
+</div>
+<div style={{ 
+  textAlign: 'center', 
+  marginTop: '40px', 
+  paddingTop: '20px', 
+  borderTop: '1px solid #E0E0E0',
+  color: '#999',
+  fontSize: '12px'
+}}>
+  © 2025 Quizzler. All rights reserved.
 </div>
         </>
       )}
