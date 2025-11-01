@@ -722,7 +722,7 @@ if (teamsWithoutAnswers.length > 0) {
         }
 
         .quizzler-host {
-          min-height: 104vh;
+          min-height: 100vh;
           background-image: url(https://quizzler.pro/img/quizzler-background.png);
           background-repeat: no-repeat;
           background-size: cover;
@@ -1194,8 +1194,9 @@ if (teamsWithoutAnswers.length > 0) {
               />
             </div>
           </div>
-          <div style={{ background: 'white', borderRadius: '20px', padding: '30px', maxWidth: '600px', width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}>
+          <div style={{ maxWidth: '600px', margin: '30px auto', padding: '40px', background: 'white', borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}>
             <div className="section-title">HOST SETUP</div>
+      
       
       
       {/* EXISTING NEW GAME SECTION */}
