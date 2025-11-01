@@ -722,7 +722,7 @@ if (teamsWithoutAnswers.length > 0) {
         }
 
         .quizzler-host {
-          min-height: 100vh;
+          min-height: 110vh;
           background-image: url(https://quizzler.pro/img/quizzler-background.png);
           background-repeat: no-repeat;
           background-size: cover;
