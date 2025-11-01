@@ -19,10 +19,41 @@ export default function QuizzlerHostApp() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+const [resetToken, setResetToken] = useState('');  // ADD THIS
+const [resetEmail, setResetEmail] = useState('');  // ADD THIS
 
 // Check authentication on load
 useEffect(() => {
   const checkAuth = async () => {
+    // Check for reset token in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+      // Verify the reset token
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/auth/verify-reset-token/${token}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+          setResetToken(token);
+          setResetEmail(data.email);
+          setScreen('reset-password');
+          return;
+        } else {
+          alert('Invalid or expired reset link');
+          setScreen('login');
+          return;
+        }
+      } catch (error) {
+        console.error('Token verification failed:', error);
+        alert('Invalid reset link');
+        setScreen('login');
+        return;
+      }
+    }
+    
+    // Normal auth check
     if (!authToken) {
       setScreen('login');
       return;
@@ -1034,6 +1065,98 @@ if (teamsWithoutAnswers.length > 0) {
           box-shadow: 0 8px 30px rgba(0,0,0,0.12);
         }
       `}</style>
+      
+      
+      {/* RESET PASSWORD SCREEN */}
+{screen === 'reset-password' && (
+  <>
+    <div className="header">
+      <div className="logo">
+        <img 
+          src="https://quizzler.pro/img/quizzler_logo.png" 
+          alt="Quizzler Logo" 
+          className="logo-icon"
+          style={{ height: '30px', width: 'auto' }}
+        />
+      </div>
+    </div>
+    <div style={{ maxWidth: '400px', margin: '60px auto', padding: '40px' }}>
+      <div className="section-title">RESET PASSWORD</div>
+      <p style={{ color: '#666', marginBottom: '20px' }}>
+        {resetEmail ? `Resetting password for: ${resetEmail}` : 'Enter your new password'}
+      </p>
+      <input 
+        className="input-field" 
+        type="password"
+        placeholder="New Password (min 6 characters)"
+        value={loginPassword}
+        onChange={(e) => setLoginPassword(e.target.value)}
+      />
+      <input 
+        className="input-field" 
+        type="password"
+        placeholder="Confirm New Password"
+        value={loginEmail}
+        onChange={(e) => setLoginEmail(e.target.value)}
+      />
+      <button 
+        className="submit-button" 
+        onClick={async () => {
+          if (loginPassword.length < 6) {
+            alert('Password must be at least 6 characters');
+            return;
+          }
+          if (loginPassword !== loginEmail) {
+            alert('Passwords do not match');
+            return;
+          }
+          
+          try {
+            const response = await fetch(`${BACKEND_URL}/api/auth/reset-password`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: resetToken, password: loginPassword })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+              alert('Password reset successfully! You can now log in.');
+              setScreen('login');
+              setLoginEmail('');
+              setLoginPassword('');
+            } else {
+              alert(data.error || 'Failed to reset password');
+            }
+          } catch (error) {
+            console.error('Reset password error:', error);
+            alert('Failed to reset password');
+          }
+        }}
+      >
+        RESET PASSWORD
+      </button>
+      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <button 
+          onClick={() => setScreen('login')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#286586',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+            fontSize: '16px'
+          }}
+        >
+          Back to login
+        </button>
+      </div>
+    </div>
+  </>
+)}
+
+{/* LOGIN SCREEN */}
+{screen === 'login' && (
 
 {/* LOGIN SCREEN */}
       {screen === 'login' && (
@@ -1083,10 +1206,27 @@ if (teamsWithoutAnswers.length > 0) {
             {/* FORGOT PASSWORD - ADD HERE */}
 <div style={{ textAlign: 'center', marginTop: '15px' }}>
   <button 
-    onClick={() => {
+    onClick={async () => {
       const email = prompt('Enter your email address:');
       if (email) {
-        alert('Password reset functionality coming soon! Please contact support.');
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          
+          const data = await response.json();
+          
+          if (response.ok) {
+            alert('Password reset email sent! Check your inbox.');
+          } else {
+            alert(data.error || 'Failed to send reset email');
+          }
+        } catch (error) {
+          console.error('Forgot password error:', error);
+          alert('Failed to send reset email');
+        }
       }
     }}
     style={{
@@ -1099,6 +1239,8 @@ if (teamsWithoutAnswers.length > 0) {
     }}
   >
     Forgot password?
+  </button>
+</div>
   </button>
 </div>
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
