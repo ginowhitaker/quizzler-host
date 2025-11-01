@@ -10,12 +10,15 @@ export default function QuizzlerHostApp() {
   const [hostName, setHostName] = useState('');
   const [venueName, setVenueName] = useState('');
   const [venueSpecials, setVenueSpecials] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [signupName, setSignupName] = useState('');
   const [regularTimer, setRegularTimer] = useState(0); // 0 = no timer
   const [visualTimer, setVisualTimer] = useState(0); // 0 = no timer
   const [gameCode, setGameCode] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-const [currentUser, setCurrentUser] = useState(null);
-const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
 
 // Check authentication on load
 useEffect(() => {
@@ -1067,28 +1070,28 @@ if (teamsWithoutAnswers.length > 0) {
           <div style={{ maxWidth: '400px', margin: '60px auto', padding: '40px' }}>
             <div className="section-title">HOST LOGIN</div>
             <input 
-              className="input-field" 
-              type="email"
-              placeholder="Email"
-              value={hostName}
-              onChange={(e) => setHostName(e.target.value)}
-            />
-            <input 
-              className="input-field" 
-              type="password"
-              placeholder="Password"
-              value={venueName}
-              onChange={(e) => setVenueName(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleLogin(hostName, venueName);
-                }
-              }}
-            />
-            <button 
-              className="submit-button" 
-              onClick={() => handleLogin(hostName, venueName)}
-            >
+  className="input-field" 
+  type="email"
+  placeholder="Email"
+  value={loginEmail}
+  onChange={(e) => setLoginEmail(e.target.value)}
+/>
+<input 
+  className="input-field" 
+  type="password"
+  placeholder="Password"
+  value={loginPassword}
+  onChange={(e) => setLoginPassword(e.target.value)}
+  onKeyPress={(e) => {
+    if (e.key === 'Enter') {
+      handleLogin(loginEmail, loginPassword);
+    }
+  }}
+/>
+<button 
+  className="submit-button" 
+  onClick={() => handleLogin(loginEmail, loginPassword)}
+>
               LOGIN
             </button>
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
@@ -1126,29 +1129,29 @@ if (teamsWithoutAnswers.length > 0) {
           <div style={{ maxWidth: '400px', margin: '60px auto', padding: '40px' }}>
             <div className="section-title">CREATE ACCOUNT</div>
             <input 
-              className="input-field" 
-              placeholder="Full Name"
-              value={venueSpecials}
-              onChange={(e) => setVenueSpecials(e.target.value)}
-            />
-            <input 
-              className="input-field" 
-              type="email"
-              placeholder="Email"
-              value={hostName}
-              onChange={(e) => setHostName(e.target.value)}
-            />
-            <input 
-              className="input-field" 
-              type="password"
-              placeholder="Password (min 6 characters)"
-              value={venueName}
-              onChange={(e) => setVenueName(e.target.value)}
-            />
-            <button 
-              className="submit-button" 
-              onClick={() => handleSignup(hostName, venueName, venueSpecials)}
-            >
+  className="input-field" 
+  placeholder="Full Name"
+  value={signupName}
+  onChange={(e) => setSignupName(e.target.value)}
+/>
+<input 
+  className="input-field" 
+  type="email"
+  placeholder="Email"
+  value={loginEmail}
+  onChange={(e) => setLoginEmail(e.target.value)}
+/>
+<input 
+  className="input-field" 
+  type="password"
+  placeholder="Password (min 6 characters)"
+  value={loginPassword}
+  onChange={(e) => setLoginPassword(e.target.value)}
+/>
+<button 
+  className="submit-button" 
+  onClick={() => handleSignup(loginEmail, loginPassword, signupName)}
+>
               CREATE ACCOUNT
             </button>
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
