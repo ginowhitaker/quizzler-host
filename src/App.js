@@ -1077,24 +1077,46 @@ if (teamsWithoutAnswers.length > 0) {
   className="submit-button" 
   onClick={() => handleLogin(loginEmail, loginPassword)}
 >
-              LOGIN
-            </button>
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <button 
-                onClick={() => setScreen('signup')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#286586',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  fontSize: '16px'
-                }}
-              >
-                Don't have an account? Sign up
-              </button>
-            </div>
-          </div>
+  LOGIN
+</button>
+
+{/* FORGOT PASSWORD - ADD HERE */}
+<div style={{ textAlign: 'center', marginTop: '15px' }}>
+  <button 
+    onClick={() => {
+      const email = prompt('Enter your email address:');
+      if (email) {
+        alert('Password reset functionality coming soon! Please contact support.');
+      }
+    }}
+    style={{
+      background: 'none',
+      border: 'none',
+      color: '#286586',
+      textDecoration: 'underline',
+      cursor: 'pointer',
+      fontSize: '14px'
+    }}
+  >
+    Forgot password?
+  </button>
+</div>
+
+<div style={{ textAlign: 'center', marginTop: '20px' }}>
+  <button 
+    onClick={() => setScreen('signup')}
+    style={{
+      background: 'none',
+      border: 'none',
+      color: '#286586',
+      textDecoration: 'underline',
+      cursor: 'pointer',
+      fontSize: '16px'
+    }}
+  >
+    Don't have an account? Sign up
+  </button>
+</div>
         </>
       )}
 
@@ -1156,25 +1178,6 @@ if (teamsWithoutAnswers.length > 0) {
             </div>
           </div>
           <div style={{ textAlign: 'center', marginTop: '15px' }}>
-  <button 
-    onClick={() => {
-      const email = prompt('Enter your email address:');
-      if (email) {
-        alert('Password reset functionality coming soon! Please contact support.');
-        // TODO: Implement password reset email
-      }
-    }}
-    style={{
-      background: 'none',
-      border: 'none',
-      color: '#286586',
-      textDecoration: 'underline',
-      cursor: 'pointer',
-      fontSize: '14px'
-    }}
-  >
-    Forgot password?
-  </button>
 </div>
         </>
       )}
