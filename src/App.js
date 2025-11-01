@@ -1035,15 +1035,35 @@ if (teamsWithoutAnswers.length > 0) {
       {screen === 'login' && (
         <>
           <div className="header">
-            <div className="logo">
-              <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
-                alt="Quizzler Logo" 
-                className="logo-icon"
-                style={{ height: '30px', width: 'auto' }}
-              />
-            </div>
-          </div>
+  <div className="logo">
+    <img 
+      src="https://quizzler.pro/img/quizzler_logo.png" 
+      alt="Quizzler Logo" 
+      className="logo-icon"
+      style={{ height: '30px', width: 'auto' }}
+    />
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+    <span style={{ color: '#286586', fontWeight: '600' }}>
+      Welcome, {currentUser?.name || 'Host'}
+    </span>
+    <button
+      onClick={handleLogout}
+      style={{
+        background: '#FF6600',
+        color: 'white',
+        border: 'none',
+        padding: '10px 20px',
+        borderRadius: '8px',
+        fontSize: '14px',
+        fontWeight: '600',
+        cursor: 'pointer'
+      }}
+    >
+      Logout
+    </button>
+  </div>
+</div>
           <div style={{ maxWidth: '400px', margin: '60px auto', padding: '40px' }}>
             <div className="section-title">HOST LOGIN</div>
             <input 
