@@ -1892,7 +1892,7 @@ if (teamsWithoutAnswers.length > 0) {
 
       {screen === 'scoring' && game?.currentQuestionIndex !== undefined && (
         <>
-          <div className="header">
+<div className="header">
             <div className="logo">
               <img 
                 src="https://quizzler.pro/img/quizzler_logo.png" 
@@ -1900,7 +1900,16 @@ if (teamsWithoutAnswers.length > 0) {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-</div>
+            </div>
+            <div className="host-info">
+              {hostName} | {venueName} | {gameCode}
+              {timerActive && (
+                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
+                  ⏱️ {formatTimer()}
+                </span>
+              )}
+            </div>
+          </div>
 
           {/* Manage Teams Button */}
           <div style={{ padding: '20px', textAlign: 'center' }}>
