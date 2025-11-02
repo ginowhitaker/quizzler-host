@@ -207,6 +207,26 @@ useEffect(() => {
     return updated;
   });
   
+  socket.on('host:playerDisconnected', (data) => {
+  console.log('Player disconnected:', data);
+  
+  // Remove player from teamMembers
+  setTeamMembers(prev => {
+    const updated = { ...prev };
+    if (updated[data.teamName]) {
+      updated[data.teamName] = updated[data.teamName].filter(
+        p => p.socketId !== data.socketId
+      );
+      
+      // If team has no members left, remove the team
+      if (updated[data.teamName].length === 0) {
+        delete updated[data.teamName];
+      }
+    }
+    return updated;
+  });
+});
+  
   // Update game teams
   setGame(prev => {
     const newTeams = {};
@@ -302,6 +322,7 @@ useEffect(() => {
     return () => {
       socket.off('host:joined');
       socket.off('host:teamJoined');
+      socket.off('host:playerDisconnected');
       socket.off('host:answerReceived');
       socket.off('host:wagerReceived');
       socket.off('host:questionPushed');
