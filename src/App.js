@@ -19,9 +19,10 @@ export default function QuizzlerHostApp() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
-const [resetToken, setResetToken] = useState('');  // ADD THIS
-const [resetEmail, setResetEmail] = useState('');  // ADD THIS
-
+  const [resetToken, setResetToken] = useState(''); 
+  const [resetEmail, setResetEmail] = useState('');  
+  const [showTeamManagement, setShowTeamManagement] = useState(false);
+  const [teamMembers, setTeamMembers] = useState({});
 // Check authentication on load
 useEffect(() => {
   const checkAuth = async () => {
@@ -177,20 +178,49 @@ useEffect(() => {
   });
   
   socket.on('host:teamJoined', (data) => {
-    console.log('Team joined:', data);
-    setGame(prev => {
-      const newTeams = {};
-      data.teams.forEach(team => {
-        newTeams[team.name] = {
-          name: team.name,
-          score: team.score,
-          usedConfidences: team.usedConfidences || [],
-          answers: prev?.teams?.[team.name]?.answers || {}
-        };
+  console.log('Team joined:', data);
+  
+  // Update team members tracking
+  setTeamMembers(prev => {
+    const updated = { ...prev };
+    if (!updated[data.teamName]) {
+      updated[data.teamName] = [];
+    }
+    
+    // Check if player already in list (reconnection)
+    const existingIndex = updated[data.teamName].findIndex(p => p.socketId === data.playerSocketId);
+    
+    if (existingIndex >= 0) {
+      // Update existing player
+      updated[data.teamName][existingIndex] = {
+        socketId: data.playerSocketId,
+        isCaptain: data.isCaptain
+      };
+    } else {
+      // Add new player
+      updated[data.teamName].push({
+        socketId: data.playerSocketId,
+        isCaptain: data.isCaptain
       });
-      return { ...prev, teams: newTeams };
-    });
+    }
+    
+    return updated;
   });
+  
+  // Update game teams
+  setGame(prev => {
+    const newTeams = {};
+    data.teams.forEach(team => {
+      newTeams[team.name] = {
+        name: team.name,
+        score: team.score,
+        usedConfidences: team.usedConfidences || [],
+        answers: prev?.teams?.[team.name]?.answers || {}
+      };
+    });
+    return { ...prev, teams: newTeams };
+  });
+});
 
     socket.on('host:answerReceived', ({ teamName, questionKey, answerText, confidence }) => {
       console.log('Answer received:', teamName, questionKey);
@@ -1870,17 +1900,84 @@ if (teamsWithoutAnswers.length > 0) {
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
               />
-            </div>
-            <div className="host-info">
-              {hostName} | {venueName} | {gameCode}
-              {timerActive && (
-                <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
-                </span>
-              )}
-            </div>
+</div>
+
+          {/* Manage Teams Button */}
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            <button 
+              onClick={() => setShowTeamManagement(!showTeamManagement)}
+              style={{ 
+                padding: '15px 30px', 
+                fontSize: '18px', 
+                fontWeight: 'bold',
+                background: '#32ADE6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              {showTeamManagement ? 'Hide' : 'Manage Teams'}
+            </button>
           </div>
-          <div className="main-content">
+
+          {/* Team Management Panel */}
+          {showTeamManagement && (
+            <div style={{ 
+              background: 'white', 
+              margin: '0 20px 20px 20px', 
+              padding: '20px', 
+              borderRadius: '15px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+            }}>
+              <h2 style={{ color: '#286586', marginBottom: '20px' }}>Team Management</h2>
+              {Object.keys(teamMembers).map(teamName => (
+                <div key={teamName} style={{ marginBottom: '20px', padding: '15px', background: '#F5F5F5', borderRadius: '10px' }}>
+                  <h3 style={{ color: '#FF6600', marginBottom: '10px' }}>{teamName}</h3>
+                  {teamMembers[teamName].map((player, idx) => (
+                    <div key={player.socketId} style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      padding: '10px',
+                      background: 'white',
+                      marginBottom: '5px',
+                      borderRadius: '5px'
+                    }}>
+                      <span>
+                        Player {idx + 1} {player.isCaptain ? '⭐ Captain' : '👁️ Viewer'}
+                      </span>
+                      <button
+                        onClick={() => {
+                          socket.emit('host:setCaptain', {
+                            gameCode,
+                            teamName,
+                            socketId: player.socketId
+                          });
+                          
+                          // Update local state immediately
+                          setTeamMembers(prev => {
+                            const updated = { ...prev };
+                            updated[teamName] = updated[teamName].map(p => ({
+                              ...p,
+                              isCaptain: p.socketId === player.socketId
+                            }));
+                            return updated;
+                          });
+                        }}
+                        disabled={player.isCaptain}
+                        style={{
+                          padding: '8px 16px',
+                          background: player.isCaptain ? '#ccc' : '#FFD700',
+                          color: player.isCaptain ? '#999' : '#000',
+                          border: 'none',
+                          borderRadius: '5px',
+                          cursor: player.isCaptain ? 'not-allowed' : 'pointer',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {player.isCaptain ? 'Current Captain' : 'Make Captain'}
+                      </b
             <div className="left-panel">
               <div className="section-title">
   TEAM ANSWERS FOR {questions[selectedQuestionIndex]?.type === 'visual' 
