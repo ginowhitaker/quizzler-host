@@ -670,7 +670,7 @@ if (teamsWithoutAnswers.length > 0) {
   
   const nextIndex = selectedQuestionIndex + 1;
   
-  if (nextIndex >= 16) {  // Now have 16 questions (0-15)
+  if (nextIndex >= 15) {  // Now have 16 questions (0-15)
     setGame(prev => ({ ...prev, status: 'final' }));
     setScreen('finalQuestionDisplay');
     return;
