@@ -1977,7 +1977,15 @@ if (teamsWithoutAnswers.length > 0) {
                         }}
                       >
                         {player.isCaptain ? 'Current Captain' : 'Make Captain'}
-                      </b
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="main-content">
             <div className="left-panel">
               <div className="section-title">
   TEAM ANSWERS FOR {questions[selectedQuestionIndex]?.type === 'visual' 
