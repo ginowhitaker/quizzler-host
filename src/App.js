@@ -501,13 +501,13 @@ useEffect(() => {
       }
       
       // Final question (row 15)
-      if (imported.length >= 16 && imported[15].Category && imported[15].Question && imported[15].Answer) {
+      if (imported.length >= 17 && imported[15].Category && imported[16].Question && imported[16].Answer) {
         setFinalQuestion({
-          category: imported[15].Category,
-          question: imported[15].Question,
-          answer: imported[15].Answer,
-          type: imported[15].Type || 'final',
-          imageUrl: imported[15]['Image URL'] || null
+          category: imported[16].Category,
+          question: imported[16].Question,
+          answer: imported[16].Answer,
+          type: imported[16].Type || 'final',
+          imageUrl: imported[16]['Image URL'] || null
         });
       }
       
@@ -670,7 +670,7 @@ if (teamsWithoutAnswers.length > 0) {
   
   const nextIndex = selectedQuestionIndex + 1;
   
-  if (nextIndex >= 17) {  // Now have 16 questions (0-15)
+  if (nextIndex >= 16) {  // Now have 16 questions (0-15)
     setGame(prev => ({ ...prev, status: 'final' }));
     setScreen('finalQuestionDisplay');
     return;
