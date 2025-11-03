@@ -194,7 +194,7 @@ socket.on('host:joined', (data) => {
   }
 });
   
-  socket.on('host:teamJoined', (data) => {
+socket.on('host:teamJoined', (data) => {
   console.log('Team joined:', data);
   
   // Update team members tracking
@@ -211,12 +211,14 @@ socket.on('host:joined', (data) => {
       // Update existing player
       updated[data.teamName][existingIndex] = {
         socketId: data.playerSocketId,
+        playerName: data.playerName,  // ADD THIS
         isCaptain: data.isCaptain
       };
     } else {
       // Add new player
       updated[data.teamName].push({
         socketId: data.playerSocketId,
+        playerName: data.playerName,  // ADD THIS
         isCaptain: data.isCaptain
       });
     }
@@ -1992,7 +1994,7 @@ if (teamsWithoutAnswers.length > 0) {
                       borderRadius: '5px'
                     }}>
                       <span>
-                        Player {idx + 1} {player.isCaptain ? '⭐ Captain' : '👁️ Viewer'}
+                       {player.playerName || `Player ${idx + 1}`} {player.isCaptain ? '⭐ Captain' : '👁️ Viewer'}
                       </span>
                       <button
                         onClick={() => {
