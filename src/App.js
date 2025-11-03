@@ -173,9 +173,26 @@ useEffect(() => {
 useEffect(() => {
   if (!socket || !gameCode) return;
   
-  socket.on('host:joined', (data) => {
-    console.log('Host joined:', data);
-  });
+socket.on('host:joined', (data) => {
+  console.log('Host joined:', data);
+  setGameCode(data.gameCode);
+  
+  // Rebuild team members from current roster
+  if (data.currentRoster) {
+    const rebuiltMembers = {};
+    data.currentRoster.forEach(player => {
+      if (!rebuiltMembers[player.teamName]) {
+        rebuiltMembers[player.teamName] = [];
+      }
+      rebuiltMembers[player.teamName].push({
+        socketId: player.socketId,
+        isCaptain: player.isCaptain
+      });
+    });
+    setTeamMembers(rebuiltMembers);
+    console.log('Rebuilt team roster:', rebuiltMembers);
+  }
+});
   
   socket.on('host:teamJoined', (data) => {
   console.log('Team joined:', data);
