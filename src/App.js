@@ -347,6 +347,23 @@ socket.on('host:teamJoined', (data) => {
       }
     });
 
+    socket.on('host:answerCleared', ({ teamName, questionKey }) => {
+      console.log(`Answer cleared for ${teamName}, question ${questionKey}`);
+      setGame(prev => ({
+        ...prev,
+        teams: {
+          ...prev.teams,
+          [teamName]: {
+            ...prev.teams[teamName],
+            answers: {
+              ...prev.teams[teamName].answers,
+              [questionKey]: undefined // Remove the answer
+            }
+          }
+        }
+      }));
+    });
+
     return () => {
       socket.off('host:joined');
       socket.off('host:teamJoined');
@@ -356,6 +373,7 @@ socket.on('host:teamJoined', (data) => {
       socket.off('host:questionPushed');
       socket.off('host:scoresCorrected');
       socket.off('host:questionResent');
+      socket.off('host:answerCleared');
     };
   }, [socket, gameCode]);
 
