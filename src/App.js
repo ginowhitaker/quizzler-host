@@ -69,6 +69,7 @@ useEffect(() => {
         const data = await response.json();
         setCurrentUser(data.host);
         setIsAuthenticated(true);
+        setScreen('start'); // Go to start screen instead of staying on login
       } else {
         localStorage.removeItem('authToken');
         setAuthToken(null);
@@ -1806,7 +1807,7 @@ if (teamsWithoutAnswers.length > 0) {
                 <br/><br/>
                 You will be able to see your current score after each question. I'll give you team standings at various points throughout the game.
                 <br/><br/>
-                At the end of the 15 rounds, we will have a final question where you can wager up to 20pts. If you get the final answer correct, your wager will be added to your final score. However, if you get it wrong, the wager will be deducted from your final score. Before you get the final answer, I will give you the category and give you a moment to put in your wager. Once all wagers are in, I will send you the final question.
+                At the end of the 15 rounds, we will have a final question where you can wager up to 30pts. If you get the final answer correct, your wager will be added to your final score. However, if you get it wrong, the wager will be deducted from your final score. Before you get the final answer, I will give you the category and give you a moment to put in your wager. Once all wagers are in, I will send you the final question.
                 <br/><br/>
                 Winners will get $20 and the second place team will get $10. Second to last place will receive $5.
                 <br/><br/>
@@ -2275,7 +2276,7 @@ return (
             <div className="left-panel">
               <div className="question-display">
                 <div className="question-number">WAITING FOR WAGERS...</div>
-                Teams are submitting their wagers (0-20 points) based on the category: <strong>{finalQuestion.category}</strong>
+                Teams are submitting their wagers (0-30 points) based on the category: <strong>{finalQuestion.category}</strong>
               </div>
 
               <div style={{ marginTop: '30px' }}>
