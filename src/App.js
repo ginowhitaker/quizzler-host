@@ -339,6 +339,14 @@ socket.on('host:teamJoined', (data) => {
       });
     });
 
+    socket.on('host:questionResent', ({ teamName, success }) => {
+      if (success) {
+        console.log(`Question successfully resent to ${teamName}`);
+        // Optionally show a success message or update UI
+        alert(`Question resent to ${teamName}! Their answer has been cleared and confidence point restored.`);
+      }
+    });
+
     return () => {
       socket.off('host:joined');
       socket.off('host:teamJoined');
@@ -347,6 +355,7 @@ socket.on('host:teamJoined', (data) => {
       socket.off('host:wagerReceived');
       socket.off('host:questionPushed');
       socket.off('host:scoresCorrected');
+      socket.off('host:questionResent');
     };
   }, [socket, gameCode]);
 
