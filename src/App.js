@@ -2530,10 +2530,23 @@ return (
             </div>
 
             {Object.entries(game.teams[selectedTeamHistory.teamName]?.answers || {}).map(([questionKey, answer]) => {
-              const questionNum = questionKey === 'final' ? 'Final' : questionKey.replace('q', '');
-              const question = questionKey === 'final' 
-                ? finalQuestion 
-                : questions[parseInt(questionNum) - 1];
+              // Handle different question key formats
+              let questionNum, question;
+              
+              if (questionKey === 'final') {
+                questionNum = 'Final';
+                question = finalQuestion;
+              } else if (questionKey === 'visual') {
+                questionNum = 'Visual Round';
+                question = questions[7]; // Visual round is at index 7
+              } else {
+                // Regular questions: q1-q7 and q8-q15
+                const num = parseInt(questionKey.replace('q', ''));
+                questionNum = num;
+                // q1-q7 map to indices 0-6, q8-q15 map to indices 8-15
+                question = num <= 7 ? questions[num - 1] : questions[num];
+              }
+              
               const isVisual = question?.type === 'visual' || Array.isArray(answer.text);
               
               return (
@@ -2547,10 +2560,9 @@ return (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#286586', marginBottom: '5px' }}>
-                        Question {questionNum} {isVisual && '📸 Visual Round'}
+                        {isVisual && questionKey === 'visual' ? '📸 Visual Round' : `Question ${questionNum}${isVisual ? ' 📸 Visual Round' : ''}`}
                       </div>
                       <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
-                        {/* FIXED: Changed from .question to .text */}
                         {question?.text || question?.question || 'Question text not available'}
                       </div>
                     </div>
