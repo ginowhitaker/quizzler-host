@@ -609,6 +609,18 @@ socket.on('host:teamJoined', (data) => {
     socket.emit('host:showStandings', { gameCode });
   };
 
+  const resendQuestion = (teamName) => {
+    const questionKey = game.status === 'final' 
+      ? 'final' 
+      : questions[selectedQuestionIndex]?.type === 'visual'
+        ? 'visual'
+        : (selectedQuestionIndex < 7 ? `q${selectedQuestionIndex + 1}` : `q${selectedQuestionIndex}`);
+    
+    if (window.confirm(`Resend question to ${teamName}? This will delete their current answer and restore their confidence point.`)) {
+      socket.emit('host:resendQuestion', { gameCode, teamName, questionKey, questionIndex: selectedQuestionIndex });
+    }
+  };
+
   const toggleCorrectness = (teamName, questionKey) => {
     socket.emit('host:toggleCorrectness', { gameCode, teamName, questionKey });
   };
@@ -2080,7 +2092,24 @@ if (teamsWithoutAnswers.length > 0) {
                 return (
                   <div key={team.name} className="answer-item">
                     <div className="answer-header">
-                      <div className="team-name-large">{team.name} | {team.score} pts</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                        <div className="team-name-large">{team.name} | {team.score} pts</div>
+                        <button
+                          onClick={() => resendQuestion(team.name)}
+                          style={{
+                            padding: '5px 12px',
+                            background: '#FF9800',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🔄 Resend
+                        </button>
+                      </div>
                       {answer && !answer.marked && !isVisual && (
                         <div className="answer-buttons">
                           <button className="correct-button" onClick={() => markAnswer(team.name, true)}>✓</button>
