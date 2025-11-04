@@ -605,6 +605,10 @@ socket.on('host:teamJoined', (data) => {
     socket.emit('host:pushQuestion', { gameCode, questionIndex: selectedQuestionIndex });
   };
 
+  const showStandings = () => {
+    socket.emit('host:showStandings', { gameCode });
+  };
+
   const toggleCorrectness = (teamName, questionKey) => {
     socket.emit('host:toggleCorrectness', { gameCode, teamName, questionKey });
   };
@@ -1899,6 +1903,17 @@ if (teamsWithoutAnswers.length > 0) {
     : `PUSH QUESTION ${selectedQuestionIndex < 7 ? selectedQuestionIndex + 1 : selectedQuestionIndex} TO TEAMS`
   }
 </button>
+
+<button 
+  onClick={showStandings}
+  className="submit-button"
+  style={{ 
+    marginTop: '15px', 
+    background: '#32ADE6'
+  }}
+>
+  📊 SHOW STANDINGS TO TEAMS
+</button>
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
@@ -2155,6 +2170,17 @@ return (
                   </button>
                 );
               })()}
+              
+              <button 
+                onClick={showStandings}
+                className="submit-button"
+                style={{ 
+                  marginTop: '15px', 
+                  background: '#32ADE6'
+                }}
+              >
+                📊 SHOW STANDINGS TO TEAMS
+              </button>
             </div>
             <div className="right-panel">
               <div className="teams-header">TEAMS</div>
