@@ -2175,17 +2175,33 @@ if (teamsWithoutAnswers.length > 0) {
               </div>
               <button className="submit-button" onClick={() => {
   const validQuestions = questions.filter(q => q.text && q.answer);
-  if (validQuestions.length < 15) {
-    alert('Please fill in all 15 questions and answers');
-    return;
-  }
-  
-  socket.emit('host:addAllQuestions', {
-    gameCode,
-    questions: validQuestions
-  });
-  
-  setScreen('welcome');
+if (validQuestions.length < 15) {
+  alert('Please fill in all 15 questions and answers');
+  return;
+}
+
+// Add final question
+const validQuestions = questions.filter(q => q.text && q.answer);
+if (validQuestions.length < 15) {
+  alert('Please fill in all 15 questions and answers');
+  return;
+}
+
+// Add the final question to make 17 total
+const allQuestions = [...validQuestions, {
+  type: 'final',
+  category: finalQuestion.category,
+  text: finalQuestion.text,
+  answer: finalQuestion.answer,
+  number: null
+}];
+
+socket.emit('host:addAllQuestions', {
+  gameCode,
+  questions: allQuestions
+});
+
+setScreen('welcome');
 }}>
   START
 </button>
