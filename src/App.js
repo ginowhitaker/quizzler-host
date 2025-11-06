@@ -23,6 +23,13 @@ export default function QuizzlerHostApp() {
   const [resetEmail, setResetEmail] = useState('');  
   const [showTeamManagement, setShowTeamManagement] = useState(false);
   const [teamMembers, setTeamMembers] = useState({});
+  
+  // Game Library State
+  const [gameTemplates, setGameTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  
 // Check authentication on load
 useEffect(() => {
   const checkAuth = async () => {
@@ -406,6 +413,13 @@ socket.on('host:teamJoined', (data) => {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [game, gameCode]);
+  
+  // Fetch game templates when library screen opens
+  useEffect(() => {
+    if (screen === 'library' && gameTemplates.length === 0) {
+      fetchGameTemplates();
+    }
+  }, [screen]);
 
   const formatTimer = () => {
     const minutes = Math.floor(timeRemaining / 60);
@@ -444,6 +458,123 @@ socket.on('host:teamJoined', (data) => {
       console.error(error);
     }
   };
+  
+  // Game Library Functions
+  const fetchGameTemplates = async () => {
+    setLoadingTemplates(true);
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/templates`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch templates');
+      
+      const data = await response.json();
+      setGameTemplates(data.templates);
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+      alert('Failed to load game library');
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+  
+  const previewTemplate = async (templateId) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch template');
+      
+      const data = await response.json();
+      setSelectedTemplate(data.template);
+      setShowPreviewModal(true);
+    } catch (error) {
+      console.error('Error fetching template:', error);
+      alert('Failed to load template preview');
+    }
+  };
+  
+  const importTemplate = async (templateId) => {
+    if (!gameCode) {
+      alert('Please create a game first');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}/import`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ gameCode })
+      });
+      
+      if (!response.ok) throw new Error('Failed to import template');
+      
+      const data = await response.json();
+      
+      // Load the imported questions into state
+      const game = await fetch(`${BACKEND_URL}/api/game/${gameCode}`).then(r => r.json());
+      const importedQuestions = JSON.parse(game.questions || '[]');
+      
+      // Separate regular questions, visual, and final
+      const regularQuestions = importedQuestions.filter(q => q.type === 'regular' || !q.type);
+      const visualQuestion = importedQuestions.find(q => q.type === 'visual');
+      const finalQ = importedQuestions.find(q => q.type === 'final');
+      
+      // Update questions state
+      const newQuestions = Array.from({ length: 15 }, (_, i) => {
+        const q = regularQuestions[i];
+        return q ? {
+          category: q.category || '',
+          text: q.text || '',
+          answer: q.answer || '',
+          type: 'regular',
+          imageUrl: ''
+        } : {
+          category: '',
+          text: '',
+          answer: '',
+          type: 'regular',
+          imageUrl: ''
+        };
+      });
+      
+      setQuestions(newQuestions);
+      
+      if (visualQuestion) {
+        setQuestions(prev => {
+          const updated = [...prev];
+          updated[7] = {
+            category: visualQuestion.category || '',
+            text: visualQuestion.text || '',
+            answer: visualQuestion.answer || '',
+            type: 'visual',
+            imageUrl: visualQuestion.imageUrl || ''
+          };
+          return updated;
+        });
+      }
+      
+      if (finalQ) {
+        setFinalQuestion({
+          category: finalQ.category || '',
+          question: finalQ.text || '',
+          answer: finalQ.answer || ''
+        });
+      }
+      
+      alert(`✅ ${data.questionCount} questions imported! You can review and edit them.`);
+      setScreen('questions');
+    } catch (error) {
+      console.error('Error importing template:', error);
+      alert('Failed to import template');
+    }
+  };
+  
   // Authentication functions
   const handleSignup = async (email, password, name) => {
     try {
@@ -1524,6 +1655,30 @@ if (teamsWithoutAnswers.length > 0) {
             <button className="submit-button" onClick={createGame}>
               SUBMIT
             </button>
+            
+            {/* Browse Library Button */}
+            <div style={{ 
+              marginTop: '30px', 
+              padding: '20px', 
+              background: '#E3F2FD', 
+              borderRadius: '10px',
+              textAlign: 'center',
+              border: '2px solid #286586'
+            }}>
+              <div style={{ fontSize: '18px', color: '#286586', marginBottom: '10px', fontWeight: 'bold' }}>
+                📚 Or Browse Pre-Made Games
+              </div>
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '15px' }}>
+                Choose from ready-to-play trivia games with questions included
+              </div>
+              <button 
+                className="submit-button" 
+                onClick={() => setScreen('library')}
+                style={{ background: '#FF6600', width: 'auto', padding: '12px 40px' }}
+              >
+                BROWSE GAME LIBRARY
+              </button>
+            </div>
 
             {/* COLLAPSIBLE RESUME SECTION AT BOTTOM */}
             <details style={{ marginTop: '40px', padding: '15px', background: '#F5F5F5', borderRadius: '10px', border: '1px solid #E0E0E0' }}>
@@ -1614,6 +1769,306 @@ if (teamsWithoutAnswers.length > 0) {
           </div>
         </>
       )}
+      
+      {/* GAME LIBRARY SCREEN */}
+      {screen === 'library' && (
+        <>
+          <div className="header">
+            <div className="logo">
+              <img 
+                src="https://quizzler.pro/img/quizzler_logo.png" 
+                alt="Quizzler Logo" 
+                className="logo-icon"
+                style={{ height: '30px', width: 'auto' }}
+              />
+            </div>
+          </div>
+          
+          <div style={{ maxWidth: '1000px', margin: '30px auto', padding: '40px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+              <h1 style={{ color: '#286586', fontSize: '36px', margin: '0 0 10px 0' }}>📚 Game Library</h1>
+              <p style={{ color: '#666', fontSize: '18px', margin: '0 0 20px 0' }}>
+                Choose a pre-made trivia game or go back to create your own
+              </p>
+              <button 
+                className="submit-button" 
+                onClick={() => setScreen('start')}
+                style={{ width: 'auto', padding: '10px 30px', background: '#666' }}
+              >
+                ← Back to Setup
+              </button>
+            </div>
+            
+            {loadingTemplates ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: '#286586', fontSize: '20px' }}>
+                Loading games...
+              </div>
+            ) : gameTemplates.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px' }}>
+                <div style={{ fontSize: '64px', marginBottom: '20px' }}>📦</div>
+                <div style={{ color: '#666', fontSize: '18px' }}>
+                  No games available yet. Check back soon!
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
+                {gameTemplates.map(template => (
+                  <div 
+                    key={template.id} 
+                    style={{ 
+                      background: 'white', 
+                      borderRadius: '15px', 
+                      padding: '25px', 
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                      border: '2px solid #E0E0E0',
+                      transition: 'transform 0.2s, box-shadow 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-5px)';
+                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+                    }}
+                  >
+                    <div style={{ marginBottom: '15px' }}>
+                      <h3 style={{ color: '#286586', fontSize: '22px', margin: '0 0 8px 0' }}>
+                        {template.title}
+                      </h3>
+                      {template.description && (
+                        <p style={{ color: '#666', fontSize: '14px', margin: '0 0 12px 0', lineHeight: '1.5' }}>
+                          {template.description}
+                        </p>
+                      )}
+                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        {template.difficulty && (
+                          <span style={{ 
+                            background: template.difficulty === 'easy' ? '#E8F5E9' : template.difficulty === 'hard' ? '#FFEBEE' : '#FFF9E6',
+                            color: template.difficulty === 'easy' ? '#2E7D32' : template.difficulty === 'hard' ? '#C62828' : '#F57C00',
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                          }}>
+                            {template.difficulty.toUpperCase()}
+                          </span>
+                        )}
+                        {template.category && (
+                          <span style={{ 
+                            background: '#E3F2FD',
+                            color: '#286586',
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                          }}>
+                            {template.category}
+                          </span>
+                        )}
+                        <span style={{ 
+                          background: '#F5F5F5',
+                          color: '#666',
+                          padding: '4px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold'
+                        }}>
+                          17 Questions
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                      <button 
+                        onClick={() => previewTemplate(template.id)}
+                        style={{
+                          flex: 1,
+                          padding: '12px',
+                          background: '#286586',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        👁️ Preview
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if (!gameCode) {
+                            alert('Please create a game first from the setup screen');
+                            return;
+                          }
+                          if (window.confirm(`Import "${template.title}" into your game? This will replace any existing questions.`)) {
+                            importTemplate(template.id);
+                          }
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '12px',
+                          background: '#FF6600',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ✓ Use This
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Preview Modal */}
+          {showPreviewModal && selectedTemplate && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.7)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10000,
+              padding: '20px'
+            }}>
+              <div style={{
+                background: 'white',
+                borderRadius: '20px',
+                maxWidth: '800px',
+                width: '100%',
+                maxHeight: '90vh',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                <div style={{ 
+                  padding: '30px', 
+                  borderBottom: '2px solid #E0E0E0',
+                  background: '#F5F5F5'
+                }}>
+                  <h2 style={{ color: '#286586', margin: '0 0 10px 0', fontSize: '28px' }}>
+                    {selectedTemplate.title}
+                  </h2>
+                  {selectedTemplate.description && (
+                    <p style={{ color: '#666', margin: '0', fontSize: '16px' }}>
+                      {selectedTemplate.description}
+                    </p>
+                  )}
+                </div>
+                
+                <div style={{ 
+                  padding: '30px', 
+                  overflowY: 'auto',
+                  flex: 1
+                }}>
+                  {selectedTemplate.questions && selectedTemplate.questions.map((q, idx) => (
+                    <div key={idx} style={{ 
+                      marginBottom: '25px',
+                      padding: '20px',
+                      background: q.type === 'visual' ? '#FFF9E6' : q.type === 'final' ? '#FFEBEE' : '#F5F5F5',
+                      borderRadius: '10px',
+                      border: q.type === 'visual' ? '2px solid #FFB300' : q.type === 'final' ? '2px solid #F44336' : '2px solid #E0E0E0'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <div style={{ 
+                          fontWeight: 'bold',
+                          color: '#286586',
+                          fontSize: '14px'
+                        }}>
+                          {q.type === 'visual' ? '📷 VISUAL ROUND' : q.type === 'final' ? '🏆 FINAL QUESTION' : `Q${idx + 1}`}
+                        </div>
+                        <div style={{ 
+                          background: '#E3F2FD',
+                          color: '#286586',
+                          padding: '4px 10px',
+                          borderRadius: '10px',
+                          fontSize: '12px',
+                          fontWeight: 'bold'
+                        }}>
+                          {q.category}
+                        </div>
+                      </div>
+                      <div style={{ color: '#333', marginBottom: '10px', fontSize: '16px', fontWeight: '500' }}>
+                        {q.text}
+                      </div>
+                      <div style={{ color: '#00AA00', fontWeight: 'bold', fontSize: '15px' }}>
+                        ✓ {q.answer}
+                      </div>
+                      {q.image_url && (
+                        <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+                          📎 Image included
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                <div style={{ 
+                  padding: '20px 30px', 
+                  borderTop: '2px solid #E0E0E0',
+                  display: 'flex',
+                  gap: '15px',
+                  background: '#F5F5F5'
+                }}>
+                  <button 
+                    onClick={() => setShowPreviewModal(false)}
+                    style={{
+                      flex: 1,
+                      padding: '15px',
+                      background: '#666',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Close
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (!gameCode) {
+                        alert('Please create a game first from the setup screen');
+                        return;
+                      }
+                      if (window.confirm(`Import "${selectedTemplate.title}"? This will replace any existing questions.`)) {
+                        setShowPreviewModal(false);
+                        importTemplate(selectedTemplate.id);
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '15px',
+                      background: '#FF6600',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ✓ Use This Game
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+      
       {screen === 'questions' && (
         <>
           <div className="header">
