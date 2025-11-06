@@ -762,7 +762,11 @@ socket.on('host:teamJoined', (data) => {
   const pushQuestion = () => {
     console.log('Pushing question with index:', selectedQuestionIndex);
     console.log('Question details:', questions[selectedQuestionIndex]);
-    socket.emit('host:pushQuestion', { gameCode, questionIndex: selectedQuestionIndex });
+    socket.emit('host:pushQuestion', { 
+  gameCode, 
+  questionIndex: selectedQuestionIndex,
+  questionData: questions[selectedQuestionIndex] 
+});
   };
 
   const showStandings = () => {
