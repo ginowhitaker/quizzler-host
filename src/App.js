@@ -513,7 +513,14 @@ socket.on('host:teamJoined', (data) => {
       
       // Load the imported questions into state
       const game = await fetch(`${BACKEND_URL}/api/game/${gameCode}`).then(r => r.json());
-      const importedQuestions = JSON.parse(game.questions || '[]');
+      
+      // Handle questions whether it's a string or already parsed
+      let importedQuestions;
+      if (typeof game.questions === 'string') {
+        importedQuestions = JSON.parse(game.questions || '[]');
+      } else {
+        importedQuestions = game.questions || [];
+      }
       
       // Separate regular questions, visual, and final
       const regularQuestions = importedQuestions.filter(q => q.type === 'regular' || !q.type);
