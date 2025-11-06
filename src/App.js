@@ -452,7 +452,7 @@ socket.on('host:teamJoined', (data) => {
         regularTimer,
         visualTimer
       });
-      setScreen('questions');
+      setScreen('library'); // Go to library to pick game
     } catch (error) {
       alert('Failed to create game');
       console.error(error);
@@ -497,11 +497,6 @@ socket.on('host:teamJoined', (data) => {
   };
   
   const importTemplate = async (templateId) => {
-    if (!gameCode) {
-      alert('Please create a game first');
-      return;
-    }
-    
     try {
       const response = await fetch(`${BACKEND_URL}/api/templates/${templateId}/import`, {
         method: 'POST',
@@ -1596,6 +1591,78 @@ if (teamsWithoutAnswers.length > 0) {
                 style={{ height: '30px', width: 'auto' }}
               />
             </div>
+            <button 
+              onClick={() => {
+                const code = prompt('Enter 4-digit game code to resume:');
+                if (code && code.length === 4) {
+                  setResumeGameCode(code.toUpperCase());
+                  // Trigger resume logic
+                  (async () => {
+                    try {
+                      const response = await fetch(`${BACKEND_URL}/api/game/${code.toUpperCase()}`);
+                      const gameData = await response.json();
+                      
+                      if (!gameData) {
+                        alert('Game not found');
+                        return;
+                      }
+                      
+                      socket.emit('host:join', code.toUpperCase());
+                      setGameCode(code.toUpperCase()); 
+                      setHostName(gameData.host_name);
+                      setVenueName(gameData.venue_name);
+                      setVenueSpecials(gameData.venue_specials || '');
+                      setQuestions(gameData.questions || []);
+                      setSelectedQuestionIndex(gameData.current_question_index || 0);
+                      setGame({ 
+                        ...gameData, 
+                        currentQuestionIndex: gameData.current_question_index || 0,
+                        teams: {} 
+                      });
+                      
+                      const teams = await fetch(`${BACKEND_URL}/api/game/${code.toUpperCase()}`).then(r => r.json());
+                      if (teams.teams) {
+                        const teamsMap = {};
+                        teams.teams.forEach(team => {
+                          teamsMap[team.name] = {
+                            name: team.name,
+                            score: team.score,
+                            usedConfidences: team.usedConfidences || [],
+                            answers: team.answers || {}
+                          };
+                        });
+                        setGame(prev => ({ ...prev, teams: teamsMap }));
+                      }
+                      
+                      if (gameData.status === 'final') {
+                        setScreen('finalQuestionDisplay');
+                      } else if (gameData.status === 'completed') {
+                        setScreen('endGame');
+                      } else if (gameData.question_number > 0) {
+                        setScreen('scoring');
+                      } else {
+                        setScreen('welcome');
+                      }
+                    } catch (error) {
+                      console.error('Error resuming game:', error);
+                      alert('Failed to resume game');
+                    }
+                  })();
+                }
+              }}
+              style={{
+                padding: '10px 20px',
+                background: '#00AA00',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
+            >
+              📂 Resume Game
+            </button>
           </div>
           <div style={{ maxWidth: '600px', margin: '30px auto', padding: '40px', background: 'white', borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}>
             <div className="section-title">HOST SETUP</div>
@@ -1655,116 +1722,6 @@ if (teamsWithoutAnswers.length > 0) {
             <button className="submit-button" onClick={createGame}>
               SUBMIT
             </button>
-            
-            {/* Browse Library Button */}
-            <div style={{ 
-              marginTop: '30px', 
-              padding: '20px', 
-              background: '#E3F2FD', 
-              borderRadius: '10px',
-              textAlign: 'center',
-              border: '2px solid #286586'
-            }}>
-              <div style={{ fontSize: '18px', color: '#286586', marginBottom: '10px', fontWeight: 'bold' }}>
-                📚 Or Browse Pre-Made Games
-              </div>
-              <div style={{ fontSize: '14px', color: '#666', marginBottom: '15px' }}>
-                Choose from ready-to-play trivia games with questions included
-              </div>
-              <button 
-                className="submit-button" 
-                onClick={() => setScreen('library')}
-                style={{ background: '#FF6600', width: 'auto', padding: '12px 40px' }}
-              >
-                BROWSE GAME LIBRARY
-              </button>
-            </div>
-
-            {/* COLLAPSIBLE RESUME SECTION AT BOTTOM */}
-            <details style={{ marginTop: '40px', padding: '15px', background: '#F5F5F5', borderRadius: '10px', border: '1px solid #E0E0E0' }}>
-              <summary style={{ 
-                cursor: 'pointer', 
-                fontWeight: 'bold', 
-                color: '#286586', 
-                fontSize: '16px',
-                padding: '10px',
-                listStyle: 'none'
-              }}>
-                RESUME EXISTING GAME
-              </summary>
-              <div style={{ marginTop: '15px' }}>
-                <input 
-  className="input-field" 
-  placeholder="Enter Game Code (4 digits)"
-  value={resumeGameCode}
-  onChange={(e) => {
-    setResumeGameCode(e.target.value.toUpperCase());
-  }}
-  maxLength={4}
-/>
-<button 
-  className="submit-button" 
-  onClick={async () => {
-    if (!resumeGameCode || resumeGameCode.length !== 4) {
-      alert('Please enter a valid 4-digit game code');
-      return;
-    }
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/game/${resumeGameCode}`);
-      const gameData = await response.json();
-      
-      if (!gameData) {
-        alert('Game not found');
-        return;
-      }
-      
-               socket.emit('host:join', resumeGameCode);
-               setGameCode(resumeGameCode); 
-                      setHostName(gameData.host_name);
-                      setVenueName(gameData.venue_name);
-                      setVenueSpecials(gameData.venue_specials || '');
-                      setQuestions(gameData.questions || []);
-                      setSelectedQuestionIndex(gameData.current_question_index || 0);
-                      setGame({ 
-                        ...gameData, 
-                        currentQuestionIndex: gameData.current_question_index || 0,
-                        teams: {} 
-                      });
-                      
-                      const teams = await fetch(`${BACKEND_URL}/api/game/${resumeGameCode}`).then(r => r.json());
-                      if (teams.teams) {
-                        const teamsMap = {};
-                        teams.teams.forEach(team => {
-                          teamsMap[team.name] = {
-                            name: team.name,
-                            score: team.score,
-                            usedConfidences: team.usedConfidences || [],
-                            answers: team.answers || {}
-                          };
-                        });
-                        setGame(prev => ({ ...prev, teams: teamsMap }));
-                      }
-                      
-                      if (gameData.status === 'final') {
-                        setScreen('finalQuestionDisplay');
-                      } else if (gameData.status === 'completed') {
-                        setScreen('endGame');
-                      } else if (gameData.question_number > 0) {
-                        setScreen('scoring');
-                      } else {
-                        setScreen('welcome');
-                      }
-                    } catch (error) {
-                      console.error('Error resuming game:', error);
-                      alert('Failed to resume game');
-                    }
-                  }}
-                  style={{ background: '#00AA00' }}
-                >
-                  RESUME GAME
-                </button>
-              </div>
-            </details>
 
           </div>
         </>
@@ -1786,17 +1743,13 @@ if (teamsWithoutAnswers.length > 0) {
           
           <div style={{ maxWidth: '1000px', margin: '30px auto', padding: '40px' }}>
             <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-              <h1 style={{ color: '#286586', fontSize: '36px', margin: '0 0 10px 0' }}>📚 Game Library</h1>
-              <p style={{ color: '#666', fontSize: '18px', margin: '0 0 20px 0' }}>
-                Choose a pre-made trivia game or go back to create your own
+              <h1 style={{ color: '#286586', fontSize: '36px', margin: '0 0 10px 0' }}>📚 Choose Your Game</h1>
+              <p style={{ color: '#666', fontSize: '18px', margin: '0 0 10px 0' }}>
+                Select a pre-made trivia game to get started
               </p>
-              <button 
-                className="submit-button" 
-                onClick={() => setScreen('start')}
-                style={{ width: 'auto', padding: '10px 30px', background: '#666' }}
-              >
-                ← Back to Setup
-              </button>
+              <p style={{ color: '#999', fontSize: '14px', margin: '0' }}>
+                Game Code: <strong style={{ color: '#286586', fontSize: '18px' }}>{gameCode}</strong>
+              </p>
             </div>
             
             {loadingTemplates ? (
@@ -1898,11 +1851,7 @@ if (teamsWithoutAnswers.length > 0) {
                       </button>
                       <button 
                         onClick={() => {
-                          if (!gameCode) {
-                            alert('Please create a game first from the setup screen');
-                            return;
-                          }
-                          if (window.confirm(`Import "${template.title}" into your game? This will replace any existing questions.`)) {
+                          if (window.confirm(`Import "${template.title}" into your game?`)) {
                             importTemplate(template.id);
                           }
                         }}
@@ -2039,11 +1988,7 @@ if (teamsWithoutAnswers.length > 0) {
                   </button>
                   <button 
                     onClick={() => {
-                      if (!gameCode) {
-                        alert('Please create a game first from the setup screen');
-                        return;
-                      }
-                      if (window.confirm(`Import "${selectedTemplate.title}"? This will replace any existing questions.`)) {
+                      if (window.confirm(`Import "${selectedTemplate.title}"?`)) {
                         setShowPreviewModal(false);
                         importTemplate(selectedTemplate.id);
                       }
