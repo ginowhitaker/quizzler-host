@@ -2174,6 +2174,10 @@ if (teamsWithoutAnswers.length > 0) {
                 </div>
               </div>
               <button className="submit-button" onClick={() => {
+  console.log('=== BEFORE FILTERING ===');
+  console.log('questions array length:', questions.length);
+  console.log('finalQuestion:', finalQuestion);
+  
   const validQuestions = questions.filter(q => q.text && q.answer);
   if (validQuestions.length < 15) {
     alert('Please fill in all 15 questions and answers');
@@ -2188,6 +2192,17 @@ if (teamsWithoutAnswers.length > 0) {
     answer: finalQuestion.answer,
     number: null
   }];
+
+  console.log('=== SENDING QUESTIONS ===');
+  console.log('validQuestions length:', validQuestions.length);
+  console.log('allQuestions length:', allQuestions.length);
+  console.log('Questions summary:', allQuestions.map((q, idx) => ({ 
+    index: idx, 
+    type: q.type || 'regular', 
+    hasText: !!q.text, 
+    hasAnswer: !!q.answer,
+    text: q.text?.substring(0, 40) + '...'
+  })));
 
   socket.emit('host:addAllQuestions', {
     gameCode,
