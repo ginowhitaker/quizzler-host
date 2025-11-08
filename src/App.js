@@ -1782,7 +1782,7 @@ if (teamsWithoutAnswers.length > 0) {
           
           <div style={{ maxWidth: '1000px', margin: '30px auto', padding: '40px' }}>
             <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-              <h1 style={{ color: '#286586', fontSize: '36px', margin: '0 0 10px 0' }}>📚 Choose Your Game</h1>
+              <h1 style={{ color: '#286586', fontSize: '36px', margin: '0 0 10px 0' }}>Choose Your Game</h1>
               <p style={{ color: '#666', fontSize: '18px', margin: '0 0 10px 0' }}>
                 Select a pre-made trivia game to get started
               </p>
@@ -1797,7 +1797,6 @@ if (teamsWithoutAnswers.length > 0) {
               </div>
             ) : gameTemplates.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px' }}>
-                <div style={{ fontSize: '64px', marginBottom: '20px' }}>📦</div>
                 <div style={{ color: '#666', fontSize: '18px' }}>
                   No games available yet. Check back soon!
                 </div>
@@ -2196,7 +2195,7 @@ if (teamsWithoutAnswers.length > 0) {
           color: '#286586',
           fontWeight: 'bold'
         }}>
-          📸 VISUAL ROUND (appears after Q7)
+          VISUAL ROUND (appears after Q7)
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
           <label className="question-label" style={{ marginBottom: 0, flex: 1 }}>Image URL</label>
