@@ -30,6 +30,7 @@ export default function QuizzlerHostApp() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [questionsAccordionOpen, setQuestionsAccordionOpen] = useState(false);
   
 // Check authentication on load
 useEffect(() => {
@@ -587,7 +588,8 @@ socket.on('host:teamJoined', (data) => {
       }
       
       alert(`✅ ${data.questionCount} questions imported! You can review and edit them.`);
-      setScreen('questions');
+      setQuestionsAccordionOpen(false); // Accordion closed by default
+      setScreen('welcome');
     } catch (error) {
       console.error('Error importing template:', error);
       alert('Failed to import template');
@@ -1911,6 +1913,43 @@ if (teamsWithoutAnswers.length > 0) {
                 ))}
               </div>
             )}
+            
+            {/* BUILD YOUR OWN Section */}
+            <div style={{ 
+              textAlign: 'center', 
+              marginTop: '60px',
+              padding: '40px',
+              background: '#F5F5F5',
+              borderRadius: '15px',
+              border: '2px dashed #286586'
+            }}>
+              <div style={{ fontSize: '24px', marginBottom: '15px' }}>— or —</div>
+              <h2 style={{ color: '#286586', fontSize: '28px', margin: '0 0 15px 0' }}>
+                BUILD YOUR OWN
+              </h2>
+              <p style={{ color: '#666', fontSize: '16px', marginBottom: '25px' }}>
+                Create a custom trivia game from scratch
+              </p>
+              <button
+                onClick={() => {
+                  setQuestionsAccordionOpen(true); // Open accordion for manual entry
+                  setScreen('questions');
+                }}
+                style={{
+                  padding: '15px 40px',
+                  background: '#286586',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                }}
+              >
+                🛠️ Start Building
+              </button>
+            </div>
           </div>
           
           {/* Preview Modal */}
@@ -2317,6 +2356,159 @@ if (teamsWithoutAnswers.length > 0) {
                 <br/><br/>
                 Any questions? OK! Let's get started!
               </div>
+              
+              {/* Questions Review Accordion */}
+              <div style={{ marginTop: '30px', marginBottom: '20px' }}>
+                <button
+                  onClick={() => setQuestionsAccordionOpen(!questionsAccordionOpen)}
+                  style={{
+                    width: '100%',
+                    padding: '15px 20px',
+                    background: '#286586',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '10px'
+                  }}
+                >
+                  <span>📝 REVIEW QUESTIONS</span>
+                  <span>{questionsAccordionOpen ? '▼' : '▶'}</span>
+                </button>
+                
+                {questionsAccordionOpen && (
+                  <div style={{ 
+                    background: '#F5F5F5', 
+                    padding: '20px', 
+                    borderRadius: '10px',
+                    maxHeight: '600px',
+                    overflowY: 'auto'
+                  }}>
+                    {/* Import buttons */}
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                      <button 
+                        onClick={downloadTemplate}
+                        style={{ 
+                          flex: 1,
+                          padding: '10px',
+                          background: '#286586',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Download Template
+                      </button>
+                      <label 
+                        htmlFor="csv-upload-welcome" 
+                        style={{ 
+                          flex: 1,
+                          padding: '10px',
+                          background: '#FF6600',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        Import CSV
+                      </label>
+                      <input
+                        id="csv-upload-welcome"
+                        type="file"
+                        accept=".csv"
+                        onChange={handleImportCSV}
+                        style={{ display: 'none' }}
+                      />
+                    </div>
+                    
+                    {/* Questions list */}
+                    <div style={{ fontSize: '12px' }}>
+                      {questions.map((q, idx) => (
+                        <div key={idx} style={{ 
+                          background: 'white', 
+                          padding: '15px', 
+                          borderRadius: '8px', 
+                          marginBottom: '10px',
+                          border: idx === 7 ? '2px solid #FFB300' : '1px solid #ddd'
+                        }}>
+                          <div style={{ fontWeight: 'bold', color: '#286586', marginBottom: '8px' }}>
+                            {idx === 7 ? '📷 VISUAL ROUND' : `Question ${idx < 7 ? idx + 1 : idx}`}
+                          </div>
+                          <div style={{ marginBottom: '5px' }}>
+                            <strong>Category:</strong> {q.category || '—'}
+                          </div>
+                          <div style={{ marginBottom: '5px' }}>
+                            <strong>Question:</strong> {q.text || '—'}
+                          </div>
+                          <div>
+                            <strong>Answer:</strong> {q.answer || '—'}
+                          </div>
+                          {idx === 7 && q.imageUrl && (
+                            <div style={{ marginTop: '5px', color: '#00AA00' }}>
+                              ✓ Image URL set
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      
+                      {/* Final Question */}
+                      <div style={{ 
+                        background: 'white', 
+                        padding: '15px', 
+                        borderRadius: '8px',
+                        border: '2px solid #F44336'
+                      }}>
+                        <div style={{ fontWeight: 'bold', color: '#286586', marginBottom: '8px' }}>
+                          🏆 FINAL QUESTION
+                        </div>
+                        <div style={{ marginBottom: '5px' }}>
+                          <strong>Category:</strong> {finalQuestion.category || '—'}
+                        </div>
+                        <div style={{ marginBottom: '5px' }}>
+                          <strong>Question:</strong> {finalQuestion.question || '—'}
+                        </div>
+                        <div>
+                          <strong>Answer:</strong> {finalQuestion.answer || '—'}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={() => setScreen('questions')}
+                      style={{
+                        width: '100%',
+                        marginTop: '15px',
+                        padding: '12px',
+                        background: '#FF6600',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ✏️ Edit Questions
+                    </button>
+                  </div>
+                )}
+              </div>
+              
               <button className="continue-button" onClick={continueToFirstQuestion}>
                 CONTINUE
               </button>
