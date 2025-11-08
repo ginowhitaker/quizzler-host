@@ -101,7 +101,7 @@ useEffect(() => {
   });
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
   // FIXED: Changed 'question' to 'text' to match PostgreSQL schema
-  const [questions, setQuestions] = useState(Array.from({ length: 15 }, () => ({ 
+  const [questions, setQuestions] = useState(Array.from({ length: 16 }, () => ({ 
     category: '', 
     text: '',  // FIXED: was 'question'
     answer: '', 
