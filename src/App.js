@@ -1885,7 +1885,7 @@ if (teamsWithoutAnswers.length > 0) {
                           cursor: 'pointer'
                         }}
                       >
-                        👁️ Preview
+                        Preview
                       </button>
                       <button 
                         onClick={() => {
@@ -2397,7 +2397,7 @@ if (teamsWithoutAnswers.length > 0) {
                     marginBottom: '10px'
                   }}
                 >
-                  <span>📝 REVIEW QUESTIONS</span>
+                  <span>REVIEW QUESTIONS</span>
                   <span>{questionsAccordionOpen ? '▼' : '▶'}</span>
                 </button>
                 
