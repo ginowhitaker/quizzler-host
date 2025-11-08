@@ -533,40 +533,51 @@ socket.on('host:teamJoined', (data) => {
       const visualQuestion = importedQuestions.find(q => q.type === 'visual');
       const finalQ = importedQuestions.find(q => q.type === 'final');
       
-      // Update questions state
-      const newQuestions = Array.from({ length: 15 }, (_, i) => {
-        const q = regularQuestions[i];
-        return q ? {
-          category: q.category || '',
-          text: q.text || '',
-          answer: q.answer || '',
+      // Create 16-slot array for all questions before final
+      const newQuestions = Array.from({ length: 16 }, () => ({
+        category: '',
+        text: '',
+        answer: '',
+        type: 'regular',
+        imageUrl: ''
+      }));
+      
+      // Place Q1-Q7 in indices 0-6
+      for (let i = 0; i < 7 && i < regularQuestions.length; i++) {
+        newQuestions[i] = {
+          category: regularQuestions[i].category || '',
+          text: regularQuestions[i].text || '',
+          answer: regularQuestions[i].answer || '',
           type: 'regular',
-          imageUrl: ''
-        } : {
-          category: '',
-          text: '',
-          answer: '',
-          type: 'regular',
-          imageUrl: ''
+          imageUrl: regularQuestions[i].imageUrl || ''
         };
-      });
+      }
+      
+      // Place visual question at index 7
+      if (visualQuestion) {
+        newQuestions[7] = {
+          category: visualQuestion.category || '',
+          text: visualQuestion.text || '',
+          answer: visualQuestion.answer || '',
+          type: 'visual',
+          imageUrl: visualQuestion.imageUrl || ''
+        };
+      }
+      
+      // Place Q8-Q15 in indices 8-15 (remaining regular questions)
+      for (let i = 7; i < regularQuestions.length && i < 15; i++) {
+        newQuestions[i + 1] = {
+          category: regularQuestions[i].category || '',
+          text: regularQuestions[i].text || '',
+          answer: regularQuestions[i].answer || '',
+          type: 'regular',
+          imageUrl: regularQuestions[i].imageUrl || ''
+        };
+      }
       
       setQuestions(newQuestions);
       
-      if (visualQuestion) {
-        setQuestions(prev => {
-          const updated = [...prev];
-          updated[7] = {
-            category: visualQuestion.category || '',
-            text: visualQuestion.text || '',
-            answer: visualQuestion.answer || '',
-            type: 'visual',
-            imageUrl: visualQuestion.imageUrl || ''
-          };
-          return updated;
-        });
-      }
-      
+      // Set final question
       if (finalQ) {
         setFinalQuestion({
           category: finalQ.category || '',
@@ -1638,7 +1649,20 @@ if (teamsWithoutAnswers.length > 0) {
                       setHostName(gameData.host_name);
                       setVenueName(gameData.venue_name);
                       setVenueSpecials(gameData.venue_specials || '');
-                      setQuestions(gameData.questions || []);
+                      
+                      // Ensure questions array has 16 slots
+                      const loadedQuestions = gameData.questions || [];
+                      const paddedQuestions = Array.from({ length: 16 }, (_, i) => 
+                        loadedQuestions[i] || {
+                          category: '',
+                          text: '',
+                          answer: '',
+                          type: 'regular',
+                          imageUrl: ''
+                        }
+                      );
+                      setQuestions(paddedQuestions);
+                      
                       setSelectedQuestionIndex(gameData.current_question_index || 0);
                       setGame({ 
                         ...gameData, 
