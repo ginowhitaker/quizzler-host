@@ -698,7 +698,13 @@ socket.on('host:teamJoined', (data) => {
     skipEmptyLines: true,
     complete: (results) => {
       const imported = results.data;
-      const newQuestions = [...questions];
+      const newQuestions = Array.from({ length: 16 }, () => ({
+  category: '',
+  text: '',
+  answer: '',
+  type: 'regular',
+  imageUrl: ''
+}));
       
       // Questions 1-7 (rows 0-6)
       for (let i = 0; i < 7 && i < imported.length; i++) {
