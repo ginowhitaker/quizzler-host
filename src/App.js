@@ -2198,7 +2198,28 @@ if (teamsWithoutAnswers.length > 0) {
         }}>
           📸 VISUAL ROUND (appears after Q7)
         </div>
-        <label className="question-label">Image URL</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+          <label className="question-label" style={{ marginBottom: 0, flex: 1 }}>Image URL</label>
+          <button
+            onClick={() => window.open('https://quizzler.pro/visual-round-creator.html', '_blank')}
+            style={{
+              background: '#10b981',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              transition: 'background 0.3s'
+            }}
+            onMouseOver={(e) => e.target.style.background = '#059669'}
+            onMouseOut={(e) => e.target.style.background = '#10b981'}
+          >
+            Create Visual Round
+          </button>
+        </div>
         <input
           className="question-input"
           placeholder="https://quizzler.pro/img/visual-example.jpg"
@@ -3281,7 +3302,7 @@ return (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#286586', marginBottom: '5px' }}>
-                        {isVisual && questionKey === 'visual' ? '📸 Visual Round' : `Question ${questionNum}${isVisual ? ' 📸 Visual Round' : ''}`}
+                        {isVisual && questionKey === 'visual' ? 'Visual Round' : `Question ${questionNum}${isVisual ? 'Visual Round' : ''}`}
                       </div>
                       <div style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
                         {question?.text || question?.question || 'Question text not available'}
