@@ -16,6 +16,7 @@ export default function QuizzlerHostApp() {
   const [regularTimer, setRegularTimer] = useState(0); // 0 = no timer
   const [visualTimer, setVisualTimer] = useState(0); // 0 = no timer
   const [gameCode, setGameCode] = useState('');
+  // eslint-disable-next-line no-unused-vars
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
@@ -89,6 +90,7 @@ useEffect(() => {
   };
   
   checkAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
 
@@ -108,9 +110,11 @@ useEffect(() => {
   })));
   const [finalQuestion, setFinalQuestion] = useState({ category: '', question: '', answer: '' });
   const [selectedTeamHistory, setSelectedTeamHistory] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [timerDuration, setTimerDuration] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [resumeGameCode, setResumeGameCode] = useState('');
 
     useEffect(() => {
@@ -176,6 +180,7 @@ useEffect(() => {
   newSocket.on('error', (error) => alert(error.message));
   
   return () => newSocket.close();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
 useEffect(() => {
@@ -419,6 +424,7 @@ socket.on('host:teamJoined', (data) => {
     if (screen === 'library' && gameTemplates.length === 0) {
       fetchGameTemplates();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
 
   const formatTimer = () => {
