@@ -2201,7 +2201,7 @@ if (teamsWithoutAnswers.length > 0) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
           <label className="question-label" style={{ marginBottom: 0, flex: 1 }}>Image URL</label>
           <button
-            onClick={() => window.open('https://quizzler.pro/visual-round-creator.html', '_blank')}
+            onClick={() => window.open('https://quizzler.pro/gridbuild/index.html', '_blank')}
             style={{
               background: '#10b981',
               color: 'white',
