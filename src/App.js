@@ -724,7 +724,7 @@ socket.on('host:teamJoined', (data) => {
         };
       }
       
-      // Questions 8-15 (rows 8-14)
+      // Questions 8-15 (rows 8-15 in CSV)
       for (let i = 8; i <= 15 && i < imported.length; i++) {
         if (imported[i].Category && imported[i].Question && imported[i].Answer) {
           newQuestions[i] = {
@@ -737,19 +737,22 @@ socket.on('host:teamJoined', (data) => {
         }
       }
       
-      // Final question (row 15)
-      if (imported.length >= 17 && imported[15].Category && imported[16].Question && imported[16].Answer) {
+      // Final question (row 16 in CSV, after Q15)
+      if (imported.length >= 17 && imported[16] && imported[16].Category && imported[16].Question && imported[16].Answer) {
         setFinalQuestion({
           category: imported[16].Category,
           question: imported[16].Question,
-          answer: imported[16].Answer,
-          type: imported[16].Type || 'final',
-          imageUrl: imported[16]['Image URL'] || null
+          answer: imported[16].Answer
         });
       }
       
+      console.log('=== CSV IMPORT DEBUG ===');
+      console.log('imported.length:', imported.length);
+      console.log('newQuestions.length:', newQuestions.length);
+      console.log('finalQuestion:', imported[16]);
+      
       setQuestions(newQuestions);
-      alert(`Successfully imported 15 questions + 1 visual round + 1 final question!`);
+      alert(`Successfully imported ${imported.length - 1} questions from CSV!`);
     },
     error: (error) => {
       alert('Error parsing CSV: ' + error.message);
@@ -2194,7 +2197,7 @@ if (teamsWithoutAnswers.length > 0) {
   const allQuestions = [...validQuestions, {
     type: 'final',
     category: finalQuestion.category,
-    text: finalQuestion.text,
+    text: finalQuestion.question,  // finalQuestion uses 'question' not 'text'
     answer: finalQuestion.answer,
     number: null
   }];
