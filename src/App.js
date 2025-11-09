@@ -1121,7 +1121,7 @@ if (teamsWithoutAnswers.length > 0) {
           padding: 15px;
           margin-bottom: 15px;
           border: 2px solid #E0E0E0;
-          border-radius: 10px;
+          border-radius: 30px;
           font-size: 16px;
           font-family: 'Gabarito', sans-serif;
         }
@@ -1137,7 +1137,7 @@ if (teamsWithoutAnswers.length > 0) {
           background: #FF6600;
           color: white;
           border: none;
-          border-radius: 10px;
+          border-radius: 30px;
           font-size: 20px;
           font-weight: 700;
           font-family: 'Gabarito', sans-serif;
@@ -1691,16 +1691,16 @@ if (teamsWithoutAnswers.length > 0) {
               }}
               style={{
                 padding: '10px 20px',
-                background: '#00AA00',
+                background: '#286586',
                 color: 'white',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '30px',
                 fontSize: '14px',
                 fontWeight: 'bold',
                 cursor: 'pointer'
               }}
             >
-              📂 Resume Game
+            Resume In-Progress Game
             </button>
           </div>
           <div style={{ maxWidth: '600px', margin: '30px auto', padding: '40px', background: 'white', borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}>
@@ -1879,7 +1879,7 @@ if (teamsWithoutAnswers.length > 0) {
                           background: '#286586',
                           color: 'white',
                           border: 'none',
-                          borderRadius: '8px',
+                          borderRadius: '30px',
                           fontSize: '14px',
                           fontWeight: 'bold',
                           cursor: 'pointer'
@@ -1899,7 +1899,7 @@ if (teamsWithoutAnswers.length > 0) {
                           background: '#FF6600',
                           color: 'white',
                           border: 'none',
-                          borderRadius: '8px',
+                          borderRadius: '30px',
                           fontSize: '14px',
                           fontWeight: 'bold',
                           cursor: 'pointer'
@@ -2419,7 +2419,7 @@ if (teamsWithoutAnswers.length > 0) {
                           background: '#286586',
                           color: 'white',
                           border: 'none',
-                          borderRadius: '8px',
+                          borderRadius: '30px',
                           fontSize: '14px',
                           fontWeight: 'bold',
                           cursor: 'pointer'
@@ -2435,7 +2435,7 @@ if (teamsWithoutAnswers.length > 0) {
                           background: '#FF6600',
                           color: 'white',
                           border: 'none',
-                          borderRadius: '8px',
+                          borderRadius: '30px',
                           fontSize: '14px',
                           fontWeight: 'bold',
                           cursor: 'pointer',
@@ -2462,7 +2462,7 @@ if (teamsWithoutAnswers.length > 0) {
                         <div key={idx} style={{ 
                           background: 'white', 
                           padding: '15px', 
-                          borderRadius: '8px', 
+                          borderRadius: '30px', 
                           marginBottom: '10px',
                           border: idx === 7 ? '2px solid #FFB300' : '1px solid #ddd'
                         }}>
@@ -2490,7 +2490,7 @@ if (teamsWithoutAnswers.length > 0) {
                       <div style={{ 
                         background: 'white', 
                         padding: '15px', 
-                        borderRadius: '8px',
+                        borderRadius: '30px',
                         border: '2px solid #F44336'
                       }}>
                         <div style={{ fontWeight: 'bold', color: '#286586', marginBottom: '8px' }}>
@@ -2517,7 +2517,7 @@ if (teamsWithoutAnswers.length > 0) {
                         background: '#FF6600',
                         color: 'white',
                         border: 'none',
-                        borderRadius: '8px',
+                        borderRadius: '30px',
                         fontSize: '14px',
                         fontWeight: 'bold',
                         cursor: 'pointer'
@@ -3325,7 +3325,7 @@ return (
                           <div key={idx} style={{
                             background: isCorrect ? '#E8F5E9' : '#FFEBEE',
                             border: `2px solid ${isCorrect ? '#4CAF50' : '#F44336'}`,
-                            borderRadius: '8px',
+                            borderRadius: '30px',
                             padding: '15px',
                             marginBottom: '10px',
                             display: 'flex',
@@ -3398,7 +3398,7 @@ return (
                           </div>
                         );
                       })}
-                      <div style={{ marginTop: '15px', padding: '10px', background: '#E3F2FD', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold', color: '#286586' }}>
+                      <div style={{ marginTop: '15px', padding: '10px', background: '#E3F2FD', borderRadius: '30px', textAlign: 'center', fontWeight: 'bold', color: '#286586' }}>
                         Score: {Array.isArray(answer.correct) ? answer.correct.filter(Boolean).length : 0} / 6 points
                       </div>
                     </div>
@@ -3432,7 +3432,7 @@ return (
                             color: 'white',
                             border: 'none',
                             padding: '10px 20px',
-                            borderRadius: '8px',
+                            borderRadius: '30px',
                             fontSize: '14px',
                             fontWeight: 'bold',
                             cursor: 'pointer'
