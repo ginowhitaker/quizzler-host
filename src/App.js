@@ -666,7 +666,7 @@ socket.on('host:teamJoined', (data) => {
     ['Music', 'What band released "Bohemian Rhapsody"?', 'Queen', 'regular', ''],
     ['Literature', 'Who wrote "1984"?', 'George Orwell', 'regular', ''],
     // Visual Round (after Q7)
-    ['Logos', 'Name these 6 logos', 'Mitsubishi|Fila|Quaker|Wikipedia|NVIDIA|HBSC', 'visual', 'https://quizzler.pro/img/visual-102225.jpg'],
+    ['Logos', 'Name these 6 logos', 'Mitsubishi|Fila|Quaker|Wikipedia|NVIDIA|HBSC', 'visual', 'https://quizzlertrivia.com/img/visual-102225.jpg'],
     // Questions 8-15
     ['Science', 'What planet is known as the Red Planet?', 'Mars', 'regular', ''],
     ['History', 'What year did World War II end?', '1945', 'regular', ''],
@@ -1011,7 +1011,7 @@ if (teamsWithoutAnswers.length > 0) {
 
         .quizzler-host {
           min-height: 110vh;
-          background-image: url(https://quizzler.pro/img/quizzler-background.png);
+          background-image: url(https://quizzlertrivia.com/img/quizzler-background.png);
           background-repeat: no-repeat;
           background-size: cover;
           background-position: center;
@@ -1417,7 +1417,7 @@ if (teamsWithoutAnswers.length > 0) {
           <div className="header">
   <div className="logo">
     <img 
-      src="https://quizzler.pro/img/quizzler_logo.png" 
+      src="https://quizzlertrivia.com/img/quizzler_logo.png" 
       alt="Quizzler Logo" 
       className="logo-icon"
       style={{ height: '30px', width: 'auto' }}
@@ -1529,7 +1529,7 @@ if (teamsWithoutAnswers.length > 0) {
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
@@ -1601,7 +1601,7 @@ if (teamsWithoutAnswers.length > 0) {
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
@@ -1762,7 +1762,7 @@ if (teamsWithoutAnswers.length > 0) {
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
@@ -2084,7 +2084,7 @@ if (teamsWithoutAnswers.length > 0) {
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
@@ -2190,7 +2190,7 @@ if (teamsWithoutAnswers.length > 0) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
           <label className="question-label" style={{ marginBottom: 0, flex: 1 }}>Image URL</label>
           <button
-            onClick={() => window.open('https://quizzler.pro/gridbuild/index.html', '_blank')}
+            onClick={() => window.open('https://quizzlertrivia.com/gridbuild/index.html', '_blank')}
             style={{
               background: '#10b981',
               color: 'white',
@@ -2211,7 +2211,7 @@ if (teamsWithoutAnswers.length > 0) {
         </div>
         <input
           className="question-input"
-          placeholder="https://quizzler.pro/img/visual-example.jpg"
+          placeholder="https://quizzlertrivia.com/img/visual-example.jpg"
           value={q.imageUrl || ''}
           onChange={(e) => updateQuestion(idx, 'imageUrl', e.target.value)}
         />
@@ -2328,7 +2328,7 @@ if (teamsWithoutAnswers.length > 0) {
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
@@ -2654,7 +2654,7 @@ if (teamsWithoutAnswers.length > 0) {
 <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
@@ -2923,7 +2923,7 @@ return (
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
@@ -2988,7 +2988,7 @@ return (
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
@@ -3076,7 +3076,7 @@ return (
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
@@ -3177,7 +3177,7 @@ return (
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
