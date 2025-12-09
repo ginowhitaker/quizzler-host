@@ -2460,19 +2460,20 @@ if (teamsWithoutAnswers.length > 0) {
                             {idx === 7 ? '📷 VISUAL ROUND' : `Question ${idx < 7 ? idx + 1 : idx}`}
                           </div>
                           <div style={{ marginBottom: '5px' }}>
-                            <strong>Category:</strong> {q.category || '—'}
-                          </div>
-                          <div style={{ marginBottom: '5px' }}>
-                            <strong>Question:</strong> {q.text || '—'}
-                          </div>
-                          <div>
-                            <strong>Answer:</strong> {q.answer || '—'}
-                          </div>
-                          {idx === 7 && q.imageUrl && (
-                            <div style={{ marginTop: '5px', color: '#00AA00' }}>
-                              ✓ Image URL set
-                            </div>
-                          )}
+  <strong>Question:</strong> {q.text || '—'}
+</div>
+<div>
+  <strong>Answer:</strong> {
+    q.type === 'visual' && q.answers 
+      ? q.answers.join(', ')
+      : q.answer || '—'
+  }
+</div>
+{idx === 7 && q.imageUrl && (
+  <div style={{ marginTop: '5px', color: '#00AA00' }}>
+    ✓ Image URL set
+  </div>
+)}
                         </div>
                       ))}
                       
