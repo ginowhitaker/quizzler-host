@@ -6,7 +6,8 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://quizzler-produ
 
 export default function QuizzlerHostApp() {
   const [socket, setSocket] = useState(null);
-  const [screen, setScreen] = useState('login'); // Start at login, auth check will change if needed
+  const [screen, setScreen] = useState('login'); 
+  
   const [hostName, setHostName] = useState('');
   const [venueName, setVenueName] = useState('');
   const [venueSpecials, setVenueSpecials] = useState('');
@@ -31,45 +32,32 @@ export default function QuizzlerHostApp() {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [questionsAccordionOpen, setQuestionsAccordionOpen] = useState(false);
-  
-// Check authentication on load
+
+// Check authentication and reset token on load
 useEffect(() => {
-  const checkAuth = async () => {
-    // Check for reset token in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    
-    if (token) {
-      // Verify the reset token
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/verify-reset-token/${token}`);
-        const data = await response.json();
-        
-        if (response.ok) {
-          setResetToken(token);
-          setResetEmail(data.email);
-          setScreen('reset-password');
-          return;
-        } else {
-          alert('Invalid or expired reset link');
-          setScreen('login');
-          return;
-        }
-      } catch (error) {
-        console.error('Token verification failed:', error);
-        alert('Invalid reset link');
-        setScreen('login');
-        return;
-      }
-    }
-    
-    // Normal auth check
-    if (!authToken) {
-      setScreen('login');
-      return;
-    }
-    
+const checkAuth = async () => {
+  // Check for reset token in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  
+  if (token) {
+    // Verify the reset token
     try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/verify-reset-token/${token}`);
+      // ... rest of your reset token code
+    } catch (error) {
+      // ...
+    }
+    return; // Exit after handling reset token
+  }
+  
+  // Normal auth check (only runs if no reset token in URL)
+  if (!authToken) {
+    setScreen('login');
+    return;
+  }
+  
+  try {
       const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
@@ -91,7 +79,6 @@ useEffect(() => {
   };
   
   checkAuth();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
 
@@ -782,7 +769,8 @@ socket.on('host:teamJoined', (data) => {
 };
     
   const continueToFirstQuestion = () => {
-    setSelectedQuestionIndex(0);  // FIXED: Reset to 0
+    window.scrollTo(0, 0);
+    setSelectedQuestionIndex(0);
     setGame(prev => ({ ...prev, currentQuestionIndex: 0 }));
     setScreen('questionDisplay');
   };
@@ -955,6 +943,7 @@ if (teamsWithoutAnswers.length > 0) {
   };
 
   const revealFinalQuestion = () => {
+   window.scrollTo(0, 0);
     socket.emit('host:revealFinalQuestion', { 
       gameCode,
       question: finalQuestion.question,
@@ -964,6 +953,7 @@ if (teamsWithoutAnswers.length > 0) {
   };
 
   const endGame = () => {
+    window.scrollTo(0, 0);
     socket.emit('host:endGame', { gameCode });
     setScreen('endGame');
   };
@@ -1339,7 +1329,7 @@ if (teamsWithoutAnswers.length > 0) {
     <div className="header">
       <div className="logo">
         <img 
-          src="https://quizzler.pro/img/quizzler_logo.png" 
+          src="https://quizzlertrivia.com/img/quizzler_logo.png" 
           alt="Quizzler Logo" 
           className="logo-icon"
           style={{ height: '30px', width: 'auto' }}
