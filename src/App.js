@@ -2560,7 +2560,7 @@ if (teamsWithoutAnswers.length > 0) {
           <div className="header">
             <div className="logo">
               <img 
-                src="https://quizzler.pro/img/quizzler_logo.png" 
+                src="https://quizzlertrivia.com/img/quizzler_logo.png" 
                 alt="Quizzler Logo" 
                 className="logo-icon"
                 style={{ height: '30px', width: 'auto' }}
