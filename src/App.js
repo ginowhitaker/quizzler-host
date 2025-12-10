@@ -543,14 +543,15 @@ socket.on('host:teamJoined', (data) => {
       
       // Place visual question at index 7
       if (visualQuestion) {
-        newQuestions[7] = {
-          category: visualQuestion.category || '',
-          text: visualQuestion.text || '',
-          answer: visualQuestion.answer || '',
-          type: 'visual',
-          imageUrl: visualQuestion.imageUrl || ''
-        };
-      }
+  newQuestions[7] = {
+    category: visualQuestion.category || '',
+    text: visualQuestion.text || '',
+    answer: visualQuestion.answer || '',
+    type: 'visual',
+    imageUrl: visualQuestion.imageUrl || '',
+    answers: visualQuestion.answers || ['', '', '', '', '', '']
+  };
+}
       
       // Place Q8-Q15 in indices 8-15 (remaining regular questions)
       for (let i = 7; i < regularQuestions.length && i < 15; i++) {
