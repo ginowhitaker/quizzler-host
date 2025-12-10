@@ -482,7 +482,32 @@ socket.on('host:teamJoined', (data) => {
       if (!response.ok) throw new Error('Failed to fetch template');
       
       const data = await response.json();
-      setSelectedTemplate(data.template);
+const template = data.template;
+
+// Parse questions if it's a CSV string
+if (template.questions && typeof template.questions === 'string') {
+  const lines = template.questions.split('\n').filter(line => line.trim());
+  const parsedQuestions = [];
+  
+  // Skip header row
+  for (let i = 1; i < lines.length; i++) {
+    const match = lines[i].match(/^"([^"]*(?:""[^"]*)*)","([^"]*(?:""[^"]*)*)","?([^",]*)"?,"?([^",]*)"?,"?([^",]*)"?,"?([^"]*)"?$/);
+    if (match) {
+      parsedQuestions.push({
+        text: match[1].replace(/""/g, '"'),
+        answer: match[2].replace(/""/g, '"'),
+        category: match[3],
+        difficulty: match[4],
+        type: match[5] || 'regular',
+        imageUrl: match[6] || ''
+      });
+    }
+  }
+  template.questions = parsedQuestions;
+}
+
+setSelectedTemplate(template);
+
       setShowPreviewModal(true);
     } catch (error) {
       console.error('Error fetching template:', error);
