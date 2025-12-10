@@ -2462,6 +2462,7 @@ if (teamsWithoutAnswers.length > 0) {
                           <div style={{ marginBottom: '5px' }}>
   <strong>Question:</strong> {q.text || '—'}
 </div>
+{console.log('Rendering question:', q.type, 'has answers?', !!q.answers, 'answers:', q.answers)}
 <div>
   <strong>Answer:</strong> {
     q.type === 'visual' && q.answers 
