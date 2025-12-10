@@ -2253,7 +2253,7 @@ if (teamsWithoutAnswers.length > 0) {
   console.log('questions array length:', questions.length);
   console.log('finalQuestion:', finalQuestion);
   
-  const validQuestions = questions.filter(q => q.text && q.answer);
+  const validQuestions = questions.filter(q => q.text && (q.answer || (q.type === 'visual' && q.answers?.length > 0)));
   if (validQuestions.length < 15) {
     alert('Please fill in all 15 questions and answers');
     return;
