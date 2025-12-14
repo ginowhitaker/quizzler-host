@@ -2027,7 +2027,7 @@ if (teamsWithoutAnswers.length > 0) {
                           color: '#286586',
                           fontSize: '14px'
                         }}>
-                          {q.type === 'visual' ? <><Camera size={16} className="inline mr-1" /> VISUAL ROUND</> : q.type === 'final' ? <><Trophy size={16} className="inline mr-1" /> FINAL QUESTION</>}
+                         {q.type === 'visual' ? <><Camera size={16} className="inline mr-1" /> VISUAL ROUND</> : q.type === 'final' ? <><Trophy size={16} className="inline mr-1" /> FINAL QUESTION</> : `Q${idx + 1}`}
                         </div>
                         <div style={{ 
                           background: '#E3F2FD',
