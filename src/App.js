@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import Papa from 'papaparse';
+import { Camera, Trophy, Timer, BarChart3, Star, Eye } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://quizzler-production.up.railway.app';
 
@@ -600,7 +601,7 @@ setSelectedTemplate(template);
         });
       }
       
-      alert(`✅ ${data.questionCount} questions imported! You can review and edit them.`);
+      alert(`${data.questionCount} questions imported! You can review and edit them.`);
       setQuestionsAccordionOpen(false); // Accordion closed by default
       setScreen('welcome');
     } catch (error) {
@@ -2026,7 +2027,7 @@ if (teamsWithoutAnswers.length > 0) {
                           color: '#286586',
                           fontSize: '14px'
                         }}>
-                          {q.type === 'visual' ? '📷 VISUAL ROUND' : q.type === 'final' ? '🏆 FINAL QUESTION' : `Q${idx + 1}`}
+                          {q.type === 'visual' ? <><Camera size={16} className="inline mr-1" /> VISUAL ROUND</> : q.type === 'final' ? <><Trophy size={16} className="inline mr-1" /> FINAL QUESTION</>}
                         </div>
                         <div style={{ 
                           background: '#E3F2FD',
@@ -2121,7 +2122,7 @@ if (teamsWithoutAnswers.length > 0) {
     {hostName} | {venueName} | {gameCode}
     {timerActive && (
       <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-        ⏱️ {formatTimer()}
+        <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
       </span>
     )}
   </div>
@@ -2364,7 +2365,7 @@ if (teamsWithoutAnswers.length > 0) {
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
                 </span>
               )}
             </div>
@@ -2483,7 +2484,7 @@ if (teamsWithoutAnswers.length > 0) {
                           border: idx === 7 ? '2px solid #FFB300' : '1px solid #ddd'
                         }}>
                           <div style={{ fontWeight: 'bold', color: '#286586', marginBottom: '8px' }}>
-                            {idx === 7 ? '📷 VISUAL ROUND' : `Question ${idx < 7 ? idx + 1 : idx}`}
+                            {idx === 7 ? '<><Camera size={16} className="inline mr-1" /> VISUAL ROUND</> VISUAL ROUND' : `Question ${idx < 7 ? idx + 1 : idx}`}
                           </div>
                           <div style={{ marginBottom: '5px' }}>
   <strong>Question:</strong> {q.text || '—'}
@@ -2512,7 +2513,7 @@ if (teamsWithoutAnswers.length > 0) {
                         border: '2px solid #F44336'
                       }}>
                         <div style={{ fontWeight: 'bold', color: '#286586', marginBottom: '8px' }}>
-                          🏆 FINAL QUESTION
+                          <><Trophy size={16} className="inline mr-1" /> FINAL QUESTION</> FINAL QUESTION
                         </div>
                         <div style={{ marginBottom: '5px' }}>
                           <strong>Category:</strong> {finalQuestion.category || '—'}
@@ -2541,7 +2542,7 @@ if (teamsWithoutAnswers.length > 0) {
                         cursor: 'pointer'
                       }}
                     >
-                      ✏️ Edit Questions
+                      Edit Questions
                     </button>
                   </div>
                 )}
@@ -2597,7 +2598,7 @@ if (teamsWithoutAnswers.length > 0) {
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
                 </span>
               )}
             </div>
@@ -2642,7 +2643,7 @@ if (teamsWithoutAnswers.length > 0) {
     background: '#32ADE6'
   }}
 >
-  📊 SHOW STANDINGS TO TEAMS
+  <><BarChart3 size={18} className="inline mr-1" /> SHOW STANDINGS TO TEAMS</> SHOW STANDINGS TO TEAMS
 </button>
             </div>
             <div className="right-panel">
@@ -2691,7 +2692,7 @@ if (teamsWithoutAnswers.length > 0) {
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
                 </span>
               )}
             </div>
@@ -2740,7 +2741,7 @@ if (teamsWithoutAnswers.length > 0) {
                       borderRadius: '5px'
                     }}>
                       <span>
-                       {player.playerName || `Player ${idx + 1}`} {player.isCaptain ? '⭐ Captain' : '👁️ Viewer'}
+                       {player.playerName || `Player ${idx + 1}`} {player.isCaptain ? '<><Star size={14} className="inline mr-1" /> Captain</> Captain' : '<><Eye size={14} className="inline mr-1" /> Viewer</> Viewer'}
                       </span>
                       <button
                         onClick={() => {
@@ -2911,7 +2912,7 @@ return (
                   background: '#32ADE6'
                 }}
               >
-                📊 SHOW STANDINGS TO TEAMS
+                <><BarChart3 size={18} className="inline mr-1" /> SHOW STANDINGS TO TEAMS</> SHOW STANDINGS TO TEAMS
               </button>
             </div>
             <div className="right-panel">
@@ -2960,7 +2961,7 @@ return (
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
                 </span>
               )}
             </div>
@@ -3025,7 +3026,7 @@ return (
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
                 </span>
               )}
             </div>
@@ -3113,7 +3114,7 @@ return (
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  ⏱️ {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
                 </span>
               )}
             </div>
