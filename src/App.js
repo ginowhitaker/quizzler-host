@@ -1963,7 +1963,7 @@ if (teamsWithoutAnswers.length > 0) {
                   boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
                 }}
               >
-                🛠️ Start Building
+                Start Building
               </button>
             </div>
           </div>
