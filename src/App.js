@@ -1930,42 +1930,64 @@ if (teamsWithoutAnswers.length > 0) {
               </div>
             )}
             
-            {/* BUILD YOUR OWN Section */}
-            <div style={{ 
-              textAlign: 'center', 
-              marginTop: '60px',
-              padding: '40px',
-              background: '#F5F5F5',
-              borderRadius: '15px',
-              border: '2px dashed #286586'
-            }}>
-              <div style={{ fontSize: '24px', marginBottom: '15px' }}>— or —</div>
-              <h2 style={{ color: '#286586', fontSize: '28px', margin: '0 0 15px 0' }}>
-                BUILD YOUR OWN
-              </h2>
-              <p style={{ color: '#666', fontSize: '16px', marginBottom: '25px' }}>
-                Create a custom trivia game from scratch
-              </p>
-              <button
-                onClick={() => {
-                  setQuestionsAccordionOpen(true); // Open accordion for manual entry
-                  setScreen('questions');
-                }}
-                style={{
-                  padding: '15px 40px',
-                  background: '#286586',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '10px',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-                }}
-              >
-                Start Building
-              </button>
-            </div>
+            {/* BUILD YOUR OWN Section - Regular Host and Pro Host only */}
+{(currentUser?.tier === 'Regular Host' || currentUser?.tier === 'Pro Host') ? (
+  <div style={{ 
+    textAlign: 'center', 
+    marginTop: '60px',
+    padding: '40px',
+    background: '#F5F5F5',
+    borderRadius: '15px',
+    border: '2px dashed #286586'
+  }}>
+    <div style={{ fontSize: '24px', marginBottom: '15px' }}>— or —</div>
+    <h2 style={{ color: '#286586', fontSize: '28px', margin: '0 0 15px 0' }}>
+      BUILD YOUR OWN
+    </h2>
+    <p style={{ color: '#666', fontSize: '16px', marginBottom: '25px' }}>
+      Create a custom trivia game from scratch
+    </p>
+    <button
+      onClick={() => {
+        setQuestionsAccordionOpen(true);
+        setScreen('questions');
+      }}
+      style={{
+        padding: '15px 40px',
+        background: '#286586',
+        color: 'white',
+        border: 'none',
+        borderRadius: '10px',
+        fontSize: '18px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+      }}
+    >
+      Start Building
+    </button>
+  </div>
+) : (
+  <div style={{ 
+    textAlign: 'center', 
+    marginTop: '60px',
+    padding: '40px',
+    background: '#F5F5F5',
+    borderRadius: '15px',
+    border: '2px dashed #CCC'
+  }}>
+    <div style={{ fontSize: '24px', marginBottom: '15px', color: '#999' }}>— or —</div>
+    <h2 style={{ color: '#999', fontSize: '28px', margin: '0 0 15px 0' }}>
+      BUILD YOUR OWN
+    </h2>
+    <p style={{ color: '#999', fontSize: '16px', marginBottom: '15px' }}>
+      Create custom trivia games from scratch
+    </p>
+    <p style={{ color: '#f97316', fontSize: '14px', fontWeight: 'bold' }}>
+      🔒 Available for Regular Host and Pro Host subscribers
+    </p>
+  </div>
+)}
           </div>
           
           {/* Preview Modal */}
