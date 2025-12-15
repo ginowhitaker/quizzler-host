@@ -1044,40 +1044,6 @@ if (teamsWithoutAnswers.length > 0) {
   return { scored, total };
 };
 
-// Logout footer component
-const LogoutFooter = () => {
-  if (!currentUser) return null;
-  
-  return (
-    <div style={{
-      position: 'fixed',
-      bottom: '15px',
-      left: '15px',
-      zIndex: 1000
-    }}>
-      <button
-        onClick={handleLogout}
-        style={{
-          background: 'transparent',
-          border: 'none',
-          color: '#999',
-          fontSize: '14px',
-          cursor: 'pointer',
-          textDecoration: 'underline'
-        }}
-        onMouseEnter={(e) => e.target.style.color = '#286586'}
-        onMouseLeave={(e) => e.target.style.color = '#999'}
-      >
-        Log Out
-      </button>
-    </div>
-  );
-};
-
-  return (
-
-
-
   const getSortedTeams = () => {
     if (!game?.teams) return [];
     return Object.values(game.teams).sort((a, b) => b.score - a.score);
