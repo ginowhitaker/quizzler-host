@@ -34,6 +34,34 @@ export default function QuizzlerHostApp() {
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [questionsAccordionOpen, setQuestionsAccordionOpen] = useState(false);
 
+// Logout footer component
+const LogoutFooter = () => {
+  if (!currentUser) return null;
+  
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: '15px',
+      left: '15px',
+      zIndex: 1000
+    }}>
+      <button
+        onClick={handleLogout}
+        style={{
+          background: 'transparent',
+          border: 'none',
+          color: '#666',
+          fontSize: '14px',
+          cursor: 'pointer',
+          textDecoration: 'underline'
+        }}
+      >
+        Log Out
+      </button>
+    </div>
+  );
+};
+
 // Check authentication and reset token on load
 useEffect(() => {
 const checkAuth = async () => {
@@ -1016,6 +1044,40 @@ if (teamsWithoutAnswers.length > 0) {
   return { scored, total };
 };
 
+// Logout footer component
+const LogoutFooter = () => {
+  if (!currentUser) return null;
+  
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: '15px',
+      left: '15px',
+      zIndex: 1000
+    }}>
+      <button
+        onClick={handleLogout}
+        style={{
+          background: 'transparent',
+          border: 'none',
+          color: '#999',
+          fontSize: '14px',
+          cursor: 'pointer',
+          textDecoration: 'underline'
+        }}
+        onMouseEnter={(e) => e.target.style.color = '#286586'}
+        onMouseLeave={(e) => e.target.style.color = '#999'}
+      >
+        Log Out
+      </button>
+    </div>
+  );
+};
+
+  return (
+
+
+
   const getSortedTeams = () => {
     if (!game?.teams) return [];
     return Object.values(game.teams).sort((a, b) => b.score - a.score);
@@ -1023,6 +1085,7 @@ if (teamsWithoutAnswers.length > 0) {
 
   return (
     <div className="quizzler-host">
+          <LogoutFooter />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Paytone+One&family=Gabarito:wght@400;500;600;700&display=swap');
         
@@ -1932,8 +1995,6 @@ if (teamsWithoutAnswers.length > 0) {
             )}
             
             {/* BUILD YOUR OWN Section - Regular Host and Pro Host only */}
-{/* DEBUG - remove later */}
-<p style={{color: 'red'}}>Debug: Tier = "{currentUser?.tier}"</p>
 {(currentUser?.tier === 'Regular Host' || currentUser?.tier === 'Pro Host') ? (
   <div style={{ 
     textAlign: 'center', 
