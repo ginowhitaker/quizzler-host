@@ -657,6 +657,7 @@ setSelectedTemplate(template);
       localStorage.setItem('authToken', data.token);
       setAuthToken(data.token);
       setCurrentUser(data.host);
+      console.log('Current user tier:', data.host.tier);
       setIsAuthenticated(true);
       setScreen('start');
       return true;
@@ -1931,6 +1932,9 @@ if (teamsWithoutAnswers.length > 0) {
             )}
             
             {/* BUILD YOUR OWN Section - Regular Host and Pro Host only */}
+{/* DEBUG - remove later */}
+<p style={{color: 'red'}}>Debug: Tier = "{currentUser?.tier}"</p>
+{(currentUser?.tier === 'Regular Host' || currentUser?.tier === 'Pro Host') ? (
 {(currentUser?.tier === 'Regular Host' || currentUser?.tier === 'Pro Host') ? (
   <div style={{ 
     textAlign: 'center', 
@@ -1964,6 +1968,9 @@ if (teamsWithoutAnswers.length > 0) {
         boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
       }}
     >
+    
+    
+    
       Start Building
     </button>
   </div>
