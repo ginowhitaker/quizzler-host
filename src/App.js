@@ -1935,7 +1935,6 @@ if (teamsWithoutAnswers.length > 0) {
 {/* DEBUG - remove later */}
 <p style={{color: 'red'}}>Debug: Tier = "{currentUser?.tier}"</p>
 {(currentUser?.tier === 'Regular Host' || currentUser?.tier === 'Pro Host') ? (
-{(currentUser?.tier === 'Regular Host' || currentUser?.tier === 'Pro Host') ? (
   <div style={{ 
     textAlign: 'center', 
     marginTop: '60px',
