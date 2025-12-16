@@ -29,6 +29,7 @@ export default function QuizzlerHostApp() {
   
   // Game Library State
   const [gameTemplates, setGameTemplates] = useState([]);
+  const [customGames, setCustomGames] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
@@ -482,10 +483,10 @@ socket.on('host:teamJoined', (data) => {
     }
   };
   
-  // Game Library Functions
-  const fetchGameTemplates = async () => {
+const fetchGameTemplates = async () => {
     setLoadingTemplates(true);
     try {
+      // Fetch official templates
       const response = await fetch(`${BACKEND_URL}/api/templates`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
@@ -494,6 +495,16 @@ socket.on('host:teamJoined', (data) => {
       
       const data = await response.json();
       setGameTemplates(data.templates);
+
+      // Also fetch custom games
+      const customResponse = await fetch(`${BACKEND_URL}/api/host/custom-games`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      
+      if (customResponse.ok) {
+        const customData = await customResponse.json();
+        setCustomGames(customData.games || []);
+      }
     } catch (error) {
       console.error('Error fetching templates:', error);
       alert('Failed to load game library');
@@ -636,9 +647,69 @@ setSelectedTemplate(template);
       console.error('Error importing template:', error);
       alert('Failed to import template');
     }
+cd ~/Documents/trivia-game/frontend-host
+sed -n '620,680p' src/App.js
+      
+      // Place Q8-Q15 in indices 8-15 (remaining regular questions)
+      for (let i = 7; i < regularQuestions.length && i < 15; i++) {
+        newQuestions[i + 1] = {
+          category: regularQuestions[i].category || '',
+          text: regularQuestions[i].text || '',
+          answer: regularQuestions[i].answer || '',
+          type: 'regular',
+          imageUrl: regularQuestions[i].imageUrl || ''
+        };
+      }
+      
+      setQuestions(newQuestions);
+      
+      // Set final question
+      if (finalQ) {
+        setFinalQuestion({
+          category: finalQ.category || '',
+          question: finalQ.text || '',
+          answer: finalQ.answer || ''
+        });
+      }
+      
+      alert(`${data.questionCount} questions imported! You can review and edit them.`);
+      setQuestionsAccordionOpen(false); // Accordion closed by default
+      setScreen('welcome');
+    } catch (error) {
+      console.error('Error importing template:', error);
+      alert('Failed to import template');
+    }
   };
   
   // Authentication functions
+  const handleSignup = async (email, password, name) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        alert(data.error || 'Signup failed');
+        return false;
+      }
+      
+      localStorage.setItem('authToken', data.token);
+      setAuthToken(data.token);
+      setCurrentUser(data.host);
+      setIsAuthenticated(true);
+      setScreen('start');
+      return true;
+    } catch (error) {
+      console.error('Signup error:', error);
+      alert('Signup failed');
+      return false;
+    }
+  };
+
   const handleSignup = async (email, password, name) => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
@@ -1959,7 +2030,76 @@ if (teamsWithoutAnswers.length > 0) {
                 ))}
               </div>
             )}
-            
+{/* My Custom Games Section */}
+              {customGames.length > 0 && (
+                <div style={{ marginTop: '50px' }}>
+                  <h2 style={{ color: '#f97316', fontSize: '28px', marginBottom: '20px', textAlign: 'center' }}>
+                    My Custom Games
+                  </h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '25px' }}>
+                    {customGames.map(game => (
+                      <div 
+                        key={`custom-${game.id}`} 
+                        style={{ 
+                          background: 'white', 
+                          borderRadius: '15px', 
+                          padding: '25px', 
+                          boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                          border: '2px solid #f97316',
+                          transition: 'transform 0.2s, box-shadow 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-5px)';
+                          e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+                        }}
+                      >
+                        <div style={{ marginBottom: '15px' }}>
+                          <span style={{ 
+                            background: '#FFF3E0',
+                            color: '#f97316',
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                          }}>
+                            CUSTOM
+                          </span>
+                          <h3 style={{ color: '#286586', fontSize: '22px', margin: '10px 0 8px 0' }}>
+                            {game.title}
+                          </h3>
+                          {game.description && (
+                            <p style={{ color: '#666', fontSize: '14px', margin: '0 0 12px 0', lineHeight: '1.5' }}>
+                              {game.description}
+                            </p>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button
+                            onClick={() => importCustomGame(game.id)}
+                            style={{
+                              flex: 1,
+                              padding: '12px',
+                              background: '#f97316',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '8px',
+                              fontSize: '16px',
+                              fontWeight: 'bold',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Use This Game
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             {/* BUILD YOUR OWN Section - Regular Host and Pro Host only */}
 {(currentUser?.tier === 'Regular Host' || currentUser?.tier === 'Pro Host') ? (
   <div style={{ 
