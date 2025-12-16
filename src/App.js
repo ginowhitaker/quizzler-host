@@ -647,69 +647,64 @@ setSelectedTemplate(template);
       console.error('Error importing template:', error);
       alert('Failed to import template');
     }
-cd ~/Documents/trivia-game/frontend-host
-sed -n '620,680p' src/App.js
-      
-      // Place Q8-Q15 in indices 8-15 (remaining regular questions)
-      for (let i = 7; i < regularQuestions.length && i < 15; i++) {
-        newQuestions[i + 1] = {
-          category: regularQuestions[i].category || '',
-          text: regularQuestions[i].text || '',
-          answer: regularQuestions[i].answer || '',
-          type: 'regular',
-          imageUrl: regularQuestions[i].imageUrl || ''
-        };
-      }
-      
-      setQuestions(newQuestions);
-      
-      // Set final question
-      if (finalQ) {
-        setFinalQuestion({
-          category: finalQ.category || '',
-          question: finalQ.text || '',
-          answer: finalQ.answer || ''
-        });
-      }
-      
-      alert(`${data.questionCount} questions imported! You can review and edit them.`);
-      setQuestionsAccordionOpen(false); // Accordion closed by default
-      setScreen('welcome');
-    } catch (error) {
-      console.error('Error importing template:', error);
-      alert('Failed to import template');
-    }
-  };
+};
   
-  // Authentication functions
-  const handleSignup = async (email, password, name) => {
+  const importCustomGame = async (gameId) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name })
+      const response = await fetch(`${BACKEND_URL}/api/host/custom-games/${gameId}`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
       });
       
-      const data = await response.json();
+      if (!response.ok) throw new Error('Failed to fetch custom game');
       
-      if (!response.ok) {
-        alert(data.error || 'Signup failed');
-        return false;
+      const data = await response.json();
+      const game = data.game;
+      
+      // Parse questions if needed
+      let questions = game.questions;
+      if (typeof questions === 'string') {
+        questions = JSON.parse(questions);
       }
       
-      localStorage.setItem('authToken', data.token);
-      setAuthToken(data.token);
-      setCurrentUser(data.host);
-      setIsAuthenticated(true);
-      setScreen('start');
-      return true;
+      // Create 16-slot array for all questions before final
+      const newQuestions = Array.from({ length: 16 }, () => ({
+        category: '',
+        text: '',
+        answer: '',
+        type: 'regular',
+        imageUrl: ''
+      }));
+      
+      const finalQ = { category: '', question: '', answer: '' };
+      
+      questions.forEach((q, idx) => {
+        if (q.type === 'final') {
+          finalQ.category = q.category || '';
+          finalQ.question = q.text || '';
+          finalQ.answer = q.answer || '';
+        } else if (idx < 16) {
+          newQuestions[idx] = {
+            category: q.category || '',
+            text: q.text || '',
+            answer: q.answer || '',
+            type: q.type || 'regular',
+            imageUrl: q.imageUrl || ''
+          };
+        }
+      });
+      
+      setQuestions(newQuestions);
+      setFinalQuestion(finalQ);
+      setQuestionsAccordionOpen(false);
+      setScreen('welcome');
+      alert(`✅ Loaded "${game.title}"! You can review and edit the questions.`);
     } catch (error) {
-      console.error('Signup error:', error);
-      alert('Signup failed');
-      return false;
+      console.error('Error importing custom game:', error);
+      alert('Failed to load custom game');
     }
   };
 
+  // Authentication functions
   const handleSignup = async (email, password, name) => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/signup`, {
