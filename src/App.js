@@ -11,6 +11,8 @@ export default function QuizzlerHostApp() {
   
   const [hostName, setHostName] = useState('');
   const [venueName, setVenueName] = useState('');
+  const [hostVenues, setHostVenues] = useState([]);
+  const [showOtherVenue, setShowOtherVenue] = useState(false);
   const [venueSpecials, setVenueSpecials] = useState('');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -96,7 +98,8 @@ const checkAuth = async () => {
         const data = await response.json();
         setCurrentUser(data.host);
         setIsAuthenticated(true);
-        setScreen('start'); // Go to start screen instead of staying on login
+        setScreen('start');
+        fetchHostVenues();
       } else {
         localStorage.removeItem('authToken');
         setAuthToken(null);
@@ -483,6 +486,20 @@ socket.on('host:teamJoined', (data) => {
     }
   };
   
+const fetchHostVenues = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/host/venues`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setHostVenues(data.venues || []);
+      }
+    } catch (error) {
+      console.error('Error fetching venues:', error);
+    }
+  };  
+  
 const fetchGameTemplates = async () => {
     setLoadingTemplates(true);
     try {
@@ -725,6 +742,7 @@ setSelectedTemplate(template);
       setCurrentUser(data.host);
       setIsAuthenticated(true);
       setScreen('start');
+      fetchHostVenues();
       return true;
     } catch (error) {
       console.error('Signup error:', error);
@@ -754,6 +772,7 @@ setSelectedTemplate(template);
       console.log('Current user tier:', data.host.tier);
       setIsAuthenticated(true);
       setScreen('start');
+      fetchHostVenues();
       return true;
     } catch (error) {
       console.error('Login error:', error);
@@ -1829,12 +1848,60 @@ if (teamsWithoutAnswers.length > 0) {
               value={hostName}
               onChange={(e) => setHostName(e.target.value)}
             />
-              <input 
-              className="input-field" 
-              placeholder="Venue Name"
-              value={venueName}
-              onChange={(e) => setVenueName(e.target.value)}
-            />
+               {hostVenues.length > 0 && !showOtherVenue ? (
+              <select
+                className="input-field"
+                value={venueName}
+                onChange={(e) => {
+                  if (e.target.value === '__other__') {
+                    setShowOtherVenue(true);
+                    setVenueName('');
+                  } else {
+                    setVenueName(e.target.value);
+                    // Auto-fill specials if venue has them
+                    const selectedVenue = hostVenues.find(v => v.name === e.target.value);
+                    if (selectedVenue?.notes) {
+                      setVenueSpecials(selectedVenue.notes);
+                    }
+                  }
+                }}
+                style={{ padding: '15px' }}
+              >
+                <option value="">Select Venue</option>
+                {hostVenues.map(venue => (
+                  <option key={venue.id} value={venue.name}>{venue.name}</option>
+                ))}
+                <option value="__other__">+ Other / New Venue</option>
+              </select>
+            ) : (
+              <div>
+                <input 
+                  className="input-field" 
+                  placeholder="Venue Name"
+                  value={venueName}
+                  onChange={(e) => setVenueName(e.target.value)}
+                />
+                {hostVenues.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowOtherVenue(false);
+                      setVenueName('');
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#286586',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      marginTop: '5px'
+                    }}
+                  >
+                    ← Back to saved venues
+                  </button>
+                )}
+              </div>
+            )}
             <textarea 
               className="input-field" 
               placeholder="Venue Specials (optional)"
