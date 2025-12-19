@@ -488,7 +488,7 @@ socket.on('host:teamJoined', (data) => {
   
 const fetchHostVenues = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/host/venues`, {
+      const response = await fetch(`${BACKEND_URL}/api/venues`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       if (response.ok) {
