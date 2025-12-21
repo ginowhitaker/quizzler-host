@@ -295,7 +295,7 @@ socket.on('host:teamJoined', (data) => {
   });
 });
 
-    socket.on('host:answerReceived', ({ teamName, questionKey, answerText, confidence }) => {
+    socket.on('host:answerReceived', ({ teamName, questionKey, answer, confidence }) => {
       console.log('Answer received:', teamName, questionKey);
       setGame(prev => ({
         ...prev,
@@ -306,7 +306,7 @@ socket.on('host:teamJoined', (data) => {
             answers: {
               ...prev.teams[teamName]?.answers,
               [questionKey]: {
-                text: answerText,
+                text: answer,
                 confidence,
                 marked: false,
                 correct: false
