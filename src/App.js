@@ -3138,9 +3138,11 @@ const nextIndex = selectedQuestionIndex + 1;
 const upcomingQuestion = questions[nextIndex];
 const nextQuestionNum = upcomingQuestion?.type === 'visual' 
   ? 'VISUAL ROUND' 
-  : nextIndex < 7 
-    ? nextIndex + 1 
-    : nextIndex;
+  : upcomingQuestion?.type === 'final'
+    ? 'FINAL QUESTION'
+    : nextIndex < 7 
+      ? nextIndex + 1 
+      : nextIndex;
 
 return (
   <button 
