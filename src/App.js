@@ -2900,7 +2900,7 @@ if (teamsWithoutAnswers.length > 0) {
     background: '#32ADE6'
   }}
 >
-  <><BarChart3 size={18} className="inline mr-1" /> SHOW STANDINGS TO TEAMS</> SHOW STANDINGS TO TEAMS
+  <><BarChart3 size={18} className="inline mr-1" /> SHOW STANDINGS TO TEAMS</>
 </button>
             </div>
             <div className="right-panel">
@@ -3171,7 +3171,7 @@ return (
                   background: '#32ADE6'
                 }}
               >
-                <><BarChart3 size={18} className="inline mr-1" /> SHOW STANDINGS TO TEAMS</> SHOW STANDINGS TO TEAMS
+                <><BarChart3 size={18} className="inline mr-1" /> SHOW STANDINGS TO TEAMS</>
               </button>
             </div>
             <div className="right-panel">
