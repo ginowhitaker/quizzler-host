@@ -44,8 +44,8 @@ const LogoutFooter = () => {
   return (
     <div style={{
       position: 'fixed',
-      bottom: '15px',
-      left: '15px',
+      top: '60px',
+      right: '50px',
       zIndex: 1000
     }}>
       <button
