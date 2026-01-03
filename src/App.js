@@ -2998,7 +2998,8 @@ if (teamsWithoutAnswers.length > 0) {
                       borderRadius: '5px'
                     }}>
                       <span>
-                       {player.playerName || `Player ${idx + 1}`} {player.isCaptain ? '<><Star size={14} className="inline mr-1" /> Captain</> Captain' : '<><Eye size={14} className="inline mr-1" /> Viewer</> Viewer'}
+                       {player.playerName || `Player ${idx + 1}`} {player.isCaptain ? <><Star size={14} className="inline mr-1" /> Captain</> : <><Eye size={14} className="inline mr-1" /> Viewer</>}
+
                       </span>
                       <button
                         onClick={() => {
