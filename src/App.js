@@ -2379,7 +2379,7 @@ if (teamsWithoutAnswers.length > 0) {
     {hostName} | {venueName} | {gameCode}
     {timerActive && (
       <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-        <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
+        <><Timer size={18} className="inline mr-1" /> {formatTimer()}</>
       </span>
     )}
   </div>
@@ -2622,7 +2622,7 @@ if (teamsWithoutAnswers.length > 0) {
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> 
                 </span>
               )}
             </div>
@@ -2855,7 +2855,7 @@ if (teamsWithoutAnswers.length > 0) {
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> 
                 </span>
               )}
             </div>
@@ -2949,7 +2949,7 @@ if (teamsWithoutAnswers.length > 0) {
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> 
                 </span>
               )}
             </div>
@@ -3221,7 +3221,7 @@ return (
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> 
                 </span>
               )}
             </div>
@@ -3286,7 +3286,7 @@ return (
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> 
                 </span>
               )}
             </div>
@@ -3374,7 +3374,7 @@ return (
               {hostName} | {venueName} | {gameCode}
               {timerActive && (
                 <span style={{ marginLeft: '20px', color: timeRemaining <= 30 ? '#FF6600' : 'inherit' }}>
-                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> {formatTimer()}
+                  <><Timer size={18} className="inline mr-1" /> {formatTimer()}</> 
                 </span>
               )}
             </div>
