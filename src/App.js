@@ -135,7 +135,7 @@ const checkAuth = async () => {
   const [timerDuration, setTimerDuration] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
-  // eslint-disable-next-line no-unused-vars
+  const [resultsPushed, setResultsPushed] = useState(false);
   const [resumeGameCode, setResumeGameCode] = useState('');
 
     useEffect(() => {
@@ -932,6 +932,19 @@ setSelectedTemplate(template);
   const toggleCorrectness = (teamName, questionKey) => {
     socket.emit('host:toggleCorrectness', { gameCode, teamName, questionKey });
   };
+  
+  const pushResults = () => {
+    const questionKey = questions[selectedQuestionIndex]?.type === 'visual' 
+      ? 'visual' 
+      : questions[selectedQuestionIndex]?.type === 'final'
+        ? 'final'
+        : selectedQuestionIndex < 7 
+          ? `q${selectedQuestionIndex + 1}` 
+          : `q${selectedQuestionIndex}`;
+    
+    socket.emit('host:pushResults', { gameCode, questionKey });
+    setResultsPushed(true);
+  };
 
   const viewTeamHistory = (teamName) => {
     const team = game.teams[teamName];
@@ -1038,6 +1051,7 @@ setSelectedTemplate(template);
   };
 
   const nextQuestion = () => {
+    setResultsPushed(false);
   // VALIDATION: Check if all answers are scored before advancing
   const { scored, total } = getScoringProgress();
   
@@ -3146,22 +3160,39 @@ const nextQuestionNum = upcomingQuestion?.type === 'visual'
       : nextIndex;
 
 return (
-  <button 
-                    className="continue-button"
-                    onClick={nextQuestion}
-                    disabled={!allScored}
-                    style={{
-                      opacity: allScored ? 1 : 0.5,
-                      cursor: allScored ? 'pointer' : 'not-allowed'
-                    }}
-                  >
-                    {!allScored 
-                      ? `Scored ${scored} of ${total} teams - Score remaining to continue` 
-                      : typeof nextQuestionNum === 'string' 
- 					  ? `ON TO ${nextQuestionNum}` 
-                      : `ON TO QUESTION ${nextQuestionNum}`}
-                  </button>
-                );
+  <>
+    <button 
+      className="submit-button"
+      onClick={pushResults}
+      disabled={!allScored || resultsPushed}
+      style={{
+        opacity: (allScored && !resultsPushed) ? 1 : 0.5,
+        cursor: (allScored && !resultsPushed) ? 'pointer' : 'not-allowed',
+        marginBottom: '10px',
+        background: resultsPushed ? '#4CAF50' : '#f97316'
+      }}
+    >
+      {!allScored 
+        ? `Scored ${scored} of ${total} teams - Score all to continue`
+        : resultsPushed 
+          ? 'RESULTS PUSHED ✓' 
+          : 'PUSH RESULTS TO TEAMS'}
+    </button>
+    <button 
+      className="continue-button"
+      onClick={nextQuestion}
+      disabled={!allScored || !resultsPushed}
+      style={{
+        opacity: (allScored && resultsPushed) ? 1 : 0.5,
+        cursor: (allScored && resultsPushed) ? 'pointer' : 'not-allowed'
+      }}
+    >
+      {typeof nextQuestionNum === 'string' 
+        ? `ON TO ${nextQuestionNum}` 
+        : `ON TO QUESTION ${nextQuestionNum}`}
+    </button>
+  </>
+);
               })()}
               
               <button 
